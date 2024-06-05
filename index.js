@@ -5,6 +5,7 @@ require('dotenv').config();
 const express = require('express');
 const { google } = require('googleapis');
 const path = require('path');
+const mongoose = require('mongoose');
 
 // Initialize Express app
 const app = express();
@@ -15,6 +16,18 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.SECRET_ID,
   process.env.REDIRECT
 );
+
+// Connect to MongoDB
+const dbURI = "mongodb+srv://" + process.env.DB_USER + ":" + process.env.DB_PASS + "@calcluster.luczgwc.mongodb.net/?retryWrites=true&w=majority&appName=calCluster";
+
+mongoose.connect(dbURI).then(() => {
+    console.log("Connected to DB");
+    
+    // Start the Express server
+    app.listen(3000, () => console.log('Server running at 3000'));
+}).catch(() => {
+    console.log("Can't connect to DB");
+})
 
 // Set the view engine to ejs
 app.set('view engine', 'ejs');
@@ -100,6 +113,3 @@ app.get('/events', (req, res) => {
     res.json(events);
   });
 });
-
-// Start the Express server
-app.listen(3000, () => console.log('Server running at 3000'));
