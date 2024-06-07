@@ -7,8 +7,14 @@ const { google } = require('googleapis');
 const path = require('path');
 const mongoose = require('mongoose');
 
+const Email = require('./src/public/model/email.js');
+
 // Initialize Express app
 const app = express();
+
+// Middleware to parse JSON bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Set up Google OAuth2 client with credentials from environment variables
 const oauth2Client = new google.auth.OAuth2(
@@ -22,7 +28,7 @@ const dbURI = "mongodb+srv://" + process.env.DB_USER + ":" + process.env.DB_PASS
 
 mongoose.connect(dbURI).then(() => {
     console.log("Connected to DB");
-    
+
     // Start the Express server
     app.listen(3000, () => console.log('Server running at 3000'));
 }).catch(() => {
@@ -37,6 +43,24 @@ app.use(express.static(__dirname + '/src/public'));
 app.get('/', (req, res) => {
     res.render('index.ejs');
 })
+
+app.get('/register', (req, res) => {
+    res.render('register.ejs');
+});
+
+// Route to handle email submission
+app.post('/register-account', async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const newEmail = new Email({ email });
+        await newEmail.save();
+        res.status(200).send('Email submitted successfully');
+    } catch (error) {
+        console.error('Error saving email:', error);
+        res.status(500).send('Failed to submit email');
+    }
+});
 
 // Route to initiate Google OAuth2 flow
 app.get('/login', (req, res) => {
