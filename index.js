@@ -24,7 +24,7 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 // Connect to MongoDB
-const dbURI = "mongodb+srv://" + process.env.DB_USER + ":" + process.env.DB_PASS + "@calcluster.luczgwc.mongodb.net/?retryWrites=true&w=majority&appName=calCluster";
+const dbURI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@calcluster.luczgwc.mongodb.net/?retryWrites=true&w=majority&appName=calCluster`;
 
 mongoose.connect(dbURI).then(() => {
     console.log("Connected to DB");
@@ -33,33 +33,15 @@ mongoose.connect(dbURI).then(() => {
     app.listen(3000, () => console.log('Server running at 3000'));
 }).catch(() => {
     console.log("Can't connect to DB");
-})
+});
 
 // Set the view engine to ejs
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/public/views'));
-app.use(express.static(__dirname + '/src/public'));
+app.use(express.static(path.join(__dirname, 'src/public')));
 
 app.get('/', (req, res) => {
     res.render('index.ejs');
-})
-
-app.get('/register', (req, res) => {
-    res.render('register.ejs');
-});
-
-// Route to handle email submission
-app.post('/register-account', async (req, res) => {
-    const { email } = req.body;
-
-    try {
-        const newEmail = new Email({ email });
-        await newEmail.save();
-        res.status(200).send('Email submitted successfully');
-    } catch (error) {
-        console.error('Error saving email:', error);
-        res.status(500).send('Failed to submit email');
-    }
 });
 
 // Route to initiate Google OAuth2 flow
@@ -67,18 +49,18 @@ app.get('/login', (req, res) => {
   // Generate the Google authentication URL
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline', // Request offline access to receive a refresh token
-    scope: 'https://www.googleapis.com/auth/calendar.readonly' // Scope for read-only access to the calendar
+    scope: ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/userinfo.email'] 
   });
   // Redirect the user to Google's OAuth 2.0 server
   res.redirect(url);
 });
 
 // Route to handle the OAuth2 callback
-app.get('/redirect', (req, res) => {
+app.get('/redirect', async (req, res) => {
   // Extract the code from the query parameter
   const code = req.query.code;
   // Exchange the code for tokens
-  oauth2Client.getToken(code, (err, tokens) => {
+  oauth2Client.getToken(code, async (err, tokens) => {
     if (err) {
       // Handle error if token exchange fails
       console.error('Couldn\'t get token', err);
@@ -87,8 +69,32 @@ app.get('/redirect', (req, res) => {
     }
     // Set the credentials for the Google API client
     oauth2Client.setCredentials(tokens);
-    // Notify the user of a successful login
-    res.send('Successfully logged in');
+
+    // Get the user's email
+    const oauth2 = google.oauth2({ auth: oauth2Client, version: 'v2' });
+    oauth2.userinfo.get(async (err, response) => {
+      if (err) {
+        console.error('Error fetching user info', err);
+        res.send('Error');
+        return;
+      }
+
+      const email = response.data.email;
+      if (!email) {
+        res.status(500).send('Email not found');
+        return;
+      }
+
+      // Check if the email already exists in the database
+      const existingEmail = await Email.findOne({ email });
+      if (!existingEmail) {
+        // Save the email to the database
+        const newEmail = new Email({ email });
+        await newEmail.save();
+      }
+      
+      res.send('Successfully logged in and email registered');
+    });
   });
 });
 
