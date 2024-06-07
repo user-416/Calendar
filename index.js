@@ -1,22 +1,17 @@
-// Load environment variables from a .env file
+// Environment variables
 require('dotenv').config();
 
-// Import required modules
 const express = require('express');
 const { google } = require('googleapis');
 const path = require('path');
 const mongoose = require('mongoose');
 
+// DB Schema
 const Email = require('./src/public/model/email.js');
 
-// Initialize Express app
 const app = express();
 
-// Middleware to parse JSON bodies
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Set up Google OAuth2 client with credentials from environment variables
+// Set up Google OAuth2 client
 const oauth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
   process.env.SECRET_ID,
@@ -35,20 +30,23 @@ mongoose.connect(dbURI).then(() => {
     console.log("Can't connect to DB");
 });
 
-// Set the view engine to ejs
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/public/views'));
 app.use(express.static(path.join(__dirname, 'src/public')));
 
+// Landing page
 app.get('/', (req, res) => {
     res.render('index.ejs');
 });
 
 // Route to initiate Google OAuth2 flow
 app.get('/login', (req, res) => {
-  // Generate the Google authentication URL
+  // Google authentication URL
   const url = oauth2Client.generateAuthUrl({
-    access_type: 'offline', // Request offline access to receive a refresh token
+    access_type: 'offline', 
     scope: ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/userinfo.email'] 
   });
   // Redirect the user to Google's OAuth 2.0 server
@@ -62,12 +60,11 @@ app.get('/redirect', async (req, res) => {
   // Exchange the code for tokens
   oauth2Client.getToken(code, async (err, tokens) => {
     if (err) {
-      // Handle error if token exchange fails
       console.error('Couldn\'t get token', err);
       res.send('Error');
       return;
     }
-    // Set the credentials for the Google API client
+    
     oauth2Client.setCredentials(tokens);
 
     // Get the user's email
@@ -93,7 +90,7 @@ app.get('/redirect', async (req, res) => {
         await newEmail.save();
       }
       
-      res.send('Successfully logged in and email registered');
+      res.send('Successfully logged in');
     });
   });
 });
@@ -105,7 +102,6 @@ app.get('/calendars', (req, res) => {
   // List all calendars
   calendar.calendarList.list({}, (err, response) => {
     if (err) {
-      // Handle error if the API request fails
       console.error('Error fetching calendars', err);
       res.end('Error!');
       return;
@@ -132,7 +128,6 @@ app.get('/events', (req, res) => {
     orderBy: 'startTime'
   }, (err, response) => {
     if (err) {
-      // Handle error if the API request fails
       console.error('Can\'t fetch events');
       res.send('Error');
       return;
