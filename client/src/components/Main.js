@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import axios from 'axios';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { Link } from 'react-router-dom';
@@ -7,6 +8,8 @@ import './Main.css';
 const Main = () => {
     const [selectedDates, setSelectedDates] = useState([]);
     const [eventName, setEventName] = useState('');
+    const [startTime, setStartTime] = useState('0900');
+    const [endTime, setEndTime] = useState('1700'); 
 
     const onDateChange = (date) => {
         const dateString = date.toDateString();
@@ -23,9 +26,18 @@ const Main = () => {
         return selectedDates.some(d => d.toDateString() === date.toDateString()) ? 'selected' : null;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(eventName);
+        try {
+            const response = await axios.post('http://localhost:3000/api/create', {
+                name: eventName,
+                dates: selectedDates,
+                startTime: startTime,
+                endTime: endTime,
+            })
+        } catch (err) {
+            console.log('Error creating event', err);
+        }
     }
 
     return (

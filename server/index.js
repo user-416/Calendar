@@ -7,6 +7,7 @@ const cors = require('cors');
 
 // DB Schema
 const Email = require('./src/model/email.js');
+const Meeting = require('./src/model/meeting.js')
 
 const app = express();
 app.use(cors()); // Enable CORS for all routes
@@ -78,6 +79,38 @@ app.get('/redirect', async (req, res) => {
       res.redirect('http://localhost:3001/');
     });
   });
+});
+
+// API route for creating an event
+app.post('/api/create', async (req, res) => {
+  const {name, dates, startTime, endTime} = req.body;
+  if (!name || !dates || !startTime || !endTime) {
+    return res.status(400).send('Missing required fields');
+  }
+  try {
+    // Generate random id
+    const uid = Date.now().toString(36) + Math.random().toString(36).substring(2);
+    const meeting = new Meeting({ uid, name, dates, startTime, endTime, people: [] });
+    await meeting.save();
+    // res.status(201).send(event);
+    res.redirect('http://localhost:3001/' + uid);
+  } catch (err) {
+    res.status(500).send('Error creating event');
+  }
+});
+
+// API route for checking if an event exists
+app.get('/api/events/:id', async (req, res) => {
+  try {
+    const meeting = await Meeting.findById(req.params.id);
+    if (meeting) {
+      res.status(200).json(meeting);
+    } else {
+      res.status(404).json({ message: 'Meeting not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
 });
 
 // Route to list all calendars
