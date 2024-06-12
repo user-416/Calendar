@@ -90,7 +90,7 @@ app.post('/api/create', async (req, res) => {
   try {
     // Generate random id
     const uid = Date.now().toString(36) + Math.random().toString(36).substring(2);
-    const meeting = new Meeting({ uid, name, dates, startTime, endTime, people: [] });
+    const meeting = new Meeting({ id: uid, name: name, dates: dates, startTime: startTime, endTime: endTime, people: [] });
     await meeting.save();
     // res.status(201).send(event);
     res.redirect('http://localhost:3001/' + uid);
@@ -102,7 +102,8 @@ app.post('/api/create', async (req, res) => {
 // API route for checking if an event exists
 app.get('/api/events/:id', async (req, res) => {
   try {
-    const meeting = await Meeting.findById(req.params.id);
+    const meeting = await Meeting.findOne({ id: req.params.id });
+    console.log(meeting);
     if (meeting) {
       res.status(200).json(meeting);
     } else {
