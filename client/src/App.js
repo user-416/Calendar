@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Main from './components/Main';
 import Meet from './components/Meet';
-import Login from './components/Login';
 import Calendars from './components/Calendars';
 import Events from './components/Events';
 
@@ -11,7 +10,6 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Main />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/calendars" element={<Calendars />} />
         <Route path="/:id" element={<Meet />} />
         <Route path="/events/:calendarId" element={<Events />} />

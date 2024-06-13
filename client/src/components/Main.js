@@ -60,9 +60,6 @@ const Main = () => {
                     <button type="submit">Connect</button>
                 </form>
             </div>
-
-            {/* <p>Please log in to access your calendars and events.</p> */}
-            {/* <Link to="/login">Login</Link> */}
         </div>
     </div>
     );
