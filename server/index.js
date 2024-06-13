@@ -35,9 +35,11 @@ mongoose.connect(dbURI).then(() => {
 
 // Route to initiate Google OAuth2 flow
 app.get('/login', (req, res) => {
+  const {id} = req.query;
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline', 
-    scope: ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/userinfo.email'] 
+    scope: ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/userinfo.email'],
+    state: id 
   });
   res.json({ url });
 });
@@ -45,6 +47,7 @@ app.get('/login', (req, res) => {
 // Route to handle the OAuth2 callback
 app.get('/redirect', async (req, res) => {
   const code = req.query.code;
+  const id = req.query.state;
   oauth2Client.getToken(code, async (err, tokens) => {
     if (err) {
       console.error('Couldn\'t get token', err);
@@ -68,15 +71,25 @@ app.get('/redirect', async (req, res) => {
         return;
       }
 
-      const existingEmail = await Email.findOne({ email });
-      if (!existingEmail) {
-        const newEmail = new Email({ email });
-        await newEmail.save();
+      // Add user to the database
+      // Future - add calendar too
+      try {
+        const meeting = await Meeting.findOne({ id: id });
+        if (meeting) {
+          if (!meeting.people.includes(email)) {
+            meeting.people.push(email);
+            await meeting.save();
+          }
+          console.log(`Added ${email} to meeting ${id}`);
+        } else {
+          console.error('Meeting not found');
+        }
+      } catch (err) {
+        console.error('Error updating meeting', err);
       }
 
-      // res.json({ message: 'Successfully logged in', email });
       console.log("Successfully logged in with " + email);
-      res.redirect('http://localhost:3001/');
+      res.redirect(`http://localhost:3001/${id}`);
     });
   });
 });
@@ -102,7 +115,6 @@ app.post('/api/create', async (req, res) => {
 app.get('/api/events/:id', async (req, res) => {
   try {
     const meeting = await Meeting.findOne({ id: req.params.id });
-    console.log(meeting);
     if (meeting) {
       res.status(200).json(meeting);
     } else {

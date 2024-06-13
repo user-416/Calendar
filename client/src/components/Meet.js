@@ -10,10 +10,19 @@ const Meet = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const getAuthUrl = async () => {
+        try {
+          const response = await axios.get(`http://localhost:3000/login?id=${id}`);
+          window.location.href = response.data.url;
+        } catch (error) {
+          console.error('Error fetching auth URL', error);
+        }
+      };
+
     useEffect(() => {
         const fetchEvent = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/api/events/` + id);
+                const response = await axios.get(`http://localhost:3000/api/events/${id}`);
                 setEvent(response.data);
                 setLoading(false);
             } catch (err) {
@@ -38,7 +47,7 @@ const Meet = () => {
     <div>
         <div className="title">CalConnect</div>
         <div className="container">
-            <Link to="/login" className="add-calendar-button">Add Calendar</Link>
+            <button type="button" onClick={getAuthUrl}>Add Calendar</button>
         </div>
     </div>
     );
