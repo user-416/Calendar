@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import axios from 'axios';
 import Calendar from 'react-calendar';
+import { useNavigate } from 'react-router-dom';
 import 'react-calendar/dist/Calendar.css';
-import { Link } from 'react-router-dom';
 import './Main.css';
 
 const Main = () => {
@@ -10,6 +10,8 @@ const Main = () => {
     const [eventName, setEventName] = useState('');
     const [startTime, setStartTime] = useState('0900');
     const [endTime, setEndTime] = useState('1700'); 
+
+    const navigate = useNavigate();
 
     const onDateChange = (date) => {
         const dateString = date.toDateString();
@@ -35,6 +37,8 @@ const Main = () => {
                 startTime: startTime,
                 endTime: endTime,
             })
+
+            navigate(response.data);
         } catch (err) {
             console.log('Error creating event', err);
         }
@@ -42,12 +46,12 @@ const Main = () => {
 
     return (
     <div>
-        <div class="title">CalConnect</div>
-        <div class="container">
-            <div class="calendar-container">
+        <div className="title">CalConnect</div>
+        <div className="container">
+            <div className="calendar-container">
                 <Calendar onClickDay={onDateChange} tileClassName={tileClassName}/>
             </div>
-            <div class="form-container">
+            <div className="form-container">
                 <form onSubmit={handleSubmit}>
                     <input
                     type="text"

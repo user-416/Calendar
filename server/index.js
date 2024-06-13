@@ -89,11 +89,10 @@ app.post('/api/create', async (req, res) => {
   }
   try {
     // Generate random id
-    const uid = Date.now().toString(36) + Math.random().toString(36).substring(2);
+    const uid = Date.now().toString(36) + '-' + Math.random().toString(36).substring(2);
     const meeting = new Meeting({ id: uid, name: name, dates: dates, startTime: startTime, endTime: endTime, people: [] });
     await meeting.save();
-    // res.status(201).send(event);
-    res.redirect('http://localhost:3001/' + uid);
+    res.status(201).send(`/${uid}`);
   } catch (err) {
     res.status(500).send('Error creating event');
   }

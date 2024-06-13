@@ -19,7 +19,7 @@ const Meet = () => {
             } catch (err) {
                 setLoading(false);
                 setError('Event not found');
-                navigate('/'); // Replace with 404
+                navigate('/404'); // Replace with 404
             }
         };
     
@@ -36,10 +36,9 @@ const Meet = () => {
 
     return (
     <div>
-        <div class="title">CalConnect</div>
-        <div class="container">
-            <p>Please log in to access your calendars and events.</p>
-            <Link to="/login">Login</Link>
+        <div className="title">CalConnect</div>
+        <div className="container">
+            <Link to="/login" className="add-calendar-button">Add Calendar</Link>
         </div>
     </div>
     );
