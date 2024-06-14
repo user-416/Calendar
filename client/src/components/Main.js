@@ -11,6 +11,9 @@ const Main = () => {
     const [startTime, setStartTime] = useState('0900');
     const [endTime, setEndTime] = useState('1700'); 
 
+    const [isAMStart, setIsAMStart] = useState(true);
+    const [isAMEnd, setIsAMEnd] = useState(true);
+
     const navigate = useNavigate();
 
     const onDateChange = (date) => {
@@ -54,10 +57,27 @@ const Main = () => {
             <div className="form-container">
                 <form onSubmit={handleSubmit}>
                     <input
-                    type="text"
-                    onChange={(e) => setEventName(e.target.value)}
-                    required/>
-                    <button type="submit">Connect</button>
+                        className="event-input"
+                        type="text"
+                        placeholder="Enter Event Name: "
+                        value={eventName}
+                        onFocus={(e) => e.target.placeholder = ''}
+                        onBlur={(e) => e.target.placeholder = "Enter Event Name: "}
+                        onChange={(e) => setEventName(e.target.value)}
+                        required
+                    />
+
+                    <div className = "time-inputs">
+                        <input type="text" defaultValue="9:00" className="time-field" onChange={(e) => setStartTime(e.target.value)}/>
+                        <button onClick={() => setIsAMStart(true)} className={`toggle-button ${isAMStart ? 'active' : ''}`}>AM</button>
+                        <button onClick={() => setIsAMStart(false)} className={`toggle-button ${!isAMStart ? 'active' : ''}`}>PM</button>
+
+                        <div id="dash"></div>
+                        <input type="text" defaultValue="5:00" className="time-field" onChange={(e) => setEndTime(e.target.value)}/>
+                        <button onClick={() => setIsAMEnd(true)} className={`toggle-button ${isAMEnd ? 'active' : ''}`}>AM</button>
+                        <button onClick={() => setIsAMEnd(false)} className={`toggle-button ${!isAMEnd ? 'active' : ''}`}>PM</button>
+                    </div>
+                    <button id="connect-button" type="submit">Connect</button>
                 </form>
             </div>
         </div>
@@ -66,3 +86,4 @@ const Main = () => {
 };
 
 export default Main;
+
