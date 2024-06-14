@@ -26,7 +26,7 @@ body {
     text-align: left; 
     flex-direction: column;
     align-items: center; 
-    justify-content: center; 
+    justify-content: flex-start;
     height: 50vh; 
     text-align: center;    
 }
@@ -81,3 +81,90 @@ body {
     color: white;
 }
   
+
+/*RIGHT SIDE*/
+
+
+.form-container input{
+    background-color: #f4f4f4;
+    border: none;
+}
+.event-input {
+    width: 50%; 
+    font-size: 18px;
+    margin-bottom: 55px; 
+    padding: 12px 20px;
+    border-radius: 30px;
+    text-align: center;
+}
+
+
+.time-inputs {
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    width: 70%; 
+    border: none;
+    margin: auto;
+
+}
+
+.time-field {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    width: 20%; 
+    border: none;
+    font-size: 16px;
+    margin-right: 1%;
+}
+#dash{
+    margin: 0 5%;
+    width: 15px; 
+    height: 2px; 
+    background-color: black; 
+    align-self: center; 
+}
+.toggle-button {
+    padding: 8px 10px;
+    font-size: 16px;
+    margin: 0 2px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    color: #333;
+    cursor: pointer;
+    outline: none;
+    width: 20%; 
+    border: none;
+}
+
+.toggle-button.active {
+    padding: 8px 10px;
+    font-size: 16px;
+    background-color: #173386;
+    color: white;
+    border-color: #173386;
+}
+
+.toggle-button:focus {
+    outline: none;
+}
+
+
+#connect-button {
+    background-color: #173386; 
+    color: white;
+    border: none;
+    padding: 15px 30px; 
+    border-radius: 30px; 
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 22px; 
+    margin-top: 70px;
+    width: 300px; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25); 
+    transition: background-color 0.3s;
+}
+
+#connect-button:hover {
+    background-color: #0a5498; 
+}
