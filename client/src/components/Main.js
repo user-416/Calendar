@@ -69,13 +69,13 @@ const Main = () => {
 
                     <div className = "time-inputs">
                         <input type="text" defaultValue="9:00" className="time-field" onChange={(e) => setStartTime(e.target.value)}/>
-                        <button onClick={() => setIsAMStart(true)} className={`toggle-button ${isAMStart ? 'active' : ''}`}>AM</button>
-                        <button onClick={() => setIsAMStart(false)} className={`toggle-button ${!isAMStart ? 'active' : ''}`}>PM</button>
+                        <button type="button" onClick={() => setIsAMStart(true)} className={`toggle-button ${isAMStart ? 'active' : ''}`}>AM</button>
+                        <button type="button" onClick={() => setIsAMStart(false)} className={`toggle-button ${!isAMStart ? 'active' : ''}`}>PM</button>
 
                         <div id="dash"></div>
                         <input type="text" defaultValue="5:00" className="time-field" onChange={(e) => setEndTime(e.target.value)}/>
-                        <button onClick={() => setIsAMEnd(true)} className={`toggle-button ${isAMEnd ? 'active' : ''}`}>AM</button>
-                        <button onClick={() => setIsAMEnd(false)} className={`toggle-button ${!isAMEnd ? 'active' : ''}`}>PM</button>
+                        <button type="button" onClick={() => setIsAMEnd(true)} className={`toggle-button ${isAMEnd ? 'active' : ''}`}>AM</button>
+                        <button type="button" onClick={() => setIsAMEnd(false)} className={`toggle-button ${!isAMEnd ? 'active' : ''}`}>PM</button>
                     </div>
                     <button id="connect-button" type="submit">Connect</button>
                 </form>
