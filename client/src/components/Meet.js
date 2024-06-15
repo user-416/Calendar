@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import './Main.css';
-
+import './Meet.css';
 const Meet = () => {
     const {id} = useParams();
     const navigate = useNavigate();
@@ -18,6 +17,7 @@ const Meet = () => {
           console.error('Error fetching auth URL', error);
         }
       };
+    
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -45,9 +45,22 @@ const Meet = () => {
 
     return (
     <div>
-        <div className="title">CalConnect</div>
-        <div className="container">
-            <button type="button" onClick={getAuthUrl}>Add Calendar</button>
+        <div className="top-container">
+            <div className="link-box">
+                <div className="link-text">{window.location.href}</div> 
+                <button className="copy-button" onClick={() => navigator.clipboard.writeText(window.location.href)}>
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8c-1.1 0-1.99.9-1.99 2L6 21c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                        </svg>
+                </button>
+            </div>
+            <button className="add-calendar-button" type="button" onClick={getAuthUrl}>
+                <svg viewBox="0 0 24 24" className="plus-icon">
+                    <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+                </svg>
+                Add Calendar
+            </button>
+            
         </div>
     </div>
     );
