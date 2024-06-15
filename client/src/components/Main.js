@@ -49,7 +49,6 @@ const Main = () => {
 
     return (
     <div>
-        <div className="title">CalConnect</div>
         <div className="container">
             <div className="calendar-container">
                 <Calendar onClickDay={onDateChange} tileClassName={tileClassName}/>
