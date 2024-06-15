@@ -4,10 +4,11 @@ import Main from './components/Main';
 import Meet from './components/Meet';
 import Calendars from './components/Calendars';
 import Events from './components/Events';
-
+import Navbar from './components/Navbar';
 const App = () => {
   return (
     <Router>
+      <Navbar />
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/calendars" element={<Calendars />} />
