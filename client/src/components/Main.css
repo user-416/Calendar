@@ -4,7 +4,7 @@ body {
     overflow: hidden;
 }
 
-.title {
+.navbar-title {
     font-family: 'Glacial Indifference', sans-serif;
     font-size: 70px;
     font-weight: bold;
