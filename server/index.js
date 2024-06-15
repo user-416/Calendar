@@ -6,7 +6,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 // DB Schema
-const Email = require('./src/model/email.js');
 const Meeting = require('./src/model/meeting.js')
 
 const app = express();
