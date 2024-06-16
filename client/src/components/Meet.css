@@ -5,10 +5,11 @@
     align-items: center; 
     justify-content: space-between; 
     padding: 8px;
+    position: relative; /*for link message child*/
 }
 
 .link-box{
-    position: relative;
+    position: relative; /*for copy button child*/
     width: 32%;
     margin-top: 30px;
     border: 1px solid #173386;
@@ -34,13 +35,27 @@
     cursor: pointer; 
 }
 
+.copy-button:hover {
+    transform: scale(1.04); 
+    transition: background-color 0.3s, transform 0.3s; 
+}
+
+#copy-message {
+    display: none; /* Hidden by default */
+    color: black;
+    margin-top: 10px;
+    font-size: 15px;
+    position: absolute;
+    top: 70px;
+}
+
 /*add calendar button*/
 .add-calendar-button{
     display: flex;
     align-items: center;
     justify-content: center;
     width: 15%; 
-    margin-top: 30px;
+    margin-top: 40px;
     padding: 8px 10px; 
     border: 1px solid #173386; 
     background-color: white;
@@ -62,4 +77,13 @@
     fill: white;
     background-color: #006edc;
     border-radius: 5px;
+}
+
+/*Loading message & Error message*/
+#loading-message, #error-message{
+    position: absolute;
+    top: 180px; 
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 25px;
 }

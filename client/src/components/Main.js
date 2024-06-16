@@ -1,84 +1,87 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
-import './Meet.css';
-const Meet = () => {
-    const {id} = useParams();
-    const navigate = useNavigate();
-    const [event, setEvent] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+import Calendar from 'react-calendar';
+import { useNavigate } from 'react-router-dom';
+import 'react-calendar/dist/Calendar.css';
+import './Main.css';
 
-    const getAuthUrl = async () => {
-        try {
-          const response = await axios.get(`http://localhost:3000/login?id=${id}`);
-          window.location.href = response.data.url;
-        } catch (error) {
-          console.error('Error fetching auth URL', error);
-        }
-      };
-    
-    const copyLink = () => {/*copy link, display message for 3 secs*/
-        var copyText = document.querySelector('.link-text');
-        
-        navigator.clipboard.writeText(copyText.value).then(function() {
-            var message = document.getElementById("copy-message");
-            message.style.display = "block";
-            
-            setTimeout(function() {
-                message.style.display = "none";
-            }, 3000);
-        }).catch(function(error) {
-            console.error('Error copying text: ', error);
+const Main = () => {
+    const [selectedDates, setSelectedDates] = useState([]);
+    const [eventName, setEventName] = useState('');
+    const [startTime, setStartTime] = useState('0900');
+    const [endTime, setEndTime] = useState('1700'); 
+
+    const [isAMStart, setIsAMStart] = useState(true);
+    const [isAMEnd, setIsAMEnd] = useState(true);
+
+    const navigate = useNavigate();
+
+    const onDateChange = (date) => {
+        const dateString = date.toDateString();
+        setSelectedDates(prevDates => {
+            if (prevDates.some(d => d.toDateString() === dateString)) {
+                return prevDates.filter(d => d.toDateString() !== dateString);
+            } else {
+                return [...prevDates, date];
+            }
         });
     };
 
-    useEffect(() => {
-        const fetchEvent = async () => {
-            try {
-                const response = await axios.get(`http://localhost:3000/api/events/${id}`);
-                setEvent(response.data);
-                setLoading(false);
-            } catch (err) {
-                setLoading(false);
-                setError('Event not found');
-                navigate('/404'); // Replace with 404
-            }
-        };
-    
-        fetchEvent();
-    }, [id, navigate]);
-    
-    if (loading) {
-        return <div id="loading-message">Loading...</div>;
-    }
-    
-    if (error) {
-        return <div id="error-message">{error}</div>;
+    const tileClassName = ({ date }) => {
+        return selectedDates.some(d => d.toDateString() === date.toDateString()) ? 'selected' : null;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:3000/api/create', {
+                name: eventName,
+                dates: selectedDates,
+                startTime: startTime,
+                endTime: endTime,
+            })
+
+            navigate(response.data);
+        } catch (err) {
+            console.log('Error creating event', err);
+        }
     }
 
     return (
     <div>
-        <div className="top-container">
-            <div className="link-box">
-                <div className="link-text">{window.location.href}</div> 
-                <button className="copy-button" onClick={copyLink}>
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8c-1.1 0-1.99.9-1.99 2L6 21c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                        </svg>
-                </button>
+        <div className="container">
+            <div className="calendar-container">
+                <Calendar onClickDay={onDateChange} tileClassName={tileClassName}/>
             </div>
-            <div id="copy-message">Link copied!</div>
-            <button className="add-calendar-button" type="button" onClick={getAuthUrl}>
-                <svg viewBox="0 0 24 24" className="plus-icon">
-                    <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
-                </svg>
-                Add Calendar
-            </button>
-            
+            <div className="form-container">
+                <form onSubmit={handleSubmit}>
+                    <input
+                        className="event-input"
+                        type="text"
+                        placeholder="Enter Event Name: "
+                        value={eventName}
+                        onFocus={(e) => e.target.placeholder = ''}
+                        onBlur={(e) => e.target.placeholder = "Enter Event Name: "}
+                        onChange={(e) => setEventName(e.target.value)}
+                        required
+                    />
+
+                    <div className = "time-inputs">
+                        <input type="text" defaultValue="9:00" className="time-field" onChange={(e) => setStartTime(e.target.value)}/>
+                        <button type="button" onClick={() => setIsAMStart(true)} className={`toggle-button ${isAMStart ? 'active' : ''}`}>AM</button>
+                        <button type="button" onClick={() => setIsAMStart(false)} className={`toggle-button ${!isAMStart ? 'active' : ''}`}>PM</button>
+
+                        <div id="dash"></div>
+                        <input type="text" defaultValue="5:00" className="time-field" onChange={(e) => setEndTime(e.target.value)}/>
+                        <button type="button" onClick={() => setIsAMEnd(true)} className={`toggle-button ${isAMEnd ? 'active' : ''}`}>AM</button>
+                        <button type="button" onClick={() => setIsAMEnd(false)} className={`toggle-button ${!isAMEnd ? 'active' : ''}`}>PM</button>
+                    </div>
+                    <button id="connect-button" type="submit">Connect</button>
+                </form>
+            </div>
         </div>
     </div>
     );
 };
 
-export default Meet;
+export default Main;
