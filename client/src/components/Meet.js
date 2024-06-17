@@ -16,12 +16,14 @@ const Meet = () => {
         } catch (error) {
           console.error('Error fetching auth URL', error);
         }
-      };
+    };
+
+    
 
     const copyLink = () => {/*copy link, display message for 3 secs*/
         var copyText = document.querySelector('.link-text');
 
-        navigator.clipboard.writeText(copyText.value).then(function() {
+        navigator.clipboard.writeText(copyText.innerText).then(function() {
             var message = document.getElementById("copy-message");
             message.style.display = "block";
 
