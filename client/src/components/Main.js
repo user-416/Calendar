@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
-import React, { useState } from 'react';
 import axios from 'axios';
 import Calendar from 'react-calendar';
 import { useNavigate } from 'react-router-dom';
 import 'react-calendar/dist/Calendar.css';
 import './Main.css';
-import TimeUtil from '../utils/TimeUtil';
-
+import TimeUtil from '../utils/TimeUtil.js'
 const Main = () => {
     const [selectedDates, setSelectedDates] = useState([]);
     const [eventName, setEventName] = useState('');
     const [startTime, setStartTime] = useState('9:00');
     const [endTime, setEndTime] = useState('5:00');
-    const [startTime, setStartTime] = useState('9:00');
-    const [endTime, setEndTime] = useState('5:00');
 
     const [isAMStart, setIsAMStart] = useState(true);
-    const [isAMEnd, setIsAMEnd] = useState(false);
     const [isAMEnd, setIsAMEnd] = useState(false);
 
     const navigate = useNavigate();
@@ -52,6 +47,7 @@ const Main = () => {
         }
     };
 
+
     return (
         <div>
             <div className="container">
@@ -70,23 +66,6 @@ const Main = () => {
                             onChange={(e) => setEventName(e.target.value)}
                             required
                         />
-        <div>
-            <div className="container">
-                <div className="calendar-container">
-                    <Calendar onClickDay={onDateChange} tileClassName={tileClassName} />
-                </div>
-                <div className="form-container">
-                    <form onSubmit={handleSubmit}>
-                        <input
-                            className="event-input"
-                            type="text"
-                            placeholder="Enter Event Name: "
-                            value={eventName}
-                            onFocus={(e) => e.target.placeholder = ''}
-                            onBlur={(e) => e.target.placeholder = "Enter Event Name: "}
-                            onChange={(e) => setEventName(e.target.value)}
-                            required
-                        />
 
                         <div className="time-inputs">
                             <input
@@ -97,32 +76,7 @@ const Main = () => {
                             />
                             <button type="button" onClick={() => setIsAMStart(true)} className={`toggle-button ${isAMStart ? 'active' : ''}`}>AM</button>
                             <button type="button" onClick={() => setIsAMStart(false)} className={`toggle-button ${!isAMStart ? 'active' : ''}`}>PM</button>
-                        <div className="time-inputs">
-                            <input
-                                type="text"
-                                value={startTime}
-                                className="time-field"
-                                onChange={(e) => setStartTime(e.target.value)}
-                            />
-                            <button type="button" onClick={() => setIsAMStart(true)} className={`toggle-button ${isAMStart ? 'active' : ''}`}>AM</button>
-                            <button type="button" onClick={() => setIsAMStart(false)} className={`toggle-button ${!isAMStart ? 'active' : ''}`}>PM</button>
 
-                            <div id="dash"></div>
-
-                            <input
-                                type="text"
-                                value={endTime}
-                                className="time-field"
-                                onChange={(e) => setEndTime(e.target.value)}
-                            />
-                            <button type="button" onClick={() => setIsAMEnd(true)} className={`toggle-button ${isAMEnd ? 'active' : ''}`}>AM</button>
-                            <button type="button" onClick={() => setIsAMEnd(false)} className={`toggle-button ${!isAMEnd ? 'active' : ''}`}>PM</button>
-                        </div>
-                        <button id="connect-button" type="submit">Connect</button>
-                    </form>
-                </div>
-            </div>
-        </div>
                             <div id="dash"></div>
 
                             <input
