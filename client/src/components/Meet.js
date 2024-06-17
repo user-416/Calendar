@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import './Meet.css';
+import Grid from './Grid.js';
 const Meet = () => {
     const {id} = useParams();
     const navigate = useNavigate();
@@ -21,7 +22,7 @@ const Meet = () => {
     const copyLink = () => {/*copy link, display message for 3 secs*/
         var copyText = document.querySelector('.link-text');
 
-        navigator.clipboard.writeText(copyText.value).then(function() {
+        navigator.clipboard.writeText(copyText.innerText).then(function() {
             var message = document.getElementById("copy-message");
             message.style.display = "block";
 
@@ -75,7 +76,12 @@ const Meet = () => {
                 </svg>
                 Add Calendar
             </button>
-
+        </div>
+        <div className="event-name">
+            {event.name}
+        </div>
+        <div className="grid-container">
+            {event && <Grid event={event} />}
         </div>
     </div>
     );

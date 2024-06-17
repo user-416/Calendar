@@ -1,3 +1,8 @@
+body{
+    height: 100vh;
+    overflow-y: auto;
+
+}
 /*link and add calender button*/
 .top-container {
     display: flex;
@@ -86,4 +91,17 @@
     left: 50%;
     transform: translateX(-50%);
     font-size: 25px;
+}
+
+
+/*event name*/
+.event-name{
+    font-size: 40px;
+    margin-top: 30px;
+}
+.grid-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
 }

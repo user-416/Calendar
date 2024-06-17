@@ -1,0 +1,47 @@
+/* Wrapper for the hourly labels, date labels, and the main grid (not named container bc already used in Meet.css) */
+.grid-wrapper {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 100px;
+    margin-right: 40px;
+}
+
+.hourly-labels {
+    margin-top: 44px;
+    display: flex;
+    flex-direction: column;
+    padding-right: 10px;  
+}
+
+.hourly-label {
+    height: 120px;  /*row height * 60*/
+    text-align: right;
+}
+
+.grid {
+    display: flex;
+    flex-direction: column;
+}
+
+.date-labels {
+    display: flex;
+}
+
+.date-label {
+    flex: 1;
+    text-align: center;
+    border-bottom: 2px solid black; 
+    padding: 5px;
+}
+
+.grid-row {
+    display: flex;
+    height:  2px;  
+}
+
+.grid-cell {
+    flex: 1;
+    min-width: 80px;
+    border-right: 2px solid black;  /* Vertical lines between cells */
+    background-color: gray;
+}
