@@ -23,6 +23,7 @@ const Meet = () => {
         var copyText = document.querySelector('.link-text');
 
         navigator.clipboard.writeText(copyText.innerText).then(function() {
+        navigator.clipboard.writeText(copyText.innerText).then(function() {
             var message = document.getElementById("copy-message");
             message.style.display = "block";
 
