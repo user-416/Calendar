@@ -59,7 +59,7 @@ body {
 }
 
 .react-calendar__tile--active {
-    background: #006edc;
+    background-color: #006edc;
     color: white;
 }
 
@@ -76,11 +76,23 @@ body {
     color: inherit;
 }
 
+.selected:hover {
+    color: black !important;
+    background-color: #dcdee0 !important;
+}
 .selected {
-    background-color: #006edc;
-    color: white;
+    background-color: #006edc !important;
+    color: white !important;
 }
 
+
+.unselected:hover{
+    background-color: rgba(64, 158, 255, .5) !important; 
+}
+.unselected{
+    background-color: white !important;  
+    color: black !important;
+}
 
 /*RIGHT SIDE*/
 

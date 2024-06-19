@@ -28,7 +28,7 @@ const Main = () => {
     };
 
     const tileClassName = ({ date }) => {
-        return selectedDates.some(d => d.toDateString() === date.toDateString()) ? 'selected' : null;
+        return selectedDates.some(d => d.toDateString() === date.toDateString()) ? 'selected' : 'unselected';
     };
 
     const handleSubmit = async (e) => {
