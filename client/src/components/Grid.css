@@ -3,24 +3,26 @@
 .component-container{
     font-family: 'Glacial Indifference', sans-serif;
 }
+
 .grid-wrapper {
     position: absolute;
     top: 400px;
-    left: 24%;
+    left: 47.6%; 
+    transform: translateX(-300px); /*arrow-width/2 */
     display: flex;
     align-items: flex-start;
     margin-bottom: 100px;
-    margin-right: 40px;
 }
 
 /*arrow buttons*/
 .navigation-arrows {
     position: absolute;
     top: 320px; 
-    left: 21.4%;
+    left: 50%;
+    transform: translateX(-50%); 
     text-align: center; 
     display: flex;
-    width: 728px;
+    width: 600px;
     justify-content: space-around;
 }
 
@@ -83,7 +85,6 @@
     width: 70px;
     border-right: 2px solid black;  /* Vertical lines between cells */
     background-color: gray;
-    transition: background 0.1s ease;
 }
 
 
@@ -100,12 +101,14 @@
 /*all users*/
 .all-users-wrapper{
     left: 13%;
+    transform: translateX(-50%);
 }
 
 /*availibility info*/
 .availability-wrapper{
-    left: 74%;
     width: 275px;
+    left: 85%;
+    transform: translateX(-50%);
 }
 
 .time-interval{

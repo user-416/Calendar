@@ -76,10 +76,6 @@ body {
     color: inherit;
 }
 
-.selected:hover {
-    color: black !important;
-    background-color: #dcdee0 !important;
-}
 .selected {
     background-color: #006edc !important;
     color: white !important;

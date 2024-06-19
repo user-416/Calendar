@@ -77,9 +77,7 @@ const Meet = () => {
                 Add Calendar
             </button>
         </div>
-        <div className="grid-container">
-            <Grid event={event} />
-        </div>
+        <Grid event={event} />
     </div>
     );
 };
