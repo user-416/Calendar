@@ -6,7 +6,7 @@
 .grid-wrapper {
     position: absolute;
     top: 400px;
-    left: 25%;
+    left: 24%;
     display: flex;
     align-items: flex-start;
     margin-bottom: 100px;
@@ -17,11 +17,11 @@
 .navigation-arrows {
     position: absolute;
     top: 320px; 
-    left: 14.7%;
+    left: 21.4%;
     text-align: center; 
     display: flex;
-    width: 920px;
-    justify-content: space-evenly;
+    width: 728px;
+    justify-content: space-around;
 }
 
 .navigation-arrows button {
@@ -54,9 +54,13 @@
     display: flex;
     flex-direction: column;
 }
+.grid:hover{
+    cursor: pointer;
+}
 
 .date-labels {
     display: flex;
+    cursor: default;
 }
 
 .date-label {
@@ -71,9 +75,7 @@
     height:  2px;  
 }
 
-.grid-cell:hover{
-    cursor: pointer;
-}
+
 
 .grid-cell {
     flex: 1;
@@ -96,12 +98,12 @@
 
 /*all users*/
 .all-users-wrapper{
-    left: 15%;
+    left: 13%;
 }
 
 /*availibility info*/
 .availability-wrapper{
-    left: 73%;
+    left: 74%;
     width: 275px;
 }
 

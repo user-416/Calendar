@@ -11,6 +11,7 @@ const Grid = ({ event }) => {
     const users = Array.from(busyIntervals.keys());
     const { name, startTime: earliestTime, endTime: latestTime, dates } = event;
     const earliestMin = TimeUtil.toMinutes(earliestTime), latestMin = TimeUtil.toMinutes(latestTime);
+    dates.sort((a, b) => new Date(a) - new Date(b));
     const formattedDates = dates.map(
         (date) => new Date(date).toISOString().split("T")[0]
     );
@@ -181,8 +182,8 @@ const Grid = ({ event }) => {
                                         className="grid-cell"
                                         onClick={() => handleCellClick(minIdx, date)}
                                         style={{ 
-                                            backgroundColor: isSelected ? `rgba(0, 100, 255, ${opacity})` : `rgba(0, 128, 0, ${opacity})`,
-                                            borderTop: isBoundary ? '1px dashed black' : 'none',
+                                            backgroundColor: isSelected ? `rgba(0, 100, 255, ${opacity+1/(2*totalUsers)})` : `rgba(0, 128, 0, ${opacity})`,
+                                            borderTop: isBoundary ? '1px solid black' : 'none',
                                             borderLeft: dateIdx===0 ? '2px solid black' : 'none',
                                             borderBottom: minIdx===totalMin-1 ? '2px solid black' : 'none'
                                         }}
