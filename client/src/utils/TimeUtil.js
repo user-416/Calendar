@@ -19,8 +19,6 @@ class TimeUtil{
         return `${hourStr}:${'00'}`;
     };
     static toAMPM(time){
-        if (time.includes('AM') || time.includes('PM')) 
-            return time;
         const hrs = parseInt(time.slice(0, 2))
         const mins = time.slice(3);
         const AMPM = hrs < 12 ? "AM" : "PM";
@@ -39,9 +37,13 @@ class TimeUtil{
     }
 
     static minutesToHHMM(minutes){
-        const hours = Math.floor(minutes/60);
+        const hrs = Math.floor(minutes/60);
         const mins = minutes % 60;
-        return hours.toString().padStart(2, '0') + ":" + mins.toString().padStart(2, '0'); 
+        return hrs.toString().padStart(2, '0') + ":" + mins.toString().padStart(2, '0'); 
+    }
+
+    static minutesToAMPM(minutes){
+        return this.toAMPM(this.minutesToHHMM(minutes));
     }
 }
 

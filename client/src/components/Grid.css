@@ -1,9 +1,41 @@
 /* Wrapper for the hourly labels, date labels, and the main grid (not named container bc already used in Meet.css) */
+
+.component-container{
+    font-family: 'Glacial Indifference', sans-serif;
+}
 .grid-wrapper {
+    position: absolute;
+    top: 400px;
+    left: 25%;
     display: flex;
     align-items: flex-start;
     margin-bottom: 100px;
     margin-right: 40px;
+}
+
+/*arrow buttons*/
+.navigation-arrows {
+    position: absolute;
+    top: 320px; 
+    left: 14.7%;
+    text-align: center; 
+    display: flex;
+    width: 920px;
+    justify-content: space-evenly;
+}
+
+.navigation-arrows button {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 50px; 
+    background: none;
+    border: none;
+}
+.event-name{
+    font: 40px;
+}
+.navigation-arrows button:not(:disabled):hover{
+    cursor: pointer;
+    transform: scale(1.1);
 }
 
 .hourly-labels {
@@ -39,9 +71,43 @@
     height:  2px;  
 }
 
+.grid-cell:hover{
+    cursor: pointer;
+}
+
 .grid-cell {
     flex: 1;
-    min-width: 80px;
+    width: 70px;
     border-right: 2px solid black;  /* Vertical lines between cells */
     background-color: gray;
+    transition: background 0.1s ease;
+}
+
+
+
+/*users*/
+.availability-wrapper, .all-users-wrapper{
+    top: 430px;
+    position: absolute; /*relative to viewport*/
+}
+.users-heading{
+    font-size: 30px;
+}
+
+/*all users*/
+.all-users-wrapper{
+    left: 15%;
+}
+
+/*availibility info*/
+.availability-wrapper{
+    left: 73%;
+    width: 275px;
+}
+
+.time-interval{
+    font-size: 20px;
+}
+.user-name{
+    font-size: 20px;
 }
