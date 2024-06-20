@@ -149,49 +149,49 @@ const Grid = ({ event }) => {
                     <p key={user} className='user-name'>{user}</p>
                 ))}
             </div>
-            <div className="navigation-arrows">
-                <button onClick={back7Days} disabled={dateStartIdx === 0}>&lt;</button>
-                <p className="event-name">{name}</p>
-                <button onClick={forward7Days} disabled={dateEndIdx == event.dates.length - 1}>&gt;</button>
-            </div>
             <div className="grid-wrapper">
                 <div className="hourly-labels">
                     {hourlyLabels.map((time) => (
                         <div key={time} className="hourly-label">{time}</div>
                     ))}
                 </div>
-                <div className="grid">
-                    <div className="date-labels">
-                        {formattedDates.slice(dateStartIdx, dateEndIdx+1).map((date) => (
-                            <div key={date} className="date-label">
-                                <div>{DateUtil.toMD(date)}</div>
-                                <div>{DateUtil.getDayOfWeek(date)}</div>
+                <div className="grid-vertical">
+                    <div className="navigation-arrows">
+                        <button onClick={back7Days} disabled={dateStartIdx === 0}>&lt;</button>
+                        <div className="event-name">{name}</div>
+                        <button onClick={forward7Days} disabled={dateEndIdx == event.dates.length - 1}>&gt;</button>
+                    </div>
+                    <div className="date-labels" style={{ width: `calc(((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw) + ((${dateEndIdx} - ${dateStartIdx} + 2) * 2px))` }}>
+                            {formattedDates.slice(dateStartIdx, dateEndIdx+1).map((date, dateIdx) => (
+                                <div key={date} className="date-label">
+                                    <div>{DateUtil.toMD(date)}</div>
+                                    <div>{DateUtil.getDayOfWeek(date)}</div>
+                                </div>
+                            ))}
+                    </div>
+                    <div className="grid" style={{ width: `calc(((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw) + ((${dateEndIdx} - ${dateStartIdx} + 1) * 2px))` }}>
+                        {Array.from({ length: totalMin }).map((_, minIdx) => (
+                            <div key={minIdx} className="grid-row">
+                                {formattedDates.slice(dateStartIdx, dateEndIdx+1).map((date, dateIdx) => {
+                                    const availCnt = availUsersMap.get(date)[minIdx].length;
+                                    const opacity = availCnt / totalUsers; 
+                                    const isBoundary = minIdx>0 && isDiffAvailUsers(minIdx, minIdx-1, date);
+                                    const isSelected = selectedDate === date && minIdx >= selectedStartIdx && minIdx < selectedEndIdx;
+                                    return (
+                                        <div
+                                            key={`${date}-${minIdx}`}
+                                            className="grid-cell"
+                                            onClick={() => handleCellClick(minIdx, date)}
+                                            style={{ 
+                                                backgroundColor: isSelected ? `rgba(0, 100, 255, ${opacity+1/(2*totalUsers)})` : `rgba(0, 128, 0, ${opacity})`,
+                                                borderTop: isBoundary ? '1px solid black' : 'none',     
+                                            }}
+                                        ></div>
+                                    );
+                                })}
                             </div>
                         ))}
                     </div>
-                    {Array.from({ length: totalMin }).map((_, minIdx) => (
-                        <div key={minIdx} className="grid-row">
-                            {formattedDates.slice(dateStartIdx, dateEndIdx+1).map((date, dateIdx) => {
-                                const availCnt = availUsersMap.get(date)[minIdx].length;
-                                const opacity = availCnt / totalUsers; 
-                                const isBoundary = minIdx>0 && isDiffAvailUsers(minIdx, minIdx-1, date);
-                                const isSelected = selectedDate === date && minIdx >= selectedStartIdx && minIdx < selectedEndIdx;
-                                return (
-                                    <div
-                                        key={`${date}-${minIdx}`}
-                                        className="grid-cell"
-                                        onClick={() => handleCellClick(minIdx, date)}
-                                        style={{ 
-                                            backgroundColor: isSelected ? `rgba(0, 100, 255, ${opacity+1/(2*totalUsers)})` : `rgba(0, 128, 0, ${opacity})`,
-                                            borderTop: isBoundary ? '1px solid black' : 'none',
-                                            borderLeft: dateIdx===0 ? '2px solid black' : 'none',
-                                            borderBottom: minIdx===totalMin-1 ? '2px solid black' : 'none'
-                                        }}
-                                    ></div>
-                                );
-                            })}
-                        </div>
-                    ))}
                 </div>
             </div>
             {selectedDate && (

@@ -27,6 +27,39 @@ class DateUtil {
         const date = this.getDate(dateInput);
         return `${this.getMonthName(dateInput)} ${date.getDate()}`;
     }
+
+    static getMonthMatrix = (date) => {
+        let matrix = [];
+        const year = date.getFullYear();
+        const month = date.getMonth();
+    
+        const monthFirstDate = new Date(year, month, 1); 
+        const firstDayOfWeek = monthFirstDate.getDay(); // Sunday: 0
+        
+        // Adjust calendar to start on Monday 
+        let startDate = new Date(monthFirstDate);
+        startDate.setDate(startDate.getDate() - firstDayOfWeek + (firstDayOfWeek === 0 ? -6 : 1));
+    
+
+        const monthLastDate = new Date(year, month + 1, 0);
+        const lastDayOfWeek = monthLastDate.getDay();
+
+        // Adjust calendar to end on Sunday
+        const endDate = new Date(monthLastDate);
+        endDate.setDate(monthLastDate.getDate() + (lastDayOfWeek === 0 ? 0 : 7 - lastDayOfWeek));
+    
+        while (startDate <= endDate) {
+            let week = [];
+            for (let day = 0; day < 7; day++) {
+                week.push(new Date(startDate));
+                startDate.setDate(startDate.getDate() + 1);
+            }
+            matrix.push(week);
+        }
+    
+        return matrix;
+    };
+    
 }
 
 export default DateUtil;
