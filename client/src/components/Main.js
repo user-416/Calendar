@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import axios from 'axios';
 import Calendar from 'react-calendar';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +7,7 @@ import './Main.css';
 import TimeUtil from '../utils/TimeUtil';
 import DateUtil from '../utils/DateUtil';
 const Main = () => {
-    const [selectedDates, setSelectedDates] = useState([]);
+    const [selectedDates, setSelectedDates] = useState(new Set());
     const [eventName, setEventName] = useState('');
     const [startTime, setStartTime] = useState('9:00');
     const [endTime, setEndTime] = useState('5:00');
@@ -24,9 +24,26 @@ const Main = () => {
     const [startCol, setStartCol] = useState(null);
     const [curRow, setCurRow] = useState(null);
     const [curCol, setCurCol] = useState(null);
+    const [isSelecting, setIsSelecting] = useState(null);
+
     let monthMatrix = DateUtil.getMonthMatrix(activeDate);
 
     const navigate = useNavigate(); 
+
+    useEffect(() => {
+        // Stop dragging when mouse is clicked outside calendar
+        const stopDragging = () => {
+            if (isDragging) {
+                setIsDragging(false);
+                setDragStart(null);
+            }
+        };
+        document.addEventListener('mouseup', stopDragging);
+
+        return () => {
+            document.removeEventListener('mouseup', stopDragging);
+        };
+    }, [isDragging]);
 
     const handleActiveStartDateChange = ({activeStartDate}) => {
         setActiveDate(activeStartDate);  
@@ -60,25 +77,27 @@ const Main = () => {
             }
             
             const [newRow, newCol] = getRowCol(date);
-    
-            // First clear the previous range
+            const newSelectedDates = new Set(selectedDates);
             for (let r = Math.min(startRow,curRow); r <= Math.max(startRow,curRow); r++) {
                 for (let c = Math.min(startCol,curCol); c <= Math.max(startCol,curCol); c++) {
-                    if ((r !== newRow || c !== newCol) ||
-                        selectedDates.some(d=>d.toDateString()===monthMatrix[r][c].toDateString())) { // Avoid toggling the new current cell
-                        toggleSelectedDates(monthMatrix[r][c]);
-                    }
+                    if(isSelecting)
+                        newSelectedDates.delete(monthMatrix[r][c].toDateString());
+                    else
+                        newSelectedDates.add(monthMatrix[r][c].toDateString());
                 }
             }
-    
+
             // Then set the new range
             for (let r = Math.min(startRow,newRow); r <= Math.max(startRow,newRow); r++) {
                 for (let c = Math.min(startCol,newCol); c <= Math.max(startCol,newCol); c++) {
-                    toggleSelectedDates(monthMatrix[r][c]);
+                    if(isSelecting)
+                        newSelectedDates.add(monthMatrix[r][c].toDateString());
+                    else
+                        newSelectedDates.delete(monthMatrix[r][c].toDateString());
                 }
             }
     
-            // Finally, update the current row and column
+            setSelectedDates(newSelectedDates);
             setCurRow(newRow);
             setCurCol(newCol);
         }
@@ -86,9 +105,18 @@ const Main = () => {
 
     const handleMouseDown = (event, date) => {
         //console.log("mouse down",date);
+        const dateString = date.toDateString();
         setDragStart(date);
         setIsDragging(true);
-        toggleSelectedDates(date);
+        const currentlySelecting = !selectedDates.has(dateString);
+        setIsSelecting(currentlySelecting);
+        const newSelectedDates = new Set(selectedDates);
+        if(currentlySelecting)
+            newSelectedDates.add(dateString);
+        else
+            newSelectedDates.delete(dateString);
+        setSelectedDates(newSelectedDates);
+
         const [sr, sc] = getRowCol(date);
         setStartRow(sr);
         setStartCol(sc);
@@ -98,24 +126,26 @@ const Main = () => {
 
     const handleMouseUp = (date) => {
         setDragStart(null);
+        setIsSelecting(null);
         //console.log("mouse up");
         setIsDragging(false);
     };
 
-
+    /*
     const toggleSelectedDates = (date) => {
         const dateString = date.toDateString();
         setSelectedDates(prevDates => {
-            if (prevDates.some(d => d.toDateString() === dateString)) {
-                return prevDates.filter(d => d.toDateString() !== dateString);
-            } else {
-                return [...prevDates, date];
-            }
+            const newDates = new Set(prevDates);
+            if(newDates.has(dateString))
+                newDates.delete(dateString);
+            else
+                newDates.add(dateString);
+            return newDates;
         });
-    };
+    };*/
 
     const tileClassName = ({ date }) => {
-        return selectedDates.some(d => d.toDateString() === date.toDateString()) ? 'selected' : 'unselected';
+        return selectedDates.has(date.toDateString()) ? 'selected' : 'unselected';
     };
 
     const handleSubmit = async (e) => {
