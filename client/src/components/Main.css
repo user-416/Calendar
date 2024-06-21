@@ -131,7 +131,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center; 
-    width: 66%; 
+    width: 80%; 
     border: none;
     margin: auto;
 }
@@ -146,7 +146,7 @@ body {
     min-width: 45px;
 }
 #dash{
-    margin: 0 5%;
+    margin: 0 4%;
     width: 15px; 
     height: 2px; 
     background-color: black; 

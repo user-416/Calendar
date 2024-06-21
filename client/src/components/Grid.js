@@ -16,38 +16,10 @@ const Grid = ({ event }) => {
         (date) => new Date(date).toISOString().split("T")[0]
     );
     const totalUsers = busyIntervals.size;
-    //const availMap = new Map(); //{date : int[] minutes} (not needed anymore)
-    const availUsersMap = new Map(); //{date : String[][] users}
-    const transitionMap = new Map();
+    const availUsersMap = new Map(); 
+    const intervalMap = new Map(); //date : ([intervals in minutes],[availUsers])
     const totalMin = TimeUtil.minutesBetween(earliestTime, latestTime);
     
-    
-    /*const fillAvailMap = () => {
-        for (let date of formattedDates) {
-            availMap.set(date, new Array(totalMin + 1).fill(0));
-            availMap.get(date)[0] = totalUsers;
-        }
-        
-        //line sweep algo
-        for (let [user, userIntervals] of busyIntervals.entries()) {
-            for (let [date, intervals] of userIntervals.entries()) {
-                for (let i = 0; i < intervals.length; i++) {
-                    const [startMin, endMin] = intervals[i].split("-").map((time) => TimeUtil.toMinutes(time));
-                    const startIdx = startMin - TimeUtil.toMinutes(earliestTime);
-                    const endIdx = endMin - TimeUtil.toMinutes(earliestTime);
-                    availMap.get(date)[startIdx]--;
-                    availMap.get(date)[endIdx]++;
-                }
-            }
-        }
-        
-        for (let [date, availArr] of availMap.entries()) {
-            for (let i = 1; i < availArr.length; i++) {
-                availArr[i] += availArr[i - 1];
-            }
-        }
-    };
-    fillAvailMap();*/
 
     const getAvailUsers = (idx, date) => {
         const availUsers = [];
@@ -79,17 +51,24 @@ const Grid = ({ event }) => {
         const availUsersArr = availUsersMap.get(date);
         return JSON.stringify(availUsersArr[minIdx1].sort()) !== JSON.stringify(availUsersArr[minIdx2].sort());
     }
-    const fillTransitionMap= () => {
+    const fillIntervalMap= () => {
+        console.log("latestmin", latestMin)
         for (let date of formattedDates) {
-            const transitions = []
-            for(let i=1; i<totalMin+1; i++){
-                if(isDiffAvailUsers(i, i-1, date))
-                    transitions.push(i);
+            const intervals = [];
+            let start = earliestMin;
+            for(let i=0; i<totalMin; i++){
+                if(isDiffAvailUsers(i, i+1, date)){
+                    const end = earliestMin + i+1;
+                    intervals.push([start,end, availUsersMap.get(date)[i-1]]);
+                    start = end;
+                }
             }
-            transitionMap.set(date, transitions);
+            if(start <= latestMin)
+                intervals.push([start, latestMin, availUsersMap.get(date)[totalMin]]);
+            intervalMap.set(date, intervals);
         }
     };
-    fillTransitionMap();
+    fillIntervalMap();
 
     const generateHourlyIntervals = () => {
         const intervals = [];
@@ -102,34 +81,16 @@ const Grid = ({ event }) => {
     };
     const hourlyLabels = generateHourlyIntervals();
 
-
-    const findInterval = (idx, date) =>{
-        const transitions = transitionMap.get(date);
-        let start = 0, end = totalMin; 
-        for (let i = 0; i < transitions.length; i++) {
-            if (idx < transitions[i]) {
-                end = transitions[i];
-                break;
-            }
-            start = transitions[i];
-        }
-        return [start, end];
-    }
-    const [selectedMinIdx, setSelectedMinIdx] = useState(0);
+    const [selectedIntervalIdx, setSelectedIntervalIdx] = useState(0);
     const [selectedDate, setSelectedDate] = useState(formattedDates[0]);
-    const [start, end] = findInterval(selectedMinIdx, selectedDate);
-    const [selectedStartIdx, setSelectedStartIdx] = useState(start);
-    const [selectedEndIdx, setSelectedEndIdx] = useState(end);
+
+    const handleIntervalClick = (date, idx) => {
+        setSelectedDate(date);
+        setSelectedIntervalIdx(idx);
+    }
 
     const [dateStartIdx, setDateStartIdx] = useState(0);
     const [dateEndIdx, setDateEndIdx] = useState(Math.min(6, formattedDates.length-1));
-    const handleCellClick = (idx, date) => {
-        setSelectedMinIdx(idx);
-        setSelectedDate(date);
-        const [start, end] = findInterval(idx, date);
-        setSelectedStartIdx(start);
-        setSelectedEndIdx(end);
-    };
 
     const forward7Days = () => {
         setDateStartIdx(dateStartIdx+7);
@@ -161,7 +122,7 @@ const Grid = ({ event }) => {
                         <div className="event-name">{name}</div>
                         <button onClick={forward7Days} disabled={dateEndIdx == event.dates.length - 1}>&gt;</button>
                     </div>
-                    <div className="date-labels" style={{ width: `calc(((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw) + ((${dateEndIdx} - ${dateStartIdx} + 2) * 2px))` }}>
+                    <div className="date-labels" style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)` }}>
                             {formattedDates.slice(dateStartIdx, dateEndIdx+1).map((date, dateIdx) => (
                                 <div key={date} className="date-label">
                                     <div>{DateUtil.toMD(date)}</div>
@@ -169,24 +130,26 @@ const Grid = ({ event }) => {
                                 </div>
                             ))}
                     </div>
-                    <div className="grid" style={{ width: `calc(((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw) + ((${dateEndIdx} - ${dateStartIdx} + 1) * 2px))` }}>
-                        {Array.from({ length: totalMin }).map((_, minIdx) => (
-                            <div key={minIdx} className="grid-row">
-                                {formattedDates.slice(dateStartIdx, dateEndIdx+1).map((date, dateIdx) => {
-                                    const availCnt = availUsersMap.get(date)[minIdx].length;
-                                    const opacity = availCnt / totalUsers; 
-                                    const isBoundary = minIdx>0 && isDiffAvailUsers(minIdx, minIdx-1, date);
-                                    const isSelected = selectedDate === date && minIdx >= selectedStartIdx && minIdx < selectedEndIdx;
+                    <div className="grid" style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)` }}>
+                        {formattedDates.slice(dateStartIdx, dateEndIdx + 1).map((date, dateIdx) => (
+                            <div key={date} className="grid-col">
+                                {intervalMap.get(date).map(([startMin, endMin, availUsers], intervalIdx) => {
+                                    const availCnt = availUsers.length;
+                                    const opacity = availCnt / totalUsers;
+                                    const intervalHeight = endMin - startMin;
+                                    const isSelected = date==selectedDate && intervalIdx==selectedIntervalIdx;
                                     return (
                                         <div
-                                            key={`${date}-${minIdx}`}
+                                            key={`${date}-${startMin}-${endMin}`}
                                             className="grid-cell"
-                                            onClick={() => handleCellClick(minIdx, date)}
-                                            style={{ 
+                                            onClick={() => handleIntervalClick(date, intervalIdx)}
+                                            style={{
+                                                height: `${intervalHeight*1.405}px`,  
                                                 backgroundColor: isSelected ? `rgba(0, 100, 255, ${opacity+1/(2*totalUsers)})` : `rgba(0, 128, 0, ${opacity})`,
-                                                borderTop: isBoundary ? '1px solid black' : 'none',     
+                                                borderBottom: `${intervalIdx === intervalMap.get(date).length - 1 ? '2px' : '1px'} solid black`
                                             }}
-                                        ></div>
+                                        >
+                                        </div>
                                     );
                                 })}
                             </div>
@@ -197,8 +160,10 @@ const Grid = ({ event }) => {
             {selectedDate && (
             <div className="availability-wrapper users-wrapper">
                 <div className="users-heading">Available</div> 
-                <div className="time-interval">{TimeUtil.minutesToAMPM(earliestMin + selectedStartIdx)} - {TimeUtil.minutesToAMPM(earliestMin + selectedEndIdx)}, {DateUtil.toMonthNameD(selectedDate)}:</div>
-                {availUsersMap.get(selectedDate)[selectedMinIdx].map(user => (
+                <div className="time-interval">
+                    {TimeUtil.minutesToAMPM(intervalMap.get(selectedDate)[selectedIntervalIdx][0])} - {TimeUtil.minutesToAMPM(intervalMap.get(selectedDate)[selectedIntervalIdx][1])}, {DateUtil.toMonthNameD(selectedDate)}:
+                </div>
+                {intervalMap.get(selectedDate)[selectedIntervalIdx][2].map(user => (
                     <p key={user} className='user-name'>{user}</p>
                 ))}
             </div>
