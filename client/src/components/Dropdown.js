@@ -7,7 +7,7 @@ const Dropdown = ({ calendars }) => {
       <div className="dropdown-menu">
         {calendars.map((calendar, index) => (
           <div key={index} className="dropdown-item">
-            {calendar.name}
+            {calendar.summary}
           </div>
         ))}
       </div>

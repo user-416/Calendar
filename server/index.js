@@ -10,8 +10,7 @@ const Meeting = require('./src/model/meeting.js').Meeting;
 const Event = require('./src/model/event.js').Event
 
 const app = express();
-app.use(cors({origin: ['http://localhost:3000', 'http://localhost:3001'],
-credentials: true})); // Enable CORS for all routes
+app.use(cors({origin: ['http://localhost:3000', 'http://localhost:3001'], credentials: true})); 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
@@ -114,7 +113,6 @@ app.get('/redirect', async (req, res) => {
         if (err) {
           console.error('Error saving session:', err);
         }
-        console.log(req.session.user);
         // Redirect after successful save
         res.redirect(`http://localhost:3001/${id}`);
       });
@@ -123,7 +121,6 @@ app.get('/redirect', async (req, res) => {
 });
 
 app.get('/api/auth-status', (req, res) => {
-  console.log("session\n" + JSON.stringify(req.session));
   if (req.session.user && req.session.user.email && req.session.user.authenticated) {
     res.json({ 
       authenticated: true, 
@@ -132,7 +129,6 @@ app.get('/api/auth-status', (req, res) => {
       } 
     });
   } else {
-    console.log('could not authenticate');
     res.json({ authenticated: false });
   }
 });
@@ -253,13 +249,11 @@ app.post('/api/addCalendar', isAuthenticated, async (req, res) => { // Route onl
 });
 
 // Route to list all calendars
-app.get('/calendars', (req, res) => {
+app.get('/api/getCalendars', isAuthenticated, (req, res) => {
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
   calendar.calendarList.list({}, (err, response) => {
     if (err) {
-      console.error('Error fetching calendars', err);
       res.status(500).send('Error');
-      console.log(err);
       return;
     }
     res.json(response.data.items);

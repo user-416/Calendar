@@ -15,7 +15,7 @@ const Meet = () => {
         authenticated: false,
         user: null
     });
-    const [calendars, setCalendars] = useState([{name:'test1'}, {name:'test2'}]);
+    const [calendars, setCalendars] = useState([]);
 
     const getAuthUrl = async () => {
         try {
@@ -54,6 +54,19 @@ const Meet = () => {
                 setAuthStatus({authenticated: false, user: null});
             });
     }, []);
+
+    useEffect(() => {
+        const fetchCalendars = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/api/getCalendars', {withCredentials: true});
+                setCalendars(response.data);
+            } catch (err) {
+                console.log(err);
+            }
+        };
+    
+        fetchCalendars();
+      }, []);
 
     useEffect(() => {
         const fetchEvent = async () => {
