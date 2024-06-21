@@ -16,6 +16,7 @@ const Meet = () => {
         user: null
     });
     const [calendars, setCalendars] = useState([]);
+    const [selectedCalendars, setSelectedCalendars] = useState(new Set());
 
     const getAuthUrl = async () => {
         try {
@@ -40,6 +41,21 @@ const Meet = () => {
             console.error('Error copying text: ', error);
         });
     };
+
+    const toggleCalendar = (calendar) => {
+        setSelectedCalendars(prevSelected => {
+            const newSet = new Set(prevSelected);
+            if (newSet.has(calendar.id))
+                newSet.delete(calendar.id);
+            else
+                newSet.add(calendar.id);
+            return newSet;
+        });
+    }
+
+    // useEffect(() => {
+    //     console.log("Selected calendars:", selectedCalendars);
+    //   }, [selectedCalendars]);
 
     useEffect(() => {
         axios.get('http://localhost:3000/api/auth-status', {withCredentials: true})
@@ -106,7 +122,7 @@ const Meet = () => {
             <div id="copy-message">Link copied!</div>
             <div>
                 {authStatus.authenticated ? (
-                    <Dropdown calendars={calendars}/>
+                    <Dropdown calendars={calendars} selectedCalendars={selectedCalendars} toggleCalendar={toggleCalendar}/>
                 ) : (
                     <button className="add-calendar-button" type="button" onClick={getAuthUrl}>
                         <svg viewBox="0 0 24 24" className="plus-icon">

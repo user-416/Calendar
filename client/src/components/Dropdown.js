@@ -1,36 +1,41 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Dropdown.css'
-const Dropdown = ({ calendars }) => {
-  const [selectedCalendars, setSelectedCalendars] = useState(new Set());
+
+const Dropdown = ({ calendars, selectedCalendars, toggleCalendar }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
-  const toggleCalendar = (calendar) => {
-    const newSet = new Set(selectedCalendars);
-    if(newSet.has(calendar.id))
-      newSet.delete(calendar.id);
-    else
-      newSet.add(calendar.id);
-    setSelectedCalendars(newSet);
-  }
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   }
 
   return (
-    <div className="dropdown">
+    <div className="dropdown" ref={dropdownRef}>
       <button className="dropdown-toggle" onClick={toggleDropdown}>Select Calendars</button>
       {isDropdownOpen && (
         <div className="dropdown-menu">
           {calendars.map((calendar, idx) => (
-            <div key={idx} className="dropdown-item" onClick={()=>toggleCalendar(calendar)}>
+            <label key={idx} className="dropdown-item">
               <input
-                type = "checkbox"
-                checked = {selectedCalendars.has(calendar.id)}
-                onChange = {() => toggleCalendar(calendar)}
+                type="checkbox"
+                checked={selectedCalendars.has(calendar.id)}
+                onChange={() => toggleCalendar(calendar)}
               />
               <span>{calendar.summary}</span>
-            </div>
+            </label>
           ))}
         </div>
       )}
