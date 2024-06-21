@@ -211,7 +211,7 @@ app.post('/api/addCalendar', isAuthenticated, async (req, res) => { // Route onl
     const email = calData[0].creator.email;
 
 
-    // Possiblt repimplement read personIndex
+    // Possibly reimplement read personIndex
 
     let personInDatabase = false;
     for (let i = 0; i < meeting.calendars.length; i++)

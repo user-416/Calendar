@@ -27,7 +27,7 @@ const Meet = () => {
         }
     };
 
-    const copyLink = () => {/*copy link, display message for 3 secs*/
+    const copyLink = () => { // copy link + display message for 3 secs
         var copyText = document.querySelector('.link-text');
 
         navigator.clipboard.writeText(copyText.innerText).then(function() {
@@ -52,10 +52,6 @@ const Meet = () => {
             return newSet;
         });
     }
-
-    // useEffect(() => {
-    //     console.log("Selected calendars:", selectedCalendars);
-    //   }, [selectedCalendars]);
 
     useEffect(() => {
         axios.get('http://localhost:3000/api/auth-status', {withCredentials: true})

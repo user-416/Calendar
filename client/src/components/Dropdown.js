@@ -5,6 +5,7 @@ const Dropdown = ({ calendars, selectedCalendars, toggleCalendar }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  // Close out dropdown if user clicks outside it
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
