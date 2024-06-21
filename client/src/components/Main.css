@@ -13,26 +13,16 @@ body {
 
 .container {
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     align-items: flex-start; 
     height: 80vh;
     padding-top: 15vh;
     text-align: center;
-}
-
-.form-container {
-    display: flex;
-    flex: 1;
-    text-align: left; 
-    flex-direction: column;
-    align-items: center; 
-    justify-content: flex-start;
-    height: 50vh; 
-    text-align: center;    
+    margin-left: 8vw;
+    margin-right: 8vw;
 }
 
 /* Styling for react-calendar */
-
 .calendar-container {
     display: flex;
     flex: 1;
@@ -40,20 +30,31 @@ body {
     flex-direction: column;
     align-items: center; 
     justify-content: center; 
-    height: 50vh; 
     text-align: center;
+    /*background-color: yellow;*/
   }
 
 .react-calendar {
     border: none;
     flex-grow: 1;
-    width: 60%;
+    width: 65%;
+    min-width: 380px;
     font-family: Arial, Helvetica, sans-serif;
     line-height: 1.125em;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-height: 700px;
+    max-width: 500px;
+    padding-bottom: 10px;
 }
 
+.react-calendar__month-view__weekdays{
+    max-width: 490px;
+}
 .react-calendar__tile {
+    width: 5vw;
+    height: 4.6vw;
+    max-width: 80px;
+    max-height: 60px;
     position: relative;
     padding: 20px 0; 
     font-size: 1.2em;
@@ -100,7 +101,18 @@ body {
 
 /*RIGHT SIDE*/
 
+.form-container {
+    margin-top: 50px;
+    display: flex;
+    flex: 1;
+    text-align: left; 
+    flex-direction: column;
+    align-items: center; 
+    justify-content: flex-start;
+    height: 300px; 
+    text-align: center;    
 
+}
 .form-container input{
     background-color: #f4f4f4;
     border: none;
@@ -119,10 +131,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center; 
-    width: 70%; 
+    width: 66%; 
     border: none;
     margin: auto;
-
 }
 
 .time-field {
@@ -130,8 +141,9 @@ body {
     border: 1px solid #ccc;
     width: 20%; 
     border: none;
-    font-size: 16px;
+    font-size: 17px;
     margin-right: 1%;
+    min-width: 45px;
 }
 #dash{
     margin: 0 5%;
@@ -183,4 +195,97 @@ body {
 
 #connect-button:hover {
     background-color: #0a5498; 
+}
+
+@media only screen and (max-width: 1100px) {
+
+    .container {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding-top: 7vh;
+        margin-left: 0;
+        margin-right: 0; 
+        height: 770px;
+    }
+
+    .calendar-container {
+        margin-bottom: 20px;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .react-calendar__tile{
+        width: 60px;
+        height: 50px;
+    }
+
+    .event-input {
+        width: 40%; 
+    }
+    
+}
+
+
+@media only screen and (max-width: 500px) {
+    .navbar-title{
+        font-size: 15vw;
+    }
+
+    .calendar-container{
+        display: auto;
+    }
+    .react-calendar{
+        width: 70%;
+        min-width: 0 !important;
+    }
+
+    .react-calendar__navigation__label, .react-calendar__navigation__arrow {
+        padding: 2px;
+        font-size: 0.9em;
+    }
+
+    .event-input {
+        width: 50%; 
+        font-size: 16px;
+        margin-bottom: 35px; 
+    }
+    
+    .time-inputs {
+        width: 75%; 
+    }
+    
+    .time-field {
+        padding: 8px 5px;
+        width: 20%; 
+        font-size: 16px;
+        margin-right: 1%;
+        min-width: 30px;
+    }
+    #dash{
+        margin: 0 3%;
+        width: 10px; 
+    }
+    .toggle-button {
+        padding: 8.5px 5px;
+        font-size: 15px;
+        margin: 0 1px;
+        width: 16%; 
+    }
+    
+    .toggle-button.active {
+        padding: 8.5px 5px;
+        font-size: 15px;
+    }
+    
+    #connect-button {
+        padding: 15px 30px; 
+        border-radius: 30px; 
+        font-size: 20px; 
+        margin-top: 40px;
+        width: 250px; 
+    }
+
+
+
 }

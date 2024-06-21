@@ -17,7 +17,6 @@ const Main = () => {
 
 
     const [isDragging, setIsDragging] = useState(false);
-    const [dragStart, setDragStart] = useState(null);
     const [activeDate, setActiveDate] = useState(new Date());  
 
     const [startRow, setStartRow] = useState(null);
@@ -35,7 +34,6 @@ const Main = () => {
         const stopDragging = () => {
             if (isDragging) {
                 setIsDragging(false);
-                setDragStart(null);
             }
         };
         document.addEventListener('mouseup', stopDragging);
@@ -70,8 +68,6 @@ const Main = () => {
     
     const handleMouseEnter = (date) => {
         if (isDragging) {
-            console.log("mouse enter", date);
-            // Ensure that the start indices have been set
             if (startRow === null || startCol === null) {
                 return;
             }
@@ -87,7 +83,6 @@ const Main = () => {
                 }
             }
 
-            // Then set the new range
             for (let r = Math.min(startRow,newRow); r <= Math.max(startRow,newRow); r++) {
                 for (let c = Math.min(startCol,newCol); c <= Math.max(startCol,newCol); c++) {
                     if(isSelecting)
@@ -106,7 +101,6 @@ const Main = () => {
     const handleMouseDown = (event, date) => {
         //console.log("mouse down",date);
         const dateString = date.toDateString();
-        setDragStart(date);
         setIsDragging(true);
         const currentlySelecting = !selectedDates.has(dateString);
         setIsSelecting(currentlySelecting);
@@ -125,24 +119,11 @@ const Main = () => {
     };
 
     const handleMouseUp = (date) => {
-        setDragStart(null);
         setIsSelecting(null);
         //console.log("mouse up");
         setIsDragging(false);
     };
 
-    /*
-    const toggleSelectedDates = (date) => {
-        const dateString = date.toDateString();
-        setSelectedDates(prevDates => {
-            const newDates = new Set(prevDates);
-            if(newDates.has(dateString))
-                newDates.delete(dateString);
-            else
-                newDates.add(dateString);
-            return newDates;
-        });
-    };*/
 
     const tileClassName = ({ date }) => {
         return selectedDates.has(date.toDateString()) ? 'selected' : 'unselected';
@@ -153,11 +134,11 @@ const Main = () => {
         try {
             const response = await axios.post('http://localhost:3000/api/create', {
                 name: eventName,
-                dates: selectedDates,
+                dates: Array.from(selectedDates),
                 startTime: TimeUtil.toMilitaryTime(startTime, isAMStart),
                 endTime: TimeUtil.toMilitaryTime(endTime, isAMEnd),
             });
-
+            console.log(response.data);  
             navigate(response.data);
         } catch (err) {
             console.log('Error creating event', err);
@@ -166,61 +147,58 @@ const Main = () => {
 
 
     return (
-        <div>
-            <div className="container">
-                <div className="calendar-container">
-                    <Calendar 
-                        /*onClickDay={toggleSelectedDates} */
-                        onActiveStartDateChange={handleActiveStartDateChange}
-                        tileClassName={tileClassName} 
-                        tileContent={({ date, view }) => (
-                            <div
-                                onMouseDown={(e) => {
-                                    handleMouseDown(e, date);
-                                }}
-                                onMouseEnter={(e) => handleMouseEnter(date)}
-                                onMouseUp={(e) => handleMouseUp(date)}
-                            />
-                        )}
-                    />
-                </div>
-                <div className="form-container">
-                    <form onSubmit={handleSubmit}>
-                        <input
-                            className="event-input"
-                            type="text"
-                            placeholder="Enter Event Name: "
-                            value={eventName}
-                            onFocus={(e) => e.target.placeholder = ''}
-                            onBlur={(e) => e.target.placeholder = "Enter Event Name: "}
-                            onChange={(e) => setEventName(e.target.value)}
-                            required
+        <div className="container">
+            <div className="calendar-container">
+                <Calendar 
+                    onActiveStartDateChange={handleActiveStartDateChange}
+                    tileClassName={tileClassName} 
+                    tileContent={({ date, view }) => (
+                        <div
+                            onMouseDown={(e) => {
+                                handleMouseDown(e, date);
+                            }}
+                            onMouseEnter={(e) => handleMouseEnter(date)}
+                            onMouseUp={(e) => handleMouseUp(date)}
                         />
+                    )}
+                />
+            </div>
+            <div className="form-container">
+                <form onSubmit={handleSubmit}>
+                    <input
+                        className="event-input"
+                        type="text"
+                        placeholder="Enter Event Name: "
+                        value={eventName}
+                        onFocus={(e) => e.target.placeholder = ''}
+                        onBlur={(e) => e.target.placeholder = "Enter Event Name: "}
+                        onChange={(e) => setEventName(e.target.value)}
+                        required
+                    />
 
-                        <div className="time-inputs">
-                            <input
-                                type="text"
-                                value={startTime}
-                                className="time-field"
-                                onChange={(e) => setStartTime(e.target.value)}
-                            />
-                            <button type="button" onClick={() => setIsAMStart(true)} className={`toggle-button ${isAMStart ? 'active' : ''}`}>AM</button>
-                            <button type="button" onClick={() => setIsAMStart(false)} className={`toggle-button ${!isAMStart ? 'active' : ''}`}>PM</button>
+                    <div className="time-inputs">
+                        <input
+                            type="text"
+                            value={startTime}
+                            className="time-field"
+                            onChange={(e) => setStartTime(e.target.value)}
+                        />
+                        <button type="button" onClick={() => setIsAMStart(true)} className={`toggle-button ${isAMStart ? 'active' : ''}`}>AM</button>
+                        <button type="button" onClick={() => setIsAMStart(false)} className={`toggle-button ${!isAMStart ? 'active' : ''}`}>PM</button>
 
-                            <div id="dash"></div>
+                        <div id="dash"></div>
 
-                            <input
-                                type="text"
-                                value={endTime}
-                                className="time-field"
-                                onChange={(e) => setEndTime(e.target.value)}
-                            />
-                            <button type="button" onClick={() => setIsAMEnd(true)} className={`toggle-button ${isAMEnd ? 'active' : ''}`}>AM</button>
-                            <button type="button" onClick={() => setIsAMEnd(false)} className={`toggle-button ${!isAMEnd ? 'active' : ''}`}>PM</button>
-                        </div>
-                        <button id="connect-button" type="submit">Connect</button>
-                    </form>
-                </div>
+                        <input
+                            type="text"
+                            value={endTime}
+                            className="time-field"
+                            onChange={(e) => setEndTime(e.target.value)}
+                        />
+                        <button type="button" onClick={() => setIsAMEnd(true)} className={`toggle-button ${isAMEnd ? 'active' : ''}`}>AM</button>
+                        <button type="button" onClick={() => setIsAMEnd(false)} className={`toggle-button ${!isAMEnd ? 'active' : ''}`}>PM</button>
+                    </div>
+                    <button id="connect-button" type="submit">Connect</button>
+                </form>
             </div>
         </div>
     );
