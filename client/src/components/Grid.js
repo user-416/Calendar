@@ -52,7 +52,6 @@ const Grid = ({ event }) => {
         return JSON.stringify(availUsersArr[minIdx1].sort()) !== JSON.stringify(availUsersArr[minIdx2].sort());
     }
     const fillIntervalMap= () => {
-        console.log("latestmin", latestMin)
         for (let date of formattedDates) {
             const intervals = [];
             let start = earliestMin;

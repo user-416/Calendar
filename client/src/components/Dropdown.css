@@ -1,0 +1,53 @@
+.dropdown{
+    position: relative;
+    display: inline-block;
+    margin-top: 40px;
+}
+
+.dropdown-toggle{
+    background-color: white;
+    border: 2px solid black !important; /*IDK WHY THIS DOESNT WORK WITHOUT IMPORTANT*/
+    width: 300px;
+    height: 56px;
+    font-size: 22px;
+    padding-right: 15px;
+    cursor: pointer;
+    position: relative;
+    border-radius: 3px;
+}
+
+.dropdown-toggle:after{
+    content: "▼";
+    position: absolute;
+    font-size: 30px;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.dropdown-menu{
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    width: 300px;
+}
+
+.dropdown-item{
+    display: flex;
+    align-items: center;
+    background-color: #fafafa;
+    cursor: pointer;
+    text-align: left;
+}
+
+span{
+    font-size: 19px;
+}
+
+
+.dropdown-item:hover {
+    background-color: #f7f5f5; 
+}
+
+input[type="checkbox"]{
+    transform: scale(1.6);
+    margin-right: 10px;
+}
