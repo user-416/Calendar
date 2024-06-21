@@ -108,8 +108,7 @@ body{
 }
   
 .dropdown-toggle {
-    background-color: #4CAF50;
-    color: white;
+    color: black;
     padding: 10px;
     border: none;
     cursor: pointer;

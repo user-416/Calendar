@@ -15,6 +15,7 @@ const Meet = () => {
         authenticated: false,
         user: null
     });
+    const [calendars, setCalendars] = useState([{name:'test1'}, {name:'test2'}]);
 
     const getAuthUrl = async () => {
         try {
@@ -92,17 +93,16 @@ const Meet = () => {
             <div id="copy-message">Link copied!</div>
             <div>
                 {authStatus.authenticated ? (
-                    <div>Welcome {authStatus.user?.name || 'User'}</div>
+                    <Dropdown calendars={calendars}/>
                 ) : (
-                    <div>Please log in</div>
+                    <button className="add-calendar-button" type="button" onClick={getAuthUrl}>
+                        <svg viewBox="0 0 24 24" className="plus-icon">
+                            <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+                        </svg>
+                        Login
+                    </button>
                 )}
             </div>
-            <button className="add-calendar-button" type="button" onClick={getAuthUrl}>
-                <svg viewBox="0 0 24 24" className="plus-icon">
-                    <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
-                </svg>
-                Add Calendar
-            </button>
         </div>
         <Grid event={event} />
     </div>
