@@ -2,13 +2,19 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import Grid from './Grid';
+import Dropdown from './Dropdown';
 import './Meet.css';
+
 const Meet = () => {
     const {id} = useParams();
     const navigate = useNavigate();
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [authStatus, setAuthStatus] = useState({
+        authenticated: false,
+        user: null
+    });
 
     const getAuthUrl = async () => {
         try {
@@ -33,6 +39,20 @@ const Meet = () => {
             console.error('Error copying text: ', error);
         });
     };
+
+    useEffect(() => {
+        axios.get('http://localhost:3000/api/auth-status', {withCredentials: true})
+            .then(response => {
+                setAuthStatus({ 
+                    authenticated: response.data.authenticated, 
+                    user: response.data.user
+                });
+            })
+            .catch(error => {
+                console.error('Error checking auth status:', error);
+                setAuthStatus({authenticated: false, user: null});
+            });
+    }, []);
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -70,6 +90,13 @@ const Meet = () => {
                 </button>
             </div>
             <div id="copy-message">Link copied!</div>
+            <div>
+                {authStatus.authenticated ? (
+                    <div>Welcome {authStatus.user?.name || 'User'}</div>
+                ) : (
+                    <div>Please log in</div>
+                )}
+            </div>
             <button className="add-calendar-button" type="button" onClick={getAuthUrl}>
                 <svg viewBox="0 0 24 24" className="plus-icon">
                     <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>

@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const { google } = require('googleapis');
-const path = require('path');
+const session = require('express-session');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
@@ -10,9 +10,20 @@ const Meeting = require('./src/model/meeting.js').Meeting;
 const Event = require('./src/model/event.js').Event
 
 const app = express();
-app.use(cors()); // Enable CORS for all routes
+app.use(cors({origin: ['http://localhost:3000', 'http://localhost:3001'],
+credentials: true})); // Enable CORS for all routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(session({
+  secret: process.env.SESSION_SECRET, 
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: false,
+    httpOnly: true, 
+    maxAge: 1000 * 60 * 60 * 24 // 24hr
+  }
+}));
 
 // Set up Google OAuth2 client
 const oauth2Client = new google.auth.OAuth2(
@@ -32,6 +43,14 @@ mongoose.connect(dbURI).then(() => {
 }).catch(() => {
   console.log("Can't connect to DB");
 });
+
+function isAuthenticated(req, res, next) {
+  if (req.session.user && req.session.user.authenticated) {
+    next();
+  } else {
+    res.status(401).json({ error: 'Not authenticated' });
+  }
+}
 
 // Route to initiate Google OAuth2 flow
 app.get('/login', (req, res) => {
@@ -71,8 +90,6 @@ app.get('/redirect', async (req, res) => {
         return;
       }
 
-      // Add user to the database
-      // Future - add calendar too
       try {
         const meeting = await Meeting.findOne({ id: id });
         if (meeting) {
@@ -88,12 +105,36 @@ app.get('/redirect', async (req, res) => {
         console.error('Error updating meeting', err);
       }
 
-      res.cookie('authed', true, { maxAge: 3600000, httpOnly: true, sameSite: 'strict' });
-      
-      console.log("Successfully logged in with " + email);
-      res.redirect(`http://localhost:3001/${id}`);
+      req.session.user = {
+        email: email,
+        authenticated: true
+      };
+
+      req.session.save((err) => {
+        if (err) {
+          console.error('Error saving session:', err);
+        }
+        console.log(req.session.user);
+        // Redirect after successful save
+        res.redirect(`http://localhost:3001/${id}`);
+      });
     });
   });
+});
+
+app.get('/api/auth-status', (req, res) => {
+  console.log("session\n" + JSON.stringify(req.session));
+  if (req.session.user && req.session.user.email && req.session.user.authenticated) {
+    res.json({ 
+      authenticated: true, 
+      user: { 
+        email: req.session.user.email 
+      } 
+    });
+  } else {
+    console.log('could not authenticate');
+    res.json({ authenticated: false });
+  }
 });
 
 // API route for creating an event
@@ -128,7 +169,7 @@ app.get('/api/events/:id', async (req, res) => {
 });
 
 // API route for adding user events to the meeting
-app.post('/api/addCalendar', async (req, res) => {
+app.post('/api/addCalendar', isAuthenticated, async (req, res) => { // Route only accessible if user is authenticated
 
   const {calendarId, meetingId} = req.body;
 
