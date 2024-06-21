@@ -6,7 +6,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 // DB Schema
-const Meeting = require('./src/model/meeting.js')
+const Meeting = require('./src/model/meeting.js').Meeting;
+const Event = require('./src/model/event.js').Event
 
 const app = express();
 app.use(cors()); // Enable CORS for all routes
@@ -24,12 +25,12 @@ const oauth2Client = new google.auth.OAuth2(
 const dbURI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@calcluster.luczgwc.mongodb.net/?retryWrites=true&w=majority&appName=calCluster`;
 
 mongoose.connect(dbURI).then(() => {
-    console.log("Connected to DB");
+  console.log("Connected to DB");
 
-    // Start the Express server
-    app.listen(3000, () => console.log('Server running at 3000'));
+  // Start the Express server
+  app.listen(3000, () => console.log('Server running at 3000'));
 }).catch(() => {
-    console.log("Can't connect to DB");
+  console.log("Can't connect to DB");
 });
 
 // Route to initiate Google OAuth2 flow
@@ -62,7 +63,7 @@ app.get('/redirect', async (req, res) => {
         console.error('Error fetching user info', err);
         res.status(500).send('Error');
         return;
-      }
+      } 
 
       const email = response.data.email;
       if (!email) {
@@ -87,6 +88,8 @@ app.get('/redirect', async (req, res) => {
         console.error('Error updating meeting', err);
       }
 
+      res.cookie('authed', true, { maxAge: 3600000, httpOnly: true, sameSite: 'strict' });
+      
       console.log("Successfully logged in with " + email);
       res.redirect(`http://localhost:3001/${id}`);
     });
@@ -102,7 +105,7 @@ app.post('/api/create', async (req, res) => {
   try {
     // Generate random id
     const uid = Date.now().toString(36) + '-' + Math.random().toString(36).substring(2);
-    const meeting = new Meeting({ id: uid, name: name, dates: dates, startTime: startTime, endTime: endTime, people: [] });
+    const meeting = new Meeting({ id: uid, name: name, dates: dates, startTime: startTime, endTime: endTime, people: [] , events: []});
     await meeting.save();
     res.status(201).send(`/${uid}`);
   } catch (err) {
@@ -124,6 +127,90 @@ app.get('/api/events/:id', async (req, res) => {
   }
 });
 
+// API route for adding user events to the meeting
+app.post('/api/addCalendar', async (req, res) => {
+
+  const {calendarId, meetingId} = req.body;
+
+  const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+  let calData = {};
+
+  calendar.events.list({
+    calendarId: calendarId,
+
+  }, async (err, response) => {
+    if (err) {
+      console.error('Can\'t fetch events');
+      res.status(500).send('Error');
+      console.log(err);
+      return;
+    }
+
+    calData = response.data.items;
+
+    const meeting = await Meeting.findOne({ id: meetingId });
+
+    if (!meeting)
+    {
+      res.status(404).json({ message: 'Meeting not found' });
+      return;
+    }
+
+    let allEvents = [];
+
+    for (let i = 0; i < calData.length; i++)
+    {
+      let eventData = calData[i];
+
+      const start = eventData.start;
+      const end = eventData.end;
+
+      const event = new Event({eventName: eventData.summary, start: start, end: end});
+      event.save();
+      allEvents.push(event);
+    }
+    
+    const email = calData[0].creator.email;
+
+
+    // Possiblt repimplement read personIndex
+
+    let personInDatabase = false;
+    for (let i = 0; i < meeting.calendars.length; i++)
+    {
+      const eachPerson = meeting.calendars[i]
+      if ("personName" in eachPerson && eachPerson.personName === email)
+      {
+        personInDatabase = true;
+      }
+    }
+
+    console.log(email + " " + allEvents + "\n\n\n");
+
+    if (personInDatabase)
+    {
+      console.log(meeting._id);
+      Meeting.updateOne({ _id: meeting._id}, 
+        { $push: {"calendars.$[personObj].personCalendar": {calendarId: calendarId, events: allEvents}}},
+        {arrayFilters: [{"personObj.personName": email}]}).catch(err => {
+        console.error(err);
+      });
+    } else {
+      Meeting.updateOne({ _id: meeting._id},
+      { $push: {"calendars": {personName: email, personCalendar: [{calendarId: calendarId, events: allEvents}]}}}).catch (err => {
+        console.error(err);
+      });
+    }
+
+
+    res.end();
+    
+  });
+
+
+});
+
 // Route to list all calendars
 app.get('/calendars', (req, res) => {
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
@@ -131,6 +218,7 @@ app.get('/calendars', (req, res) => {
     if (err) {
       console.error('Error fetching calendars', err);
       res.status(500).send('Error');
+      console.log(err);
       return;
     }
     res.json(response.data.items);
@@ -139,20 +227,24 @@ app.get('/calendars', (req, res) => {
 
 // Route to list events from a specified calendar
 app.get('/events', (req, res) => {
-  const calendarId = req.query.calendar ?? 'primary';
+  const calId = req.query.calendar ?? 'primary';
+  console.log(calId);
+  console.log(typeof calId);
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
   calendar.events.list({
-    calendarId,
-    timeMin: (new Date()).toISOString(),
-    maxResults: 15,
-    singleEvents: true,
-    orderBy: 'startTime'
+    calendarId: calId,
+
   }, (err, response) => {
     if (err) {
       console.error('Can\'t fetch events');
       res.status(500).send('Error');
+      console.log(err);
       return;
     }
+
     res.json(response.data.items);
+    console.log(response.data.items)
+
+    
   });
 });
