@@ -165,87 +165,68 @@ app.get('/api/events/:id', async (req, res) => {
 });
 
 // API route for adding user events to the meeting
-app.post('/api/addCalendar', isAuthenticated, async (req, res) => { // Route only accessible if user is authenticated
+app.post('/api/toggleCalendar', isAuthenticated, async (req, res) => {
+  const { calendarId, meetingId } = req.body;
+  const email = req.session.user.email;
 
-  const {calendarId, meetingId} = req.body;
-
-  const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
-
-  let calData = {};
-
-  calendar.events.list({
-    calendarId: calendarId,
-
-  }, async (err, response) => {
-    if (err) {
-      console.error('Can\'t fetch events');
-      res.status(500).send('Error');
-      console.log(err);
-      return;
-    }
-
-    calData = response.data.items;
-
+  try {
     const meeting = await Meeting.findOne({ id: meetingId });
 
-    if (!meeting)
-    {
-      res.status(404).json({ message: 'Meeting not found' });
-      return;
+    if (!meeting) {
+      return res.status(404).json({ message: 'Meeting not found' });
     }
 
-    let allEvents = [];
+    // Check if the calendar already exists for this user
+    const personIndex = meeting.calendars.findIndex(cal => cal.personName === email);
+    const calendarExists = personIndex !== -1 && 
+      meeting.calendars[personIndex].personCalendar.some(cal => cal.calendarId === calendarId);
 
-    for (let i = 0; i < calData.length; i++)
-    {
-      let eventData = calData[i];
+    if (calendarExists) {
+      // Remove calendar + events
+      await Meeting.updateOne(
+        { _id: meeting._id, "calendars.personName": email },
+        { $pull: { "calendars.$.personCalendar": { calendarId: calendarId } } }
+      );
 
-      const start = eventData.start;
-      const end = eventData.end;
+      await Event.deleteMany({ calendarId: calendarId });
 
-      const event = new Event({eventName: eventData.summary, start: start, end: end});
-      event.save();
-      allEvents.push(event);
-    }
-    
-    const email = calData[0].creator.email;
-
-
-    // Possibly reimplement read personIndex
-
-    let personInDatabase = false;
-    for (let i = 0; i < meeting.calendars.length; i++)
-    {
-      const eachPerson = meeting.calendars[i]
-      if ("personName" in eachPerson && eachPerson.personName === email)
-      {
-        personInDatabase = true;
-      }
-    }
-
-    console.log(email + " " + allEvents + "\n\n\n");
-
-    if (personInDatabase)
-    {
-      console.log(meeting._id);
-      Meeting.updateOne({ _id: meeting._id}, 
-        { $push: {"calendars.$[personObj].personCalendar": {calendarId: calendarId, events: allEvents}}},
-        {arrayFilters: [{"personObj.personName": email}]}).catch(err => {
-        console.error(err);
-      });
+      return res.json({ message: 'Calendar removed successfully', action: 'removed' });
     } else {
-      Meeting.updateOne({ _id: meeting._id},
-      { $push: {"calendars": {personName: email, personCalendar: [{calendarId: calendarId, events: allEvents}]}}}).catch (err => {
-        console.error(err);
-      });
+      // Add calendar + events
+      const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+      const calendarResponse = await calendar.events.list({ calendarId: calendarId });
+      const calData = calendarResponse.data.items;
+
+      // Don't add empty calendars
+      if (calData.length === 0) {
+        return res.status(200).json({ message: 'No events found in this calendar', action: 'no_action' });
+      }
+
+      const allEvents = await Event.insertMany(calData.map(eventData => ({
+        eventName: eventData.summary || 'Untitled Event',
+        start: eventData.start || {},
+        end: eventData.end || {},
+        calendarId: calendarId
+      })));
+
+      if (personIndex !== -1) {
+        await Meeting.updateOne(
+          { _id: meeting._id, "calendars.personName": email },
+          { $push: { "calendars.$.personCalendar": { calendarId, events: allEvents } } }
+        );
+      } else {
+        await Meeting.updateOne(
+          { _id: meeting._id },
+          { $push: { calendars: { personName: email, personCalendar: [{ calendarId, events: allEvents }] } } }
+        );
+      }
+
+      return res.json({ message: 'Calendar added successfully' });
     }
-
-
-    res.end();
-    
-  });
-
-
+  } catch (error) {
+    console.error('Error in toggleCalendar:', error);
+    res.status(500).json({ message: 'Internal server error', error: error });
+  }
 });
 
 // Route to list all calendars

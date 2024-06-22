@@ -42,16 +42,28 @@ const Meet = () => {
         });
     };
 
-    const toggleCalendar = (calendar) => {
-        setSelectedCalendars(prevSelected => {
-            const newSet = new Set(prevSelected);
-            if (newSet.has(calendar.id))
+    const toggleCalendar = async (calendar) => {
+        try {
+            const newSet = new Set(selectedCalendars);
+            if (newSet.has(calendar.id)) {
                 newSet.delete(calendar.id);
-            else
+            } else {
                 newSet.add(calendar.id);
-            return newSet;
-        });
-    }
+            }
+            setSelectedCalendars(newSet);
+
+            // Update the database
+            await axios.post('http://localhost:3000/api/toggleCalendar', {
+                    calendarId: calendar.id,
+                    meetingId: id
+                }, {
+                    withCredentials: true
+                });
+        } catch (error) {
+            console.error('Error toggling calendar:', error);
+        }
+    };
+
 
     useEffect(() => {
         axios.get('http://localhost:3000/api/auth-status', {withCredentials: true})
@@ -72,6 +84,7 @@ const Meet = () => {
             try {
                 const response = await axios.get('http://localhost:3000/api/getCalendars', {withCredentials: true});
                 setCalendars(response.data);
+                console.log(JSON.stringify(response.data));
             } catch (err) {
                 console.log(err);
             }
