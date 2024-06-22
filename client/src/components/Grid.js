@@ -1,26 +1,19 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useMemo} from "react";
 import TimeUtil from "../utils/TimeUtil";
 import DateUtil from "../utils/DateUtil";
 import "./Grid.css";
 import {testcases} from "./Grid-testcases";
 
-
 const Grid = ({ event }) => {
     //busy intervals is map with key of person and value of maps with keys of dates and values of arrays of pairs of ints
     const busyIntervals = testcases[2];
+    
     const users = Array.from(busyIntervals.keys());
     const { name, startTime: earliestTime, endTime: latestTime, dates } = event;
     const earliestMin = TimeUtil.toMinutes(earliestTime), latestMin = TimeUtil.toMinutes(latestTime);
-    dates.sort((a, b) => new Date(a) - new Date(b));
-    const formattedDates = dates.map(
-        (date) => new Date(date).toISOString().split("T")[0]
-    );
+    const formattedDates = dates.map(date => new Date(date).toISOString().split("T")[0]);
     const totalUsers = busyIntervals.size;
-    const availUsersMap = new Map(); 
-    const intervalMap = new Map(); //date : ([intervals in minutes],[availUsers])
     const totalMin = TimeUtil.minutesBetween(earliestTime, latestTime);
-    
-
     const getAvailUsers = (idx, date) => {
         const availUsers = [];
         const curMin = idx + earliestMin;
@@ -38,38 +31,43 @@ const Grid = ({ event }) => {
         }
         return availUsers;
     }
-    const fillAvailUsersMap = () => {
+    const availUsersMap = useMemo(() => {
+        const map = new Map();
         for(let date of formattedDates){
-            availUsersMap.set(date, [])
+            map.set(date, [])
             for(let i=0; i<totalMin+1; i++){
-                availUsersMap.get(date).push(getAvailUsers(i, date));
+                map.get(date).push(getAvailUsers(i, date, busyIntervals, earliestMin));
             }
         }
-    }
-    fillAvailUsersMap();
-    const isDiffAvailUsers = (minIdx1, minIdx2, date) =>{
-        const availUsersArr = availUsersMap.get(date);
-        return JSON.stringify(availUsersArr[minIdx1].sort()) !== JSON.stringify(availUsersArr[minIdx2].sort());
-    }
-    const fillIntervalMap= () => {
+        return map;
+    }, [busyIntervals]);
+
+    const intervalMap = useMemo(() => {
+        console.log("re-calculate interval map");
+        const map = new Map();
         for (let date of formattedDates) {
             const intervals = [];
             let start = earliestMin;
+            const availUsers = availUsersMap.get(date);
             for(let i=0; i<totalMin; i++){
-                if(isDiffAvailUsers(i, i+1, date)){
+                if(JSON.stringify(availUsers[i]) !== JSON.stringify(availUsers[i+1])){
                     const end = earliestMin + i+1;
-                    intervals.push([start,end, availUsersMap.get(date)[i-1]]);
+                    intervals.push([start, end, availUsersMap.get(date)[i-1]]);
                     start = end;
                 }
             }
             if(start <= latestMin)
                 intervals.push([start, latestMin, availUsersMap.get(date)[totalMin]]);
-            intervalMap.set(date, intervals);
+            map.set(date, intervals);
         }
-    };
-    fillIntervalMap();
+        return map;
+    }, []);
 
-    const generateHourlyIntervals = () => {
+    const hourlyLabels = useMemo(() => {
+        console.log("re-calculate hourly labels");
+        /*let a = 0;
+        while(a<1000000000)
+            a++;*/
         const intervals = [];
         const start = parseInt(earliestTime.slice(0, 2));
         const end = parseInt(latestTime.slice(0, 2));
@@ -77,8 +75,7 @@ const Grid = ({ event }) => {
             intervals.push(TimeUtil.toAMPM(TimeUtil.hoursToHHMM(hour)));
         }
         return intervals;
-    };
-    const hourlyLabels = generateHourlyIntervals();
+    }, []);
 
     const [selectedIntervalIdx, setSelectedIntervalIdx] = useState(0);
     const [selectedDate, setSelectedDate] = useState(formattedDates[0]);

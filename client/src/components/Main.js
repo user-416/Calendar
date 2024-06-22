@@ -134,7 +134,7 @@ const Main = () => {
         try {
             const response = await axios.post('http://localhost:3000/api/create', {
                 name: eventName,
-                dates: Array.from(selectedDates),
+                dates: Array.from(selectedDates).toSorted((a,b) => new Date(a)-new Date(b)), //convert set to arr and sort
                 startTime: TimeUtil.toMilitaryTime(startTime, isAMStart),
                 endTime: TimeUtil.toMilitaryTime(endTime, isAMEnd),
             });
