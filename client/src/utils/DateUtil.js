@@ -1,6 +1,6 @@
 class DateUtil {
 
-    //these functions accept both strings in the format YYYY-MM-DD
+    //these functions accept strings in the format YYYY-MM-DD
     static getDate(dateInput){
         const [year, month, day] = dateInput.split('-').map(Number);
         return new Date(year, month - 1, day);
@@ -26,6 +26,12 @@ class DateUtil {
     static toMonthNameD(dateInput){
         const date = this.getDate(dateInput);
         return `${this.getMonthName(dateInput)} ${date.getDate()}`;
+    }
+
+    static addDaysToDate(dateInput, days) {
+        const date = this.getDate(dateInput)
+        date.setDate(date.getDate() + days);
+        return date.toISOString().split('T')[0];
     }
 
     static getMonthMatrix = (date) => {

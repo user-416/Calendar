@@ -27,8 +27,8 @@ class TimeUtil{
     }
 
     static toMinutes(time){
-        const hrs = parseInt(time.slice(0, 2), 10);
-        const mins = parseInt(time.slice(3), 10);
+        const hrs = parseInt(time.slice(0, 2));
+        const mins = parseInt(time.slice(3));
         return hrs * 60 + mins;
     }
 

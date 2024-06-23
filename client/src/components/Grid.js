@@ -5,8 +5,7 @@ import "./Grid.css";
 import {testcases} from "./Grid-testcases";
 
 const Grid = ({ event }) => {
-    //busy intervals is map with key of person and value of maps with keys of dates and values of arrays of pairs of ints
-    const busyIntervals = testcases[2];
+    const busyIntervals = testcases[0];
     
     const users = Array.from(busyIntervals.keys());
     const { name, startTime: earliestTime, endTime: latestTime, dates } = event;
@@ -14,16 +13,46 @@ const Grid = ({ event }) => {
     const formattedDates = dates.map(date => new Date(date).toISOString().split("T")[0]);
     const totalUsers = busyIntervals.size;
     const totalMin = TimeUtil.minutesBetween(earliestTime, latestTime);
+
+    //check for end time going into next day
+    for(let [user, userIntervalsArr] of busyIntervals.entries()){
+        for(let userIntervals of userIntervalsArr){
+            for(let [date, intervals] of userIntervals){
+                const [start, end] = intervals[intervals.length-1].split("-");
+                const endHour = parseInt(end.substring(0, 2))
+                if(endHour >= 24){ 
+                    intervals[intervals.length-1] = start + "-" + latestTime; 
+                    const nextDay = DateUtil.addDaysToDate(date, 1);
+                    const nextDayEndMinute = TimeUtil.toMinutes(end)-24*60;
+                    console.log(nextDayEndMinute);
+                    console.log(earliestMin);
+                    if(nextDayEndMinute > earliestMin && formattedDates.includes(date)){
+                        const nextDayInterval = earliestTime + "-" + TimeUtil.minutesToHHMM(nextDayEndMinute);
+                        if(!userIntervals.has(nextDay))
+                            userIntervals.set(nextDay, []);
+                        userIntervals.get(nextDay).unshift(nextDayInterval);
+                    }
+                }
+            }
+        }
+    }
+    console.log(busyIntervals);
     const getAvailUsers = (idx, date) => {
         const availUsers = [];
         const curMin = idx + earliestMin;
-        for(let [user, userIntervals] of busyIntervals.entries()){
+        for(let [user, userIntervalsArr] of busyIntervals.entries()){
             let isAvail = true;
-            for(let interval of userIntervals.get(date)){
-                const [startMin, endMin] = interval.split("-").map((time) => TimeUtil.toMinutes(time));
-                if (startMin <= curMin && curMin < endMin){
-                    isAvail = false;
-                    break;
+            for(let userIntervals of userIntervalsArr){
+                if(userIntervals.has(date)){
+                    for(let interval of userIntervals.get(date)){
+                        const [startMin, endMin] = interval.split("-").map((time) => TimeUtil.toMinutes(time));
+                        if (startMin <= curMin && curMin < endMin){
+                            isAvail = false;
+                            break;
+                        }
+                    }
+                    if(!isAvail)
+                        break;
                 }
             }
             if(isAvail)
@@ -56,10 +85,11 @@ const Grid = ({ event }) => {
                     start = end;
                 }
             }
-            if(start <= latestMin)
+            if(start < latestMin)
                 intervals.push([start, latestMin, availUsersMap.get(date)[totalMin]]);
             map.set(date, intervals);
         }
+        console.log(map);
         return map;
     }, []);
 
