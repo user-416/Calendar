@@ -64,7 +64,6 @@ const Meet = () => {
         }
     };
 
-
     useEffect(() => {
         axios.get('http://localhost:3000/api/auth-status', {withCredentials: true})
             .then(response => {
@@ -82,16 +81,28 @@ const Meet = () => {
     useEffect(() => {
         const fetchCalendars = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/api/getCalendars', {withCredentials: true});
+                const response = await axios.get('http://localhost:3000/api/getAllCalendars', {withCredentials: true});
                 setCalendars(response.data);
-                console.log(JSON.stringify(response.data));
             } catch (err) {
                 console.log(err);
             }
         };
     
         fetchCalendars();
-      }, []);
+    }, []);
+
+    useEffect(() => {
+        const fetchCalendars = async () => {
+            try {
+                const response = await axios.get(`http://localhost:3000/api/getCalendars?meetingId=${id}`, {withCredentials: true});
+                setSelectedCalendars(new Set(response.data.calendars));
+            } catch (err) {
+                console.log(err);
+            }
+        };
+    
+        fetchCalendars();
+    }, [id]);
 
     useEffect(() => {
         const fetchEvent = async () => {

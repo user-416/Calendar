@@ -120,6 +120,7 @@ app.get('/redirect', async (req, res) => {
   });
 });
 
+// API route to authenticate
 app.get('/api/auth-status', (req, res) => {
   if (req.session.user && req.session.user.email && req.session.user.authenticated) {
     res.json({ 
@@ -229,8 +230,8 @@ app.post('/api/toggleCalendar', isAuthenticated, async (req, res) => {
   }
 });
 
-// Route to list all calendars
-app.get('/api/getCalendars', isAuthenticated, (req, res) => {
+// API route to list all calendars
+app.get('/api/getAllCalendars', isAuthenticated, (req, res) => {
   const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
   calendar.calendarList.list({}, (err, response) => {
     if (err) {
@@ -239,6 +240,32 @@ app.get('/api/getCalendars', isAuthenticated, (req, res) => {
     }
     res.json(response.data.items);
   });
+});
+
+// API Route to get selected calendars for a user
+app.get('/api/getCalendars', isAuthenticated, async (req, res) => {
+  const { meetingId } = req.query;
+
+  try {
+    const meeting = await Meeting.findOne({ id: meetingId });
+
+    if (!meeting) {
+      return res.status(404).json({ message: 'Meeting not found' });
+    }
+
+    const userCalendars = meeting.calendars.find(cal => cal.personName === req.session.user.email);
+
+    if (!userCalendars) {
+      return res.json({ calendars: [] });
+    }
+
+    const selectedCalendars = userCalendars.personCalendar.map(cal => cal.calendarId);
+
+    res.json({ calendars: selectedCalendars });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error: error });
+  }
 });
 
 // Route to list events from a specified calendar
@@ -260,7 +287,5 @@ app.get('/events', (req, res) => {
 
     res.json(response.data.items);
     console.log(response.data.items)
-
-    
   });
 });
