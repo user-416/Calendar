@@ -5,33 +5,70 @@ import "./Grid.css";
 import {testcases} from "./Grid-testcases";
 
 const Grid = ({ event }) => {
-    const busyIntervals = testcases[0];
-    
-    const users = Array.from(busyIntervals.keys());
+    const calendars = testcases[1];
+    console.log(calendars);
+    const users = Array.from(calendars.keys());
     const { name, startTime: earliestTime, endTime: latestTime, dates } = event;
     const earliestMin = TimeUtil.toMinutes(earliestTime), latestMin = TimeUtil.toMinutes(latestTime);
     const formattedDates = dates.map(date => new Date(date).toISOString().split("T")[0]);
-    const totalUsers = busyIntervals.size;
+    const totalUsers = calendars.size;
     const totalMin = TimeUtil.minutesBetween(earliestTime, latestTime);
 
-    //check for end time going into next day
-    for(let [user, userIntervalsArr] of busyIntervals.entries()){
+    const getMergedIntervals = (intervals) => {
+        const convertedIntervals = intervals.map(interval => interval.split("-").map(time => TimeUtil.toMinutes(time)));
+        convertedIntervals.sort((a, b) => a[0] - b[0]);
+
+        const merged = [];
+        for (let current of convertedIntervals) {
+            if (merged.length === 0) {
+                merged.push(current);
+            }else {
+                let last = merged[merged.length - 1];
+                if (current[0] > last[1]) 
+                    merged.push(current);
+                else 
+                    last[1] = Math.max(current[1], last[1]);
+            }
+        }
+
+        return merged.map(interval => `${TimeUtil.minutesToHHMM(interval[0])}-${TimeUtil.minutesToHHMM(interval[1])}`);
+    }
+
+    const busyIntervals = new Map();
+    for(let [user, userIntervalsArr] of calendars.entries()){
+        const userMap = new Map();
         for(let userIntervals of userIntervalsArr){
             for(let [date, intervals] of userIntervals){
-                const [start, end] = intervals[intervals.length-1].split("-");
-                const endHour = parseInt(end.substring(0, 2))
-                if(endHour >= 24){ 
-                    intervals[intervals.length-1] = start + "-" + latestTime; 
-                    const nextDay = DateUtil.addDaysToDate(date, 1);
-                    const nextDayEndMinute = TimeUtil.toMinutes(end)-24*60;
-                    console.log(nextDayEndMinute);
-                    console.log(earliestMin);
-                    if(nextDayEndMinute > earliestMin && formattedDates.includes(date)){
-                        const nextDayInterval = earliestTime + "-" + TimeUtil.minutesToHHMM(nextDayEndMinute);
-                        if(!userIntervals.has(nextDay))
-                            userIntervals.set(nextDay, []);
-                        userIntervals.get(nextDay).unshift(nextDayInterval);
-                    }
+                for(let interval of intervals){
+                    if(!userMap.has(date))
+                        userMap.set(date, []);
+                    userMap.get(date).push(interval);
+                }
+            }
+        }
+
+        for(let [date, intervals] of userMap.entries())
+            userMap.set(date, getMergedIntervals(intervals));
+        busyIntervals.set(user, userMap);
+    }
+    console.log(busyIntervals);
+
+    //check for end time going into next day
+    for(let [user, userIntervals] of busyIntervals.entries()){
+        for(let [date, intervals] of userIntervals){
+            const [start, end] = intervals[intervals.length-1].split("-");
+            const endHour = parseInt(end.substring(0, 2))
+            if(endHour >= 24){ 
+                intervals[intervals.length-1] = start + "-" + latestTime; 
+                const nextDay = DateUtil.addDaysToDate(date, 1);
+                const nextDayEndMinute = TimeUtil.toMinutes(end)-24*60;
+                console.log(nextDayEndMinute);
+                console.log(earliestMin);
+                if(nextDayEndMinute > earliestMin && formattedDates.includes(date)){
+                    const nextDayInterval = earliestTime + "-" + TimeUtil.minutesToHHMM(nextDayEndMinute);
+                    if(!userIntervals.has(nextDay))
+                        userIntervals.set(nextDay, []);
+                    userIntervals.get(nextDay).unshift(nextDayInterval);
                 }
             }
         }
@@ -40,19 +77,15 @@ const Grid = ({ event }) => {
     const getAvailUsers = (idx, date) => {
         const availUsers = [];
         const curMin = idx + earliestMin;
-        for(let [user, userIntervalsArr] of busyIntervals.entries()){
+        for(let [user, userIntervals] of busyIntervals.entries()){
             let isAvail = true;
-            for(let userIntervals of userIntervalsArr){
-                if(userIntervals.has(date)){
-                    for(let interval of userIntervals.get(date)){
-                        const [startMin, endMin] = interval.split("-").map((time) => TimeUtil.toMinutes(time));
-                        if (startMin <= curMin && curMin < endMin){
-                            isAvail = false;
-                            break;
-                        }
-                    }
-                    if(!isAvail)
+            if(userIntervals.has(date)){
+                for(let interval of userIntervals.get(date)){
+                    const [startMin, endMin] = interval.split("-").map(time => TimeUtil.toMinutes(time));
+                    if (startMin <= curMin && curMin < endMin){
+                        isAvail = false;
                         break;
+                    }
                 }
             }
             if(isAvail)
