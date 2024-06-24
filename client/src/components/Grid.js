@@ -15,114 +15,99 @@ const Grid = ({ event }) => {
     const totalMin = TimeUtil.minutesBetween(earliestTime, latestTime);
 
     const getMergedIntervals = (intervals) => {
-        const convertedIntervals = intervals.map(interval => interval.split("-").map(time => TimeUtil.toMinutes(time)));
-        convertedIntervals.sort((a, b) => a[0] - b[0]);
+        intervals.sort((a, b) => a[0] - b[0]);
 
         const merged = [];
-        for (let current of convertedIntervals) {
-            if (merged.length === 0) {
-                merged.push(current);
-            }else {
-                let last = merged[merged.length - 1];
-                if (current[0] > last[1]) 
-                    merged.push(current);
-                else 
-                    last[1] = Math.max(current[1], last[1]);
-            }
+        for (let interval of intervals) {
+            if (merged.length === 0 || interval[0] > merged[merged.length - 1][1]) 
+                merged.push(interval);
+            else 
+                merged[merged.length - 1][1] = Math.max(interval[1], merged[merged.length - 1][1]);  
         }
-
-        return merged.map(interval => `${TimeUtil.minutesToHHMM(interval[0])}-${TimeUtil.minutesToHHMM(interval[1])}`);
+        return merged;
     }
-
-    const busyIntervals = new Map();
-    for(let [user, userIntervalsArr] of calendars.entries()){
-        const userMap = new Map();
-        for(let userIntervals of userIntervalsArr){
-            for(let [date, intervals] of userIntervals){
-                for(let interval of intervals){
-                    if(!userMap.has(date))
-                        userMap.set(date, []);
-                    userMap.get(date).push(interval);
-                }
-            }
-        }
-
-        for(let [date, intervals] of userMap.entries())
-            userMap.set(date, getMergedIntervals(intervals));
-        busyIntervals.set(user, userMap);
-    }
-    console.log(busyIntervals);
-
-    //check for end time going into next day
-    for(let [user, userIntervals] of busyIntervals.entries()){
-        for(let [date, intervals] of userIntervals){
-            const [start, end] = intervals[intervals.length-1].split("-");
-            const endHour = parseInt(end.substring(0, 2))
-            if(endHour >= 24){ 
-                intervals[intervals.length-1] = start + "-" + latestTime; 
-                const nextDay = DateUtil.addDaysToDate(date, 1);
-                const nextDayEndMinute = TimeUtil.toMinutes(end)-24*60;
-                console.log(nextDayEndMinute);
-                console.log(earliestMin);
-                if(nextDayEndMinute > earliestMin && formattedDates.includes(date)){
-                    const nextDayInterval = earliestTime + "-" + TimeUtil.minutesToHHMM(nextDayEndMinute);
-                    if(!userIntervals.has(nextDay))
-                        userIntervals.set(nextDay, []);
-                    userIntervals.get(nextDay).unshift(nextDayInterval);
-                }
-            }
-        }
-    }
-    console.log(busyIntervals);
-    const getAvailUsers = (idx, date) => {
+    const getAvailUsers = (intervalStart, intervalEnd, date) => {
         const availUsers = [];
-        const curMin = idx + earliestMin;
         for(let [user, userIntervals] of busyIntervals.entries()){
-            let isAvail = true;
-            if(userIntervals.has(date)){
-                for(let interval of userIntervals.get(date)){
-                    const [startMin, endMin] = interval.split("-").map(time => TimeUtil.toMinutes(time));
-                    if (startMin <= curMin && curMin < endMin){
-                        isAvail = false;
-                        break;
-                    }
-                }
-            }
-            if(isAvail)
+            if(userIntervals.has(date) && !userIntervals.get(date).some(busyInterval => (busyInterval[0] <= intervalStart && intervalEnd <= busyInterval[1])))
                 availUsers.push(user);
         }
         return availUsers;
     }
-    const availUsersMap = useMemo(() => {
+
+    const busyIntervals = useMemo(() => {
         const map = new Map();
-        for(let date of formattedDates){
-            map.set(date, [])
-            for(let i=0; i<totalMin+1; i++){
-                map.get(date).push(getAvailUsers(i, date, busyIntervals, earliestMin));
+        for(let [user, userIntervalsArr] of calendars.entries()){
+            const userMap = new Map();
+            for(let userIntervals of userIntervalsArr){
+                for(let [date, intervals] of userIntervals){
+                    for(let interval of intervals){
+                        if(!userMap.has(date))
+                            userMap.set(date, []);
+                        //convert interval from HH:MM-HH:MM to [startMin, endMin]
+                        userMap.get(date).push(interval.split('-').map(time => TimeUtil.toMinutes(time)));
+                    }
+                }
+            }
+
+            for(let [date, intervals] of userMap.entries()){
+                userMap.set(date, getMergedIntervals(intervals));
+            }
+            map.set(user, userMap);
+        }
+
+         //check for end time going into next day
+        for(let [user, userIntervals] of map.entries()){
+            for(let [date, intervals] of userIntervals){
+                const [start, end] = intervals[intervals.length-1];
+                if(end >= 24*60){ 
+                    intervals[intervals.length-1][1] = latestMin; 
+                    const nextDay = DateUtil.addDaysToDate(date, 1);
+                    const nextDayEnd = end-24*60;
+                    if(nextDayEnd > earliestMin && formattedDates.includes(date)){
+                        if(!userIntervals.has(nextDay))
+                            userIntervals.set(nextDay, []);
+                        const nextDayInterval = [earliestMin, nextDayEnd];
+                        userIntervals.get(nextDay).unshift(nextDayInterval);
+                    }
+                }
             }
         }
         return map;
-    }, [busyIntervals]);
+    }, [calendars]);
 
     const intervalMap = useMemo(() => {
-        console.log("re-calculate interval map");
         const map = new Map();
         for (let date of formattedDates) {
             const intervals = [];
-            let start = earliestMin;
-            const availUsers = availUsersMap.get(date);
-            for(let i=0; i<totalMin; i++){
-                if(JSON.stringify(availUsers[i]) !== JSON.stringify(availUsers[i+1])){
-                    const end = earliestMin + i+1;
-                    intervals.push([start, end, availUsersMap.get(date)[i-1]]);
-                    start = end;
+            intervals.push(earliestMin);
+            for(let [user, userIntervals] of busyIntervals){
+                for(let interval of userIntervals.get(date)){
+                    let [start, end] = interval
+                    start = Math.max(start, earliestMin); 
+                    end = Math.min(end, latestMin);
+                    intervals.push(start);
+                    intervals.push(end);
                 }
             }
-            if(start < latestMin)
-                intervals.push([start, latestMin, availUsersMap.get(date)[totalMin]]);
-            map.set(date, intervals);
+
+            intervals.sort((a,b)=>a-b);
+            intervals.push(latestMin);
+
+            const intervalAvail = [];
+            for(let i=0; i<intervals.length-1; i++){
+                if(intervals[i]===intervals[i+1])
+                    continue;
+                const start = intervals[i], end = intervals[i+1];
+                const availUsers = getAvailUsers(start, end, date);
+                const prev = intervalAvail[intervalAvail.length-1]
+                if(intervalAvail.length>0 && JSON.stringify(availUsers) === JSON.stringify(prev[2]))
+                    prev[1] = end;
+                else
+                    intervalAvail.push([start, end, availUsers]);
+            }
+            map.set(date, intervalAvail);
         }
-        console.log(map);
         return map;
     }, []);
 
