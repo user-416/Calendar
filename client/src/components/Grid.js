@@ -190,7 +190,7 @@ const Grid = ({ event }) => {
                                             style={{
                                                 height: `${intervalHeight*1.405}px`,  
                                                 backgroundColor: isSelected ? `rgba(0, 100, 255, ${opacity+1/(2*totalUsers)})` : `rgba(0, 128, 0, ${opacity})`,
-                                                borderBottom: `${intervalIdx === intervalMap.get(date).length - 1 ? '2px' : '1px'} solid black`
+                                                borderBottom: `${intervalIdx === intervalMap.get(date).length - 1 ? '2px' : '1.2px'} solid black`
                                             }}
                                         >
                                         </div>

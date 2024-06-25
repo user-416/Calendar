@@ -20,26 +20,30 @@ const Dropdown = ({ calendars, selectedCalendars, toggleCalendar }) => {
   }, []);
 
   const toggleDropdown = () => {
+    console.log("toggled");
     setIsDropdownOpen(!isDropdownOpen);
   }
 
   return (
     <div className="dropdown" ref={dropdownRef}>
-      <button className="dropdown-toggle" onClick={toggleDropdown}>Select Calendars</button>
-      {isDropdownOpen && (
-        <div className="dropdown-menu">
-          {calendars.map((calendar, idx) => (
-            <label key={idx} className="dropdown-item">
-              <input
-                type="checkbox"
-                checked={selectedCalendars.has(calendar.id)}
-                onChange={() => toggleCalendar(calendar)}
-              />
-              <span>{calendar.summary}</span>
-            </label>
-          ))}
-        </div>
-      )}
+      <button className={`dropdown-toggle ${isDropdownOpen ? 'open' : ''}`} onClick={toggleDropdown}>
+        Select Calendars
+        <svg viewBox="0 0 24 24" className="plus-icon">
+          <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+        </svg>
+      </button>
+      <div className={`dropdown-menu ${isDropdownOpen ? 'open' : ''}`}>
+        {calendars.map((calendar, idx) => (
+          <label key={idx} className="dropdown-item">
+            <input
+              type="checkbox"
+              checked={selectedCalendars.has(calendar.id)}
+              onChange={() => toggleCalendar(calendar)}
+            />
+            <span>{calendar.summary}</span>
+          </label>
+        ))}
+      </div>
     </div>
   );
 };

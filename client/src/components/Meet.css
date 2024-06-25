@@ -1,7 +1,7 @@
 body{
     height: 100vh;
     overflow-y: auto;
-
+    font-family: 'Glacial Indifference', sans-serif;
 }
 /*link and add calender button*/
 .top-container {
@@ -15,7 +15,7 @@ body{
 
 .link-box{
     position: relative; /*for copy button child*/
-    width: 32%;
+    width: 450px;
     margin-top: 30px;
     border: 1px solid #173386;
     border-radius: 20px;
@@ -54,34 +54,23 @@ body{
     top: 70px;
 }
 
-/*add calendar button*/
-.add-calendar-button{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 15%; 
+/*login button*/
+.login-button{
     margin-top: 40px;
-    padding: 8px 10px; 
-    border: 1px solid #173386; 
-    background-color: white;
+    padding: 8px 60px; 
+    border: 1.5px solid #173386; 
+    background-color: #0056b3;  
+    color: white;
     border-radius: 20px; 
-    font-size: 18px; 
     text-align: center;
     cursor: pointer;
+    font-size: 24px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.top-container .add-calendar-button:hover {
-    background-color: #0056b3; 
-    color: white;
-}
-
-.plus-icon{
-    margin-right: 10px;
-    width: 28px;
-    height: 28px;
-    fill: white;
+.login-button:hover {
+    transform: scale(1.03);
     background-color: #006edc;
-    border-radius: 5px;
 }
 
 /*Loading message & Error message*/
@@ -101,35 +90,5 @@ body{
 }
 
 
-/* Dropdown styling */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-  
-.dropdown-toggle {
-    color: black;
-    padding: 10px;
-    border: none;
-    cursor: pointer;
-}
-  
-.dropdown-menu {
-    position: absolute;
-    background-color: #f1f1f1;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-}
-  
-.dropdown-item {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-  
-.dropdown-item:hover {
-    background-color: #ddd;
-}
+
   
