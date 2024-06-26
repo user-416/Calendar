@@ -10,7 +10,7 @@ const Meeting = require('./src/model/meeting.js').Meeting;
 const Event = require('./src/model/event.js').Event
 
 const app = express();
-app.use(cors({origin: ['http://localhost:3000', 'http://localhost:3001'], credentials: true})); 
+app.use(cors({origin: ['http://localhost:3000', 'http://localhost:3001'], credentials: true}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
@@ -262,9 +262,27 @@ app.get('/api/getCalendars', isAuthenticated, async (req, res) => {
     const selectedCalendars = userCalendars.personCalendar.map(cal => cal.calendarId);
 
     res.json({ calendars: selectedCalendars });
-
   } catch (error) {
     res.status(500).json({ message: 'Internal server error', error: error });
+  }
+});
+
+// API Route to get all calenars + events in DB
+app.get('/api/getAvail', isAuthenticated, async (req, res) => {
+  const { meetingId } = req.query;
+
+  try {
+    const meeting = await Meeting.findOne({id: meetingId});
+
+    if (!meeting) {
+      return res.status(404).json({message: 'Meeting noit found'});
+    }
+
+    const calendars = meeting.calendars;
+
+    res.json({calendars: calendars});
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error: error})
   }
 });
 

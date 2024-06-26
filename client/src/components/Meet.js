@@ -44,21 +44,22 @@ const Meet = () => {
 
     const toggleCalendar = async (calendar) => {
         try {
+            // Update the database
+            await axios.post('http://localhost:3000/api/toggleCalendar', {
+                calendarId: calendar.id,
+                meetingId: id
+            }, {
+                withCredentials: true
+            });
+
             const newSet = new Set(selectedCalendars);
             if (newSet.has(calendar.id)) {
                 newSet.delete(calendar.id);
             } else {
                 newSet.add(calendar.id);
             }
+            
             setSelectedCalendars(newSet);
-
-            // Update the database
-            await axios.post('http://localhost:3000/api/toggleCalendar', {
-                    calendarId: calendar.id,
-                    meetingId: id
-                }, {
-                    withCredentials: true
-                });
         } catch (error) {
             console.error('Error toggling calendar:', error);
         }
@@ -153,7 +154,7 @@ const Meet = () => {
                 )}
             </div>
         </div>
-        <Grid event={event} />
+        <Grid event={event} id={id} selectedCalendars={selectedCalendars} />
     </div>
     );
 };

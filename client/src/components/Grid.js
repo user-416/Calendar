@@ -1,12 +1,11 @@
 import React, {useEffect, useState, useMemo} from "react";
+import axios from 'axios';
 import TimeUtil from "../utils/TimeUtil";
 import DateUtil from "../utils/DateUtil";
 import "./Grid.css";
-import {testcases} from "./Grid-testcases";
 
-const Grid = ({ event }) => {
-    const calendars = testcases[1];
-    console.log(calendars);
+const Grid = ({ id, event, selectedCalendars }) => {
+    const [calendars, setCalendars] = useState(new Map());
     const users = Array.from(calendars.keys());
     const { name, startTime: earliestTime, endTime: latestTime, dates } = event;
     const earliestMin = TimeUtil.toMinutes(earliestTime), latestMin = TimeUtil.toMinutes(latestTime);
@@ -26,6 +25,7 @@ const Grid = ({ event }) => {
         }
         return merged;
     }
+    
     const getAvailUsers = (intervalStart, intervalEnd, date) => {
         const availUsers = [];
         for(let [user, userIntervals] of busyIntervals.entries()){
@@ -81,9 +81,10 @@ const Grid = ({ event }) => {
         for (let date of formattedDates) {
             const intervals = [];
             intervals.push(earliestMin);
-            for(let [user, userIntervals] of busyIntervals){
-                for(let interval of userIntervals.get(date)){
-                    let [start, end] = interval
+            for (let [user, userIntervals] of busyIntervals) {
+                if (!userIntervals.has(date)) continue;
+                for (let interval of userIntervals.get(date)) {
+                    let [start, end] = interval;
                     start = Math.max(start, earliestMin); 
                     end = Math.min(end, latestMin);
                     intervals.push(start);
@@ -91,25 +92,25 @@ const Grid = ({ event }) => {
                 }
             }
 
-            intervals.sort((a,b)=>a-b);
+            intervals.sort((a, b) => a - b);
             intervals.push(latestMin);
 
             const intervalAvail = [];
-            for(let i=0; i<intervals.length-1; i++){
-                if(intervals[i]===intervals[i+1])
-                    continue;
-                const start = intervals[i], end = intervals[i+1];
+            for (let i = 0; i < intervals.length - 1; i++) {
+                if (intervals[i] === intervals[i + 1]) continue;
+                const start = intervals[i], end = intervals[i + 1];
                 const availUsers = getAvailUsers(start, end, date);
-                const prev = intervalAvail[intervalAvail.length-1]
-                if(intervalAvail.length>0 && JSON.stringify(availUsers) === JSON.stringify(prev[2]))
+                const prev = intervalAvail[intervalAvail.length - 1];
+                if (intervalAvail.length > 0 && JSON.stringify(availUsers) === JSON.stringify(prev[2])) {
                     prev[1] = end;
-                else
+                } else {
                     intervalAvail.push([start, end, availUsers]);
+                }
             }
             map.set(date, intervalAvail);
         }
         return map;
-    }, []);
+    }, [calendars]);
 
     const hourlyLabels = useMemo(() => {
         console.log("re-calculate hourly labels");
@@ -145,6 +146,39 @@ const Grid = ({ event }) => {
         setDateEndIdx(dateStartIdx-1);
         setDateStartIdx(Math.max(0, dateStartIdx-7));
     }
+
+    useEffect(() => {
+        const getCalendars = async () => {
+            try {
+                const response = await axios.get(`http://localhost:3000/api/getAvail?meetingId=${id}`, {withCredentials: true});
+
+                const formattedCalendars = new Map();
+                response.data.calendars.forEach(calendar => {
+                    const userCalendars = calendar.personCalendar.map(cal => {
+                        const formattedEvents = new Map();
+                        cal.events.forEach(event => {
+                            // console.log("event: " + JSON.stringify(event));
+                            const date = event.start.date || event.start.dateTime.split('T')[0];
+                            if (!formattedEvents.has(date)) {
+                                formattedEvents.set(date, []);
+                            }
+                            const startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : '00:00';
+                            const endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : '23:59';
+                            formattedEvents.get(date).push(`${startTime}-${endTime}`);
+                        });
+                        return formattedEvents;
+                    });
+                formattedCalendars.set(calendar.personName, userCalendars);
+            });
+
+            setCalendars(formattedCalendars);
+            } catch (err) {
+                console.log(err);
+            }
+        };
+    
+        getCalendars();
+    }, [id, selectedCalendars]);
 
     return (
         <div className="component-container">
