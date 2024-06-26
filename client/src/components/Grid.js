@@ -6,7 +6,6 @@ import "./Grid.css";
 
 const Grid = ({ id, event, selectedCalendars }) => {
     const [calendars, setCalendars] = useState(new Map());
-    const users = Array.from(calendars.keys());
     const { name, startTime: earliestTime, endTime: latestTime, dates } = event;
     const earliestMin = TimeUtil.toMinutes(earliestTime), latestMin = TimeUtil.toMinutes(latestTime);
     const formattedDates = dates.map(date => new Date(date).toISOString().split("T")[0]);
@@ -170,7 +169,7 @@ const Grid = ({ id, event, selectedCalendars }) => {
                     });
                 formattedCalendars.set(calendar.personName, userCalendars);
             });
-
+            console.log(calendars, formattedCalendars);
             setCalendars(formattedCalendars);
             } catch (err) {
                 console.log(err);
@@ -184,7 +183,7 @@ const Grid = ({ id, event, selectedCalendars }) => {
         <div className="component-container">
             <div className="all-users-wrapper users-wrapper">
                 <div className="users-heading">People</div> 
-                {users.map(user => (
+                {Array.from(calendars.keys()).map(user => (
                     <p key={user} className='user-name'>{user}</p>
                 ))}
             </div>
