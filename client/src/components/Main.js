@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from 'react';
-import axios from 'axios';
+import calendarService from '../services/calendar';
 import Calendar from 'react-calendar';
 import { useNavigate } from 'react-router-dom';
 import 'react-calendar/dist/Calendar.css';
@@ -132,14 +132,16 @@ const Main = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3000/api/create', {
+            const eventDetails = {
                 name: eventName,
                 dates: Array.from(selectedDates).toSorted((a,b) => new Date(a)-new Date(b)), //convert set to arr and sort
                 startTime: TimeUtil.toMilitaryTime(startTime, isAMStart),
                 endTime: TimeUtil.toMilitaryTime(endTime, isAMEnd),
-            });
-            console.log(response.data);  
-            navigate(response.data);
+            };
+
+            const data = await calendarService.createEvent(eventDetails);
+            console.log(data);  
+            navigate(data);
         } catch (err) {
             console.log('Error creating event', err);
         }

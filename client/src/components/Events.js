@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import calendarService from '../services/calendar';
 
 const Events = ({ calendarId }) => {
   const [events, setEvents] = useState([]);
@@ -7,8 +7,8 @@ const Events = ({ calendarId }) => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/events?calendar=${calendarId}`);
-        setEvents(response.data);
+        const data = await calendarService.getEvents(calendarId)
+        setEvents(data);
       } catch (error) {
         console.error('Error fetching events', error);
       }
