@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import axios from 'axios';
+import calendarService from '../services/calendar';
+import authService from '../services/auth';
 import { useParams, useNavigate } from 'react-router-dom';
 import Grid from './Grid';
 import Dropdown from './Dropdown';
@@ -8,7 +9,7 @@ import './Meet.css';
 const Meet = () => {
     const {id} = useParams();
     const navigate = useNavigate();
-    const [event, setEvent] = useState(null);
+    const [meeting, setMeeting] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [authStatus, setAuthStatus] = useState({
@@ -20,8 +21,8 @@ const Meet = () => {
 
     const getAuthUrl = async () => {
         try {
-          const response = await axios.get(`http://localhost:3000/login?id=${id}`);
-          window.location.href = response.data.url;
+          const data = await authService.login(id);
+          window.location.href = data.url;
         } catch (error) {
           console.error('Error fetching auth URL', error);
         }
@@ -44,13 +45,11 @@ const Meet = () => {
 
     const toggleCalendar = async (calendar) => {
         try {
-            // Update the database
-            await axios.post('http://localhost:3000/api/toggleCalendar', {
+            const calendarDetails = {
                 calendarId: calendar.id,
                 meetingId: id
-            }, {
-                withCredentials: true
-            });
+            }
+            await calendarService.toggleCalendar(calendarDetails);
 
             const newSet = new Set(selectedCalendars);
             if (newSet.has(calendar.id)) {
@@ -66,11 +65,11 @@ const Meet = () => {
     };
 
     useEffect(() => {
-        axios.get('http://localhost:3000/api/auth-status', {withCredentials: true})
-            .then(response => {
+        authService.getAuth()
+            .then(data => {
                 setAuthStatus({ 
-                    authenticated: response.data.authenticated, 
-                    user: response.data.user
+                    authenticated: data.authenticated, 
+                    user: data.user
                 });
             })
             .catch(error => {
@@ -82,8 +81,8 @@ const Meet = () => {
     useEffect(() => {
         const fetchCalendars = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/api/getAllCalendars', {withCredentials: true});
-                setCalendars(response.data);
+                const data = await calendarService.getAllCalendars();
+                setCalendars(data);
             } catch (err) {
                 console.log(err);
             }
@@ -93,32 +92,32 @@ const Meet = () => {
     }, []);
 
     useEffect(() => {
-        const fetchCalendars = async () => {
+        const fetchSelected = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/api/getCalendars?meetingId=${id}`, {withCredentials: true});
-                setSelectedCalendars(new Set(response.data.calendars));
+                const data = await calendarService.getSelectedCalendars(id);
+                setSelectedCalendars(new Set(data.calendars));
             } catch (err) {
                 console.log(err);
             }
         };
     
-        fetchCalendars();
+        fetchSelected();
     }, [id]);
 
     useEffect(() => {
-        const fetchEvent = async () => {
+        const fetchMeeting = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/api/events/${id}`);
-                setEvent(response.data);
+                const data = await authService.getMeeting(id);
+                setMeeting(data);
                 setLoading(false);
             } catch (err) {
                 setLoading(false);
-                setError('Event not found');
+                setError('Meeting not found');
                 navigate('/404'); // Replace with 404
             }
         };
 
-        fetchEvent();
+        fetchMeeting();
     }, [id, navigate]);
 
     if (loading) {
@@ -151,7 +150,7 @@ const Meet = () => {
                 )}
             </div>
         </div>
-        <Grid event={event} id={id} selectedCalendars={selectedCalendars} />
+        <Grid meeting={meeting} id={id} selectedCalendars={selectedCalendars} />
     </div>
     );
 };

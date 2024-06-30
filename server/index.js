@@ -152,7 +152,7 @@ app.post('/api/create', async (req, res) => {
 });
 
 // API route for checking if an event exists
-app.get('/api/events/:id', async (req, res) => {
+app.get('/api/meeting/:id', async (req, res) => {
   try {
     const meeting = await Meeting.findOne({ id: req.params.id });
     if (meeting) {
@@ -284,26 +284,4 @@ app.get('/api/getAvail', isAuthenticated, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Internal server error', error: error})
   }
-});
-
-// Route to list events from a specified calendar
-app.get('/events', (req, res) => {
-  const calId = req.query.calendar ?? 'primary';
-  console.log(calId);
-  console.log(typeof calId);
-  const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
-  calendar.events.list({
-    calendarId: calId,
-
-  }, (err, response) => {
-    if (err) {
-      console.error('Can\'t fetch events');
-      res.status(500).send('Error');
-      console.log(err);
-      return;
-    }
-
-    res.json(response.data.items);
-    console.log(response.data.items)
-  });
 });

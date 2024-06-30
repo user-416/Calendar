@@ -1,12 +1,12 @@
 import React, {useEffect, useState, useMemo} from "react";
-import axios from 'axios';
+import calendarService from '../services/calendar';
 import TimeUtil from "../utils/TimeUtil";
 import DateUtil from "../utils/DateUtil";
 import "./Grid.css";
 
-const Grid = ({ id, event, selectedCalendars }) => {
+const Grid = ({ id, meeting, selectedCalendars }) => {
     const [calendars, setCalendars] = useState(new Map());
-    const { name, startTime: earliestTime, endTime: latestTime, dates } = event;
+    const { name, startTime: earliestTime, endTime: latestTime, dates } = meeting;
     const earliestMin = TimeUtil.toMinutes(earliestTime), latestMin = TimeUtil.toMinutes(latestTime);
     const formattedDates = dates.map(date => new Date(date).toISOString().split("T")[0]);
     const totalUsers = calendars.size;
@@ -149,14 +149,13 @@ const Grid = ({ id, event, selectedCalendars }) => {
     useEffect(() => {
         const getCalendars = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/api/getAvail?meetingId=${id}`, {withCredentials: true});
+                const data = await calendarService.getAvailability(id);
 
                 const formattedCalendars = new Map();
-                response.data.calendars.forEach(calendar => {
+                data.calendars.forEach(calendar => {
                     const userCalendars = calendar.personCalendar.map(cal => {
                         const formattedEvents = new Map();
                         cal.events.forEach(event => {
-                            // console.log("event: " + JSON.stringify(event));
                             const date = event.start.date || event.start.dateTime.split('T')[0];
                             if (!formattedEvents.has(date)) {
                                 formattedEvents.set(date, []);
@@ -197,7 +196,7 @@ const Grid = ({ id, event, selectedCalendars }) => {
                     <div className="navigation-arrows">
                         <button onClick={back7Days} disabled={dateStartIdx === 0}>&lt;</button>
                         <div className="event-name">{name}</div>
-                        <button onClick={forward7Days} disabled={dateEndIdx == event.dates.length - 1}>&gt;</button>
+                        <button onClick={forward7Days} disabled={dateEndIdx == meeting.dates.length - 1}>&gt;</button>
                     </div>
                     <div className="date-labels" style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)` }}>
                             {formattedDates.slice(dateStartIdx, dateEndIdx+1).map((date, dateIdx) => (
