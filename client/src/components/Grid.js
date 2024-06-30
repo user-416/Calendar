@@ -9,9 +9,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
     const { name, startTime: earliestTime, endTime: latestTime, dates } = meeting;
     const earliestMin = TimeUtil.toMinutes(earliestTime), latestMin = TimeUtil.toMinutes(latestTime);
     const formattedDates = dates.map(date => new Date(date).toISOString().split("T")[0]);
-    const totalUsers = calendars.size;
     const totalMin = TimeUtil.minutesBetween(earliestTime, latestTime);
-
     const getMergedIntervals = (intervals) => {
         intervals.sort((a, b) => a[0] - b[0]);
 
@@ -28,7 +26,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
     const getAvailUsers = (intervalStart, intervalEnd, date) => {
         const availUsers = [];
         for(let [user, userIntervals] of busyIntervals.entries()){
-            if(userIntervals.has(date) && !userIntervals.get(date).some(busyInterval => (busyInterval[0] <= intervalStart && intervalEnd <= busyInterval[1])))
+            if(!userIntervals.has(date) || !userIntervals.get(date).some(busyInterval => (busyInterval[0] <= intervalStart && intervalEnd <= busyInterval[1])))
                 availUsers.push(user);
         }
         return availUsers;
@@ -112,10 +110,6 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
     }, [calendars]);
 
     const hourlyLabels = useMemo(() => {
-        console.log("re-calculate hourly labels");
-        /*let a = 0;
-        while(a<1000000000)
-            a++;*/
         const intervals = [];
         const start = parseInt(earliestTime.slice(0, 2));
         const end = parseInt(latestTime.slice(0, 2));
@@ -156,19 +150,21 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                     const userCalendars = calendar.personCalendar.map(cal => {
                         const formattedEvents = new Map();
                         cal.events.forEach(event => {
-                            const date = event.start.date || event.start.dateTime.split('T')[0];
-                            if (!formattedEvents.has(date)) {
-                                formattedEvents.set(date, []);
+                            if(event.start){
+                                const date = event.start.date || event.start.dateTime.split('T')[0];
+                                if (!formattedEvents.has(date)) {
+                                    formattedEvents.set(date, []);
+                                }
+                                const startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : '00:00';
+                                const endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : '23:59';
+                                formattedEvents.get(date).push(`${startTime}-${endTime}`);
                             }
-                            const startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : '00:00';
-                            const endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : '23:59';
-                            formattedEvents.get(date).push(`${startTime}-${endTime}`);
                         });
                         return formattedEvents;
                     });
                 formattedCalendars.set(calendar.personName, userCalendars);
             });
-            console.log(calendars, formattedCalendars);
+            //console.log(calendars, formattedCalendars);
             setCalendars(formattedCalendars);
             } catch (err) {
                 console.log(err);
@@ -177,7 +173,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
     
         getCalendars();
     }, [id, selectedCalendars]);
-
+    console.log(calendars);
     return (
         <div className="component-container">
             <div className="all-users-wrapper users-wrapper">
@@ -211,7 +207,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                             <div key={date} className="grid-col">
                                 {intervalMap.get(date).map(([startMin, endMin, availUsers], intervalIdx) => {
                                     const availCnt = availUsers.length;
-                                    const opacity = availCnt / totalUsers;
+                                    const opacity = availCnt / calendars.size;
                                     const intervalHeight = endMin - startMin;
                                     const isSelected = date==selectedDate && intervalIdx==selectedIntervalIdx;
                                     return (
@@ -221,7 +217,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                                             onClick={() => handleIntervalClick(date, intervalIdx)}
                                             style={{
                                                 height: `${intervalHeight*1.405}px`,  
-                                                backgroundColor: isSelected ? `rgba(0, 100, 255, ${opacity+1/(2*totalUsers)})` : `rgba(0, 128, 0, ${opacity})`,
+                                                backgroundColor: isSelected ? `rgba(0, 100, 255, ${opacity+1/(2*calendars.size)})` : `rgba(0, 128, 0, ${opacity})`,
                                                 borderBottom: `${intervalIdx === intervalMap.get(date).length - 1 ? '2px' : '1.2px'} solid black`
                                             }}
                                         >
