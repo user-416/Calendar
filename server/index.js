@@ -37,7 +37,7 @@ mongoose.connect(dbURI).then(() => {
   console.log("Connected to DB");
 
   // Start the Express server
-  app.listen(3000, () => console.log('Server running at 3000'));
+  app.listen(10000, () => console.log('Server running at 10000'));
 }).catch(() => {
   console.log("Can't connect to DB");
 });
@@ -116,7 +116,7 @@ app.get('/redirect', async (req, res) => {
           console.error('Error saving session:', err);
         }
         // Redirect after successful save
-        res.redirect(`http://localhost:3000/${id}`);
+        res.redirect(`https://calendar-bslk.onrender.com/${id}`);
       });
     });
   });
