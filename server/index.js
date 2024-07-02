@@ -23,6 +23,13 @@ app.use(session({
   }
 }));
 
+const cors = require('cors');
+
+app.use(cors({
+  origin: "https://calendar-bslk.onrender.com/",
+  credentials: true
+}));
+
 // Set up Google OAuth2 client
 const oauth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
