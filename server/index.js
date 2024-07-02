@@ -3,14 +3,13 @@ const express = require('express');
 const { google } = require('googleapis');
 const session = require('express-session');
 const mongoose = require('mongoose');
-const cors = require('cors');
+const path = require('path');
 
 // DB Schema
 const Meeting = require('./src/model/meeting.js').Meeting;
 const Event = require('./src/model/event.js').Event
 
 const app = express();
-app.use(cors({origin: ['http://localhost:3000', 'http://localhost:3001'], credentials: true}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
@@ -50,6 +49,9 @@ function isAuthenticated(req, res, next) {
     res.status(401).json({ error: 'Not authenticated' });
   }
 }
+
+// Serve static files from the client/build directory
+app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // Route to initiate Google OAuth2 flow
 app.get('/login', (req, res) => {
@@ -114,7 +116,7 @@ app.get('/redirect', async (req, res) => {
           console.error('Error saving session:', err);
         }
         // Redirect after successful save
-        res.redirect(`http://localhost:3001/${id}`);
+        res.redirect(`http://localhost:3000/${id}`);
       });
     });
   });
@@ -284,4 +286,9 @@ app.get('/api/getAvail', isAuthenticated, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Internal server error', error: error})
   }
+});
+
+// Handle all other routes by serving the index.html file
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
