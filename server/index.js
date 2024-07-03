@@ -17,7 +17,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: false,
+    secure: true,
     httpOnly: true, 
     maxAge: 1000 * 60 * 60 * 24 // 24hr
   }
@@ -26,7 +26,7 @@ app.use(session({
 const cors = require('cors');
 
 app.use(cors({
-  origin: "https://calendar-bslk.onrender.com/",
+  origin: "https://calendar-bslk.onrender.com",
   credentials: true
 }));
 
