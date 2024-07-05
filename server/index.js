@@ -1,9 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const { google } = require('googleapis');
-const session = require('cookie-session');
+const session = require('express-session');
 const mongoose = require('mongoose');
 const path = require('path');
+const MemoryStore = require('memorystore')(session)
 
 // DB Schema
 const Meeting = require('./src/model/meeting.js').Meeting;
@@ -14,6 +15,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: process.env.SESSION_SECRET, 
+  store: new MemoryStore({
+    checkPeriod: 86400000 // prune expired entries every 24h
+  }),
   resave: false,
   saveUninitialized: false,
   cookie: { 
