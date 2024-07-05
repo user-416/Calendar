@@ -24,6 +24,8 @@ app.use(session({
   }
 }));
 
+app.set('trust proxy', 1);
+
 const cors = require('cors');
 
 app.use(cors({
