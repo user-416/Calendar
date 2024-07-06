@@ -62,14 +62,12 @@
     display: flex;
     flex-direction: row;
     border-left: 2px solid black;
+    cursor: pointer;
 }
 
 .grid-col{
     display: flex;
     flex-direction: column;
-}
-.grid:hover{
-    cursor: pointer;
 }
 
 .date-labels {
@@ -91,6 +89,8 @@
     border-right: 2px solid black;  /* Vertical lines between cells */
     background-color: gray;
     box-sizing: border-box;
+    z-index: 1000;
+    cursor: pointer;
 }
 
 
