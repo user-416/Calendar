@@ -57,10 +57,10 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
         for(let [user, userIntervals] of map.entries()){
             for(let [date, intervals] of userIntervals){
                 const [start, end] = intervals[intervals.length-1];
-                if(end >= 24*60){ 
+                if(start > end){ 
                     intervals[intervals.length-1][1] = latestMin; 
                     const nextDay = DateUtil.addDaysToDate(date, 1);
-                    const nextDayEnd = end-24*60;
+                    const nextDayEnd = end;
                     if(nextDayEnd > earliestMin && formattedDates.includes(date)){
                         if(!userIntervals.has(nextDay))
                             userIntervals.set(nextDay, []);
