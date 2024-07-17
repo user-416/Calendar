@@ -3,20 +3,22 @@ const express = require('express');
 const { google } = require('googleapis');
 const session = require('express-session');
 const mongoose = require('mongoose');
-const cors = require('cors');
+
+const path = require('path');
+const MemoryStore = require('memorystore')(session)
 
 // DB Schema
 const Meeting = require('./src/model/meeting.js').Meeting;
 const Event = require('./src/model/event.js').Event
 
 const app = express();
-
-// Middleware setup
-app.use(cors({origin: ['http://localhost:3000', 'http://localhost:3001'], credentials: true}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: process.env.SESSION_SECRET, 
+  store: new MemoryStore({
+    checkPeriod: 1000 * 60 * 60 * 24
+  }),
   resave: false,
   saveUninitialized: false,
   cookie: { 
@@ -26,12 +28,21 @@ app.use(session({
   }
 }));
 
+const cors = require('cors');
+app.use(cors({
+  origin: "https://calendar-bslk.onrender.com",
+  credentials: true
+}));
+
+// Serve static files from the client/build directory
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
 // Connect to MongoDB
 const dbURI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@calcluster.luczgwc.mongodb.net/?retryWrites=true&w=majority&appName=calCluster`;
 
 mongoose.connect(dbURI).then(() => {
   console.log("Connected to DB");
-  app.listen(3000, () => console.log('Server running at 3000'));
+  app.listen(10000, () => console.log('Server running at 10000'));
 }).catch(() => {
   console.log("Can't connect to DB");
 });
@@ -133,7 +144,7 @@ app.get('/redirect', async (req, res) => {
         if (err) {
           console.error('Error saving session:', err);
         }
-        res.redirect(`http://localhost:3001/${id}`);
+        res.redirect(`https://calendar-bslk.onrender.com/${id}`);
       });
     });
   });
@@ -160,6 +171,7 @@ app.post('/api/create', async (req, res) => {
     return res.status(400).send('Missing required fields');
   }
   try {
+    // Generate meeting id
     const uid = Date.now().toString(36) + '-' + Math.random().toString(36).substring(2);
     const meeting = new Meeting({ id: uid, name: name, dates: dates, startTime: startTime, endTime: endTime, people: [], events: []});
     await meeting.save();
@@ -183,7 +195,7 @@ app.get('/api/meeting/:id', async (req, res) => {
   }
 });
 
-// API route for adding/removing user calendars to/from the meeting
+// API route for adding/removing user calendars
 app.post('/api/toggleCalendar', isAuthenticated, setupOAuth2Client, async (req, res) => {
   const { calendarId, meetingId } = req.body;
   const email = req.session.user.email;
@@ -195,6 +207,7 @@ app.post('/api/toggleCalendar', isAuthenticated, setupOAuth2Client, async (req, 
       return res.status(404).json({ message: 'Meeting not found' });
     }
 
+    // Check if the calendar already exists for this user
     const personIndex = meeting.calendars.findIndex(cal => cal.personName === email);
     const calendarExists = personIndex !== -1 && 
       meeting.calendars[personIndex].personCalendar.some(cal => cal.calendarId === calendarId);
@@ -304,4 +317,9 @@ app.get('/api/getAvail', isAuthenticated, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Internal server error', error: error})
   }
+});
+
+// Handle all other routes by serving the index.html file
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
