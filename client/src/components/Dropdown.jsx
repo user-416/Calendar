@@ -20,7 +20,6 @@ const Dropdown = ({ calendars, selectedCalendars, toggleCalendar }) => {
   }, []);
 
   const toggleDropdown = () => {
-    console.log("toggled");
     setIsDropdownOpen(!isDropdownOpen);
   }
 

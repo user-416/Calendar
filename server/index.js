@@ -212,19 +212,19 @@ app.post('/api/toggleCalendar', isAuthenticated, setupOAuth2Client, async (req, 
     } else {
       // Add calendar + events
       const calendar = google.calendar({ version: 'v3', auth: req.oauth2Client });
-      const calendarResponse = await calendar.events.list({ calendarId: calendarId });
+      const calendarResponse = await calendar.events.list({ calendarId: calendarId, timeZone: 'UTC' });
       const calData = calendarResponse.data.items;
-
+      console.log('calData', calData);
       if (calData.length === 0) {
         return res.status(200).json({ message: 'No events found in this calendar', action: 'no_action' });
       }
-
       const allEvents = await Event.insertMany(calData.map(eventData => ({
         eventName: eventData.summary || 'Untitled Event',
         start: eventData.start || {},
         end: eventData.end || {},
         calendarId: calendarId
       })));
+      console.log(allEvents);
 
       if (personIndex !== -1) {
         await Meeting.updateOne(

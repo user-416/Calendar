@@ -3,12 +3,33 @@ import calendarService from '../services/calendar';
 import TimeUtil from "../utils/TimeUtil";
 import DateUtil from "../utils/DateUtil";
 import "./Grid.css";
+import TimezoneSelector from "./TimezoneSelector";
 
 const Grid = ({ id, meeting, selectedCalendars }) => {
     const [calendars, setCalendars] = useState(new Map());
-    const { name, startTime: earliestTime, endTime: latestTime, dates } = meeting;
-    const earliestMin = TimeUtil.toMinutes(earliestTime), latestMin = TimeUtil.toMinutes(latestTime);
-    const formattedDates = dates.map(date => new Date(date).toISOString().split("T")[0]);
+    console.log('calendars: ', calendars);
+    const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const [timezone, setTimezone] = useState(defaultTimezone);
+    const [selectedIntervalIdx, setSelectedIntervalIdx] = useState(0);
+    let { name, startTime: earliestTime, endTime: latestTime, dates } = meeting;
+    
+    earliestTime = TimeUtil.convertFromUTC(earliestTime, timezone);
+    latestTime = TimeUtil.convertFromUTC(latestTime, timezone);
+
+    const formattedDates = dates.map(date => new Date(date).toISOString().split("T")[0])
+                                .map(date => DateUtil.convertFromUTC(`${date}T${earliestTime}`, timezone));
+    const [selectedDateIdx, setSelectedDateIdx] = useState(0);
+
+    console.log(formattedDates);
+    const earliestMin = TimeUtil.toMinutes(earliestTime);
+    let latestMin = TimeUtil.toMinutes(latestTime);
+    let startLaterThanEnd = false;
+    if(earliestMin > latestMin){
+        latestMin += 24*60;
+        latestTime = TimeUtil.minutesToHHMM(latestMin);
+        startLaterThanEnd = true;
+    }
+    
     const totalMin = TimeUtil.minutesBetween(earliestTime, latestTime);
     const getMergedIntervals = (intervals) => {
         intervals.sort((a, b) => a[0] - b[0]);
@@ -71,8 +92,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
             }
         }
         return map;
-    }, [calendars]);
-
+    }, [calendars, timezone]);
     const intervalMap = useMemo(() => {
         const map = new Map();
         for (let date of formattedDates) {
@@ -107,23 +127,30 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
             map.set(date, intervalAvail);
         }
         return map;
-    }, [calendars]);
-
+    }, [calendars, timezone]);
+    console.log('intervalMap', intervalMap);
+    
     const hourlyLabels = useMemo(() => {
         const intervals = [];
-        const start = parseInt(earliestTime.slice(0, 2));
-        const end = parseInt(latestTime.slice(0, 2));
-        for (let hour = start; hour <= end; hour++) {
+        let start = parseInt(earliestTime.slice(0, 2));
+        if(parseInt(earliestTime.slice(3, 5)) > 0)
+            start++;
+        let end = parseInt(latestTime.slice(0, 2));
+        if(startLaterThanEnd)
+            end -= 24;
+        let i = 0;
+        for (let hour = start; true ; hour=(hour+1)%24) {
             intervals.push(TimeUtil.toAMPM(TimeUtil.hoursToHHMM(hour)));
+            if(hour === end || i == 24)
+                break;
+            i++;
         }
         return intervals;
-    }, []);
+    }, [timezone, earliestTime]);
 
-    const [selectedIntervalIdx, setSelectedIntervalIdx] = useState(0);
-    const [selectedDate, setSelectedDate] = useState(formattedDates[0]);
-
-    const handleIntervalClick = (date, idx) => {
-        setSelectedDate(date);
+    const handleIntervalClick = (dateIdx, idx) => {
+        setSelectedDateIdx(dateIdx);
+        console.log('selectectedDateIdx', selectedDateIdx, formattedDates[selectedDateIdx], intervalMap.get(formattedDates[selectedDateIdx]));
         setSelectedIntervalIdx(idx);
     }
 
@@ -151,12 +178,18 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                         const formattedEvents = new Map();
                         cal.events.forEach(event => {
                             if(event.start){
-                                const date = event.start.date || event.start.dateTime.split('T')[0];
+                                let date = event.start.date || event.start.dateTime.split('T')[0];
                                 if (!formattedEvents.has(date)) {
                                     formattedEvents.set(date, []);
                                 }
-                                const startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : '00:00';
-                                const endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : '23:59';
+                                let startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : '00:00';
+                                let endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : '23:59';
+                                
+                                //convert to timezone
+                                date = DateUtil.convertFromUTC(`${date}-${startTime}`, timezone);
+                                startTime = TimeUtil.convertFromUTC(startTime, timezone);
+                                endTime = TimeUtil.convertFromUTC(endTime, timezone);
+                                console.log(timezone, date, startTime, endTime);
                                 formattedEvents.get(date).push(`${startTime}-${endTime}`);
                             }
                         });
@@ -172,8 +205,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
         };
     
         getCalendars();
-    }, [id, selectedCalendars]);
-    console.log(calendars);
+    }, [id, selectedCalendars, timezone]);
     return (
         <div className="component-container">
             <div className="all-users-wrapper users-wrapper">
@@ -183,18 +215,19 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                 ))}
             </div>
             <div className="grid-wrapper">
-                <div className="hourly-labels">
+                <div className="hourly-labels" style={{marginTop: ((60 - parseInt(earliestTime.substring(3)))%60)*1.405}}>
                     {hourlyLabels.map((time) => (
                         <div key={time} className="hourly-label">{time}</div>
                     ))}
                 </div>
                 <div className="grid-vertical">
+                    <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
                     <div className="navigation-arrows">
                         <button onClick={back7Days} disabled={dateStartIdx === 0}>&lt;</button>
                         <div className="event-name">{name}</div>
                         <button onClick={forward7Days} disabled={dateEndIdx == meeting.dates.length - 1}>&gt;</button>
                     </div>
-                    <div className="date-labels" style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)` }}>
+                    <div className="date-labels" style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)`}}>
                             {formattedDates.slice(dateStartIdx, dateEndIdx+1).map((date, dateIdx) => (
                                 <div key={date} className="date-label">
                                     <div>{DateUtil.toMD(date)}</div>
@@ -202,19 +235,20 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                                 </div>
                             ))}
                     </div>
-                    <div className="grid" style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)` }}>
+                    <div className="grid" style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)`}}>
                         {formattedDates.slice(dateStartIdx, dateEndIdx + 1).map((date, dateIdx) => (
                             <div key={date} className="grid-col">
                                 {intervalMap.get(date).map(([startMin, endMin, availUsers], intervalIdx) => {
                                     const availCnt = availUsers.length;
                                     const opacity = availCnt / calendars.size;
                                     const intervalHeight = endMin - startMin;
-                                    const isSelected = date==selectedDate && intervalIdx==selectedIntervalIdx;
+                                    const dateRealIdx = dateStartIdx+dateIdx;
+                                    const isSelected = dateRealIdx==selectedDateIdx && intervalIdx==selectedIntervalIdx;
                                     return (
                                         <div
                                             key={`${date}-${startMin}-${endMin}`}
                                             className="grid-cell"
-                                            onClick={() => handleIntervalClick(date, intervalIdx)}
+                                            onClick={() => handleIntervalClick(dateRealIdx, intervalIdx)}
                                             style={{
                                                 height: `${intervalHeight*1.405}px`,  
                                                 backgroundColor: isSelected ? `rgba(0, 100, 255, ${opacity+1/(2*calendars.size)})` : `rgba(0, 128, 0, ${opacity})`,
@@ -229,13 +263,13 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                     </div>
                 </div>
             </div>
-            {selectedDate && (
+            {selectedDateIdx!==-1 && (
             <div className="availability-wrapper users-wrapper">
                 <div className="users-heading">Available</div> 
                 <div className="time-interval">
-                    {TimeUtil.minutesToAMPM(intervalMap.get(selectedDate)[selectedIntervalIdx][0])} - {TimeUtil.minutesToAMPM(intervalMap.get(selectedDate)[selectedIntervalIdx][1])}, {DateUtil.toMonthNameD(selectedDate)}:
+                    {TimeUtil.minutesToAMPM(intervalMap.get(formattedDates[selectedDateIdx])[selectedIntervalIdx][0])} - {TimeUtil.minutesToAMPM(intervalMap.get(formattedDates[selectedDateIdx])[selectedIntervalIdx][1])}, {DateUtil.toMonthNameD(formattedDates[selectedDateIdx])}:
                 </div>
-                {intervalMap.get(selectedDate)[selectedIntervalIdx][2].map(user => (
+                {intervalMap.get(formattedDates[selectedDateIdx])[selectedIntervalIdx][2].map(user => (
                     <p key={user} className='user-name'>{user}</p>
                 ))}
             </div>

@@ -145,6 +145,11 @@ body {
     margin-right: 1%;
     min-width: 45px;
 }
+
+.time-field:hover{
+    transform: scale(1.05);
+}
+
 #dash{
     margin: 0 4%;
     width: 15px; 
@@ -175,6 +180,20 @@ body {
 
 .toggle-button:focus {
     outline: none;
+}
+.toggle-button:hover{
+    transform: scale(1.05);
+}
+
+.timezone-dropdown{
+    padding: 8px 12px;
+    width: 80px;
+    background-color: #f0f0f0;
+    border: none;
+    cursor: pointer;
+}
+.timezone-dropdown:hover{
+    transform: scale(1.05);
 }
 
 

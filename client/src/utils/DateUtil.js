@@ -1,3 +1,4 @@
+import moment from 'moment-timezone';
 class DateUtil {
 
     //these functions accept strings in the format YYYY-MM-DD
@@ -65,6 +66,16 @@ class DateUtil {
     
         return matrix;
     };
+
+    static convertToUTC(dateWithTime, timezone){ //make sure dateWithTime is in YYYY-MM-DDTHH:mm format
+        const localDateTime = moment.tz(dateWithTime, "YYYY-MM-DDTHH:mm", timezone);
+        return localDateTime.utc().format("YYYY-MM-DD");
+    }
+
+    static convertFromUTC(dateWithTime, timezone){
+        const utcDateTime = moment.utc(dateWithTime, "YYYY-MM-DDTHH:mm");
+        return utcDateTime.tz(timezone).format("YYYY-MM-DD");
+    }
     
 }
 

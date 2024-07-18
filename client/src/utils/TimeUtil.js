@@ -1,3 +1,4 @@
+import moment from 'moment-timezone';
 class TimeUtil{
     static toMilitaryTime(time, isAM=null){
         if(isAM === null){
@@ -19,7 +20,9 @@ class TimeUtil{
         return `${hourStr}:${'00'}`;
     };
     static toAMPM(time){
-        const hrs = parseInt(time.slice(0, 2))
+        let hrs = parseInt(time.slice(0, 2));
+        if(hrs >= 24)
+            hrs -= 24;
         const mins = time.slice(3);
         const AMPM = hrs < 12 ? "AM" : "PM";
         const adjustedHrs = hrs % 12 || 12;
@@ -44,6 +47,14 @@ class TimeUtil{
 
     static minutesToAMPM(minutes){
         return this.toAMPM(this.minutesToHHMM(minutes));
+    }
+
+    static convertToUTC(time, timezone){
+        return moment.tz(time, "HH:mm", timezone).utc().format("HH:mm");
+    }
+
+    static convertFromUTC(time, timezone){
+        return moment.utc(time, "HH:mm").tz(timezone).format("HH:mm");
     }
 }
 
