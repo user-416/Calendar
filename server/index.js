@@ -215,9 +215,11 @@ app.post('/api/toggleCalendar', isAuthenticated, setupOAuth2Client, async (req, 
       const calendarResponse = await calendar.events.list({ calendarId: calendarId, timeZone: 'UTC' });
       const calData = calendarResponse.data.items;
       console.log('calData', calData);
+      
       if (calData.length === 0) {
         return res.status(200).json({ message: 'No events found in this calendar', action: 'no_action' });
       }
+
       const allEvents = await Event.insertMany(calData.map(eventData => ({
         eventName: eventData.summary || 'Untitled Event',
         start: eventData.start || {},
@@ -250,7 +252,7 @@ app.post('/api/toggleCalendar', isAuthenticated, setupOAuth2Client, async (req, 
 app.get('/api/getAllCalendars', isAuthenticated, setupOAuth2Client, (req, res) => {
   if (!req.oauth2Client) {
     return res.status(401).json({ error: 'OAuth2 client not set up' });
-  }
+  } 
   const calendar = google.calendar({ version: 'v3', auth: req.oauth2Client });
   calendar.calendarList.list({}, (err, response) => {
     if (err) {

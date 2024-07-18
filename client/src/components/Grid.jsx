@@ -173,6 +173,8 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                 const data = await calendarService.getAvailability(id);
 
                 const formattedCalendars = new Map();
+                
+                console.log("Data: " + JSON.stringify(data));
                 data.calendars.forEach(calendar => {
                     const userCalendars = calendar.personCalendar.map(cal => {
                         const formattedEvents = new Map();
@@ -182,9 +184,13 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                                 if (!formattedEvents.has(date)) {
                                     formattedEvents.set(date, []);
                                 }
-                                let startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : '00:00';
-                                let endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : '23:59';
+
+                                let startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : TimeUtil.convertToUTC(earliestTime, timezone);
+                                let endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : TimeUtil.convertToUTC(latestTime, timezone);
                                 
+                                console.log("Date: " + startTime);
+
+
                                 //convert to timezone
                                 date = DateUtil.convertFromUTC(`${date}-${startTime}`, timezone);
                                 startTime = TimeUtil.convertFromUTC(startTime, timezone);
@@ -193,6 +199,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                                 formattedEvents.get(date).push(`${startTime}-${endTime}`);
                             }
                         });
+
                         return formattedEvents;
                     });
                 formattedCalendars.set(calendar.personName, userCalendars);
