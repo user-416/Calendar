@@ -1,4 +1,5 @@
 import moment from 'moment-timezone';
+import TimeUtil from './TimeUtil';
 class DateUtil {
 
     //these functions accept strings in the format YYYY-MM-DD
@@ -75,6 +76,22 @@ class DateUtil {
     static convertFromUTC(dateWithTime, timezone){
         const utcDateTime = moment.utc(dateWithTime, "YYYY-MM-DDTHH:mm");
         return utcDateTime.tz(timezone).format("YYYY-MM-DD");
+    }
+
+    static convertBusyIntervalsFromUTC(busyIntervals, timezone){
+        for(let [user, userIntervals] of busyIntervals.entries()){
+            const newUserIntervals = new Map();
+            for(let [date, intervals] of userIntervals){
+                for(let interval of intervals){
+                    const newDate = this.convertFromUTC(`${date}T${TimeUtil.minutesToHHMM(interval[0])}`, timezone);
+                    const newInterval = interval.map(min => TimeUtil.toMinutes(TimeUtil.convertFromUTC(TimeUtil.minutesToHHMM(min), timezone)));
+                    if(!newUserIntervals.has(newDate))
+                        newUserIntervals.set(newDate, []);
+                    newUserIntervals.get(newDate).push(newInterval);
+                }
+            }
+            busyIntervals.set(user, newUserIntervals);
+        }
     }
     
 }

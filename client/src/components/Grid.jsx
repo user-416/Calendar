@@ -7,28 +7,37 @@ import TimezoneSelector from "./TimezoneSelector";
 import moment from "moment-timezone";
 
 const Grid = ({ id, meeting, selectedCalendars }) => {
-    const [calendars, setCalendars] = useState(new Map());
-    console.log('calendars: ', calendars);
     const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const [timezone, setTimezone] = useState(defaultTimezone);
-    const [selectedIntervalIdx, setSelectedIntervalIdx] = useState(0);
-    let { name, startTime: earliestTime, endTime: latestTime, dates } = meeting;
+    const [calendars, setCalendars] = useState(new Map());
+    let calendarData;
+    useEffect(() => {
+        const getCalendars = async () => {
+            try {
+                calendarData = await calendarService.getAvailability(id);
+                populateCalendarsUTC();
+            } catch (err) {
+                console.log(err);
+            }
+        };
     
-    earliestTime = TimeUtil.convertFromUTC(earliestTime, timezone);
-    latestTime = TimeUtil.convertFromUTC(latestTime, timezone);
+        getCalendars();
+    }, [id, selectedCalendars]);
 
-    const formattedDates = dates.map(date => new Date(date).toISOString().split("T")[0])
+    console.log('calendars: ', calendars);
+    const [selectedIntervalIdx, setSelectedIntervalIdx] = useState(0);
+    let { name, startTime: earliestTimeUTC, endTime: latestTimeUTC, dates: datesUTC } = meeting;
+    let earliestTime = TimeUtil.convertFromUTC(earliestTimeUTC, timezone);
+    let latestTime = TimeUtil.convertFromUTC(latestTimeUTC, timezone);
+    const formattedDates = datesUTC.map(date => new Date(date).toISOString().split("T")[0])
                                 .map(date => DateUtil.convertFromUTC(`${date}T${earliestTime}`, timezone));
+    //const datesSet = new Set(formattedDates);
     const [selectedDateIdx, setSelectedDateIdx] = useState(0);
 
     const earliestMin = TimeUtil.toMinutes(earliestTime);
     let latestMin = TimeUtil.toMinutes(latestTime);
     let startLaterThanEnd = false;
-    if(earliestMin > latestMin){
-        latestMin += 24*60;
-        latestTime = TimeUtil.minutesToHHMM(latestMin);
-        startLaterThanEnd = true;
-    }
+
     
     const totalMin = TimeUtil.minutesBetween(earliestTime, latestTime);
     const getMergedIntervals = (intervals) => {
@@ -53,7 +62,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
         return availUsers;
     }
 
-    const busyIntervals = useMemo(() => {
+    const busyIntervals = useMemo(() => {//Map<user, Map<date, intervals>>
         const map = new Map();
         for(let [user, userIntervalsArr] of calendars.entries()){
             const userMap = new Map();
@@ -93,7 +102,14 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
         }
         return map;
     }, [calendars, timezone]);
+
     const intervalMap = useMemo(() => {
+        if(earliestMin > latestMin){
+            latestMin += 24*60;
+            latestTime = TimeUtil.minutesToHHMM(latestMin);
+            startLaterThanEnd = true;
+        }
+        DateUtil.convertBusyIntervalsFromUTC(busyIntervals, timezone);
         const map = new Map();
         for (let date of formattedDates) {
             const intervals = [];
@@ -101,14 +117,18 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
             for (let [user, userIntervals] of busyIntervals) {
                 if (!userIntervals.has(date)) continue;
                 for (let interval of userIntervals.get(date)) {
+                    for(let i=0; i<2; i++){
+                        if(interval[i] < earliestMin)
+                            interval[i] += 24*60;
+                    }
+
                     let [start, end] = interval;
-                    start = Math.max(start, earliestMin); 
-                    end = Math.min(end, latestMin);
                     intervals.push(start);
                     intervals.push(end);
                 }
             }
-
+            if(date === '2024-07-26')
+                console.log('intervals', intervals);
             intervals.sort((a, b) => a - b);
             intervals.push(latestMin);
 
@@ -128,7 +148,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
         }
         return map;
     }, [calendars, timezone]);
-    //console.log('intervalMap', intervalMap);
+    console.log('intervalMap', intervalMap);
     
     const hourlyLabels = useMemo(() => {
         const intervals = [];
@@ -166,64 +186,92 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
         setDateStartIdx(Math.max(0, dateStartIdx-7));
     }
 
-    useEffect(() => {
-        const getCalendars = async () => {
-            try {
-                const data = await calendarService.getAvailability(id);
-
-                const formattedCalendars = new Map();
+    const populateCalendarsUTC = () => {
+        const formattedCalendars = new Map();
                 
-                data.calendars.forEach(calendar => {
-                    const userCalendars = calendar.personCalendar.map(cal => {
-                        const formattedEvents = new Map();
-                        cal.events.forEach(event => {
-                            if(event.start){
-                                let dates = [];
-                                if(event.start.dateTime){
-                                    dates.push(event.start.dateTime.split('T')[0]);
-                                }else{
-                                    const curDate = moment(event.start.date), endDate = moment(event.end.date);
-                                    while(curDate.isSameOrBefore(endDate)){
-                                        dates.push(curDate.format('YYYY-MM-DD'))
-                                        curDate.add(1, 'days');
-                                    }
-                                }
-
-                                let startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : TimeUtil.convertToUTC(earliestTime, timezone);
-                                let endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : TimeUtil.convertToUTC(latestTime, timezone);
-                
-
-                                //convert to timezone
-                                for(let i=0; i<dates.length; i++)
-                                    dates[i] = DateUtil.convertFromUTC(`${dates[i]}-${startTime}`, timezone);
-                                console.log('dates', dates);
-                                startTime = TimeUtil.convertFromUTC(startTime, timezone);
-                                endTime = TimeUtil.convertFromUTC(endTime, timezone);
-                                //console.log(timezone, dates, startTime, endTime);
-                                for(let date of dates){
-                                    if(formattedDates.includes(date)){
-                                        if (!formattedEvents.has(date)) {
-                                            formattedEvents.set(date, []);
-                                        }
-                                        formattedEvents.get(date).push(`${startTime}-${endTime}`);
-                                    }
-                                }
+        calendarData.calendars.forEach(calendar => {
+            const userCalendars = calendar.personCalendar.map(cal => {
+                const formattedEvents = new Map();
+                cal.events.forEach(event => {
+                    if(event.start){
+                        let dates = [];
+                        if(event.start.dateTime){
+                            dates.push(event.start.dateTime.split('T')[0]);
+                        }else{
+                            const curDate = moment(event.start.date), endDate = moment(event.end.date);
+                            while(curDate.isSameOrBefore(endDate)){
+                                dates.push(curDate.format('YYYY-MM-DD'))
+                                curDate.add(1, 'days');
                             }
-                        });
+                        }
 
-                        return formattedEvents;
-                    });
-                formattedCalendars.set(calendar.personName, userCalendars);
+                        let startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : earliestTimeUTC;
+                        let endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : latestTimeUTC;
+        
+
+                        console.log(timezone, dates, startTime, endTime);
+                        for(let date of dates){
+                            if (!formattedEvents.has(date)) {
+                                formattedEvents.set(date, []);
+                            }
+                            formattedEvents.get(date).push(`${startTime}-${endTime}`);
+                        }
+                    }
+                });
+
+                return formattedEvents;
             });
-            //console.log(calendars, formattedCalendars);
-            setCalendars(formattedCalendars);
-            } catch (err) {
-                console.log(err);
-            }
-        };
-    
-        getCalendars();
-    }, [id, selectedCalendars, timezone]);
+            formattedCalendars.set(calendar.personName, userCalendars);
+        });
+        //console.log(calendars, formattedCalendars);
+        setCalendars(formattedCalendars);
+    }
+    const populateCalendars = () => {
+        const formattedCalendars = new Map();
+                
+        calendarData.calendars.forEach(calendar => {
+            const userCalendars = calendar.personCalendar.map(cal => {
+                const formattedEvents = new Map();
+                cal.events.forEach(event => {
+                    if(event.start){
+                        let dates = [];
+                        if(event.start.dateTime){
+                            dates.push(event.start.dateTime.split('T')[0]);
+                        }else{
+                            const curDate = moment(event.start.date), endDate = moment(event.end.date);
+                            while(curDate.isSameOrBefore(endDate)){
+                                dates.push(curDate.format('YYYY-MM-DD'))
+                                curDate.add(1, 'days');
+                            }
+                        }
+
+                        let startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : earliestTimeUTC;
+                        let endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : latestTimeUTC;
+        
+
+                        //convert to timezone
+                        for(let i=0; i<dates.length; i++)
+                            dates[i] = DateUtil.convertFromUTC(`${dates[i]}-${startTime}`, timezone);
+                        //console.log('dates', dates);
+                        startTime = TimeUtil.convertFromUTC(startTime, timezone);
+                        endTime = TimeUtil.convertFromUTC(endTime, timezone);
+                        console.log(timezone, dates, startTime, endTime);
+                        for(let date of dates){
+                            if (!formattedEvents.has(date)) {
+                                formattedEvents.set(date, []);
+                            }
+                            formattedEvents.get(date).push(`${startTime}-${endTime}`);
+                        }
+                    }
+                });
+
+                return formattedEvents;
+            });
+            formattedCalendars.set(calendar.personName, userCalendars);
+        });
+        //console.log(calendars, formattedCalendars);
+        setCalendars(formattedCalendars);
+    }
     return (
         <div className="component-container">
             <div className="all-users-wrapper users-wrapper">
