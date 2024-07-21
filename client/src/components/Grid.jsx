@@ -4,6 +4,7 @@ import TimeUtil from "../utils/TimeUtil";
 import DateUtil from "../utils/DateUtil";
 import "./Grid.css";
 import TimezoneSelector from "./TimezoneSelector";
+import moment from "moment-timezone";
 
 const Grid = ({ id, meeting, selectedCalendars }) => {
     const [calendars, setCalendars] = useState(new Map());
@@ -20,7 +21,6 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                                 .map(date => DateUtil.convertFromUTC(`${date}T${earliestTime}`, timezone));
     const [selectedDateIdx, setSelectedDateIdx] = useState(0);
 
-    console.log(formattedDates);
     const earliestMin = TimeUtil.toMinutes(earliestTime);
     let latestMin = TimeUtil.toMinutes(latestTime);
     let startLaterThanEnd = false;
@@ -128,7 +128,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
         }
         return map;
     }, [calendars, timezone]);
-    console.log('intervalMap', intervalMap);
+    //console.log('intervalMap', intervalMap);
     
     const hourlyLabels = useMemo(() => {
         const intervals = [];
@@ -150,7 +150,6 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
 
     const handleIntervalClick = (dateIdx, idx) => {
         setSelectedDateIdx(dateIdx);
-        console.log('selectectedDateIdx', selectedDateIdx, formattedDates[selectedDateIdx], intervalMap.get(formattedDates[selectedDateIdx]));
         setSelectedIntervalIdx(idx);
     }
 
@@ -174,29 +173,41 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
 
                 const formattedCalendars = new Map();
                 
-                console.log("Data: " + JSON.stringify(data));
                 data.calendars.forEach(calendar => {
                     const userCalendars = calendar.personCalendar.map(cal => {
                         const formattedEvents = new Map();
                         cal.events.forEach(event => {
                             if(event.start){
-                                let date = event.start.date || event.start.dateTime.split('T')[0];
-                                if (!formattedEvents.has(date)) {
-                                    formattedEvents.set(date, []);
+                                let dates = [];
+                                if(event.start.dateTime){
+                                    dates.push(event.start.dateTime.split('T')[0]);
+                                }else{
+                                    const curDate = moment(event.start.date), endDate = moment(event.end.date);
+                                    while(curDate.isSameOrBefore(endDate)){
+                                        dates.push(curDate.format('YYYY-MM-DD'))
+                                        curDate.add(1, 'days');
+                                    }
                                 }
 
                                 let startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : TimeUtil.convertToUTC(earliestTime, timezone);
                                 let endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : TimeUtil.convertToUTC(latestTime, timezone);
-                                
-                                console.log("Date: " + startTime);
-
+                
 
                                 //convert to timezone
-                                date = DateUtil.convertFromUTC(`${date}-${startTime}`, timezone);
+                                for(let i=0; i<dates.length; i++)
+                                    dates[i] = DateUtil.convertFromUTC(`${dates[i]}-${startTime}`, timezone);
+                                console.log('dates', dates);
                                 startTime = TimeUtil.convertFromUTC(startTime, timezone);
                                 endTime = TimeUtil.convertFromUTC(endTime, timezone);
-                                console.log(timezone, date, startTime, endTime);
-                                formattedEvents.get(date).push(`${startTime}-${endTime}`);
+                                //console.log(timezone, dates, startTime, endTime);
+                                for(let date of dates){
+                                    if(formattedDates.includes(date)){
+                                        if (!formattedEvents.has(date)) {
+                                            formattedEvents.set(date, []);
+                                        }
+                                        formattedEvents.get(date).push(`${startTime}-${endTime}`);
+                                    }
+                                }
                             }
                         });
 
