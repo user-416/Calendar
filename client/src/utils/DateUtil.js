@@ -1,5 +1,6 @@
 import moment from 'moment-timezone';
 import TimeUtil from './TimeUtil';
+import { endOfHour } from 'date-fns/fp';
 class DateUtil {
 
     //these functions accept strings in the format YYYY-MM-DD
@@ -92,6 +93,25 @@ class DateUtil {
             }
             busyIntervals.set(user, newUserIntervals);
         }
+    }
+
+    static convertIntervalMapFromUTC(intervalMap, timezone, earliestMin){
+        console.log('before', intervalMap);
+        const res = new Map();
+        for(let [date, intervalAvail] of intervalMap){
+            for(let [start, end, user] of intervalAvail){
+                //console.log('toHHMM', TimeUtil.minutesToHHMM(earliestMin));
+                const newDate = this.convertFromUTC(`${date}T${TimeUtil.minutesToHHMM(earliestMin)}`, timezone);
+                [start, end] = [start, end].map(min => TimeUtil.toMinutes(TimeUtil.convertFromUTC(TimeUtil.minutesToHHMM(min), timezone)));
+
+                if(!res.has(newDate))
+                    res.set(newDate, []);
+                res.get(newDate).push([start, end, user]);
+            }
+        }
+        console.log('timezone', timezone);
+        console.log('after', res);
+        return res;
     }
     
 }

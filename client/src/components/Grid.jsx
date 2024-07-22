@@ -30,14 +30,15 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
     let earliestTime = TimeUtil.convertFromUTC(earliestTimeUTC, timezone);
     let latestTime = TimeUtil.convertFromUTC(latestTimeUTC, timezone);
     const formattedDates = datesUTC.map(date => new Date(date).toISOString().split("T")[0])
-                                .map(date => DateUtil.convertFromUTC(`${date}T${earliestTime}`, timezone));
+                                .map(date => DateUtil.convertFromUTC(`${date}T${earliestTimeUTC}`, timezone));
     //const datesSet = new Set(formattedDates);
     const [selectedDateIdx, setSelectedDateIdx] = useState(0);
-
+    
+    const earliestMinUTC = TimeUtil.toMinutes(earliestTimeUTC);
+    const latestMinUTC = TimeUtil.toMinutes(latestTimeUTC);
     const earliestMin = TimeUtil.toMinutes(earliestTime);
     let latestMin = TimeUtil.toMinutes(latestTime);
     let startLaterThanEnd = false;
-
     
     const totalMin = TimeUtil.minutesBetween(earliestTime, latestTime);
     const getMergedIntervals = (intervals) => {
@@ -88,49 +89,56 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
             for(let [date, intervals] of userIntervals){
                 const [start, end] = intervals[intervals.length-1];
                 if(start > end){ 
-                    intervals[intervals.length-1][1] = latestMin; 
+                    intervals[intervals.length-1][1] = latestMinUTC; 
                     const nextDay = DateUtil.addDaysToDate(date, 1);
                     const nextDayEnd = end;
-                    if(nextDayEnd > earliestMin && formattedDates.includes(date)){
+                    if(nextDayEnd > earliestMinUTC && formattedDates.includes(date)){
                         if(!userIntervals.has(nextDay))
                             userIntervals.set(nextDay, []);
-                        const nextDayInterval = [earliestMin, nextDayEnd];
+                        const nextDayInterval = [earliestMinUTC, nextDayEnd];
                         userIntervals.get(nextDay).unshift(nextDayInterval);
                     }
                 }
             }
         }
         return map;
-    }, [calendars, timezone]);
+    }, [calendars]);
 
     const intervalMap = useMemo(() => {
-        if(earliestMin > latestMin){
+        /*if(earliestMin > latestMin){
             latestMin += 24*60;
             latestTime = TimeUtil.minutesToHHMM(latestMin);
             startLaterThanEnd = true;
-        }
-        DateUtil.convertBusyIntervalsFromUTC(busyIntervals, timezone);
+        }*/
+        console.log('busyIntervals', busyIntervals);
+        //DateUtil.convertBusyIntervalsFromUTC(busyIntervals, timezone);
         const map = new Map();
         for (let date of formattedDates) {
             const intervals = [];
-            intervals.push(earliestMin);
+            intervals.push(earliestMinUTC);
             for (let [user, userIntervals] of busyIntervals) {
                 if (!userIntervals.has(date)) continue;
                 for (let interval of userIntervals.get(date)) {
-                    for(let i=0; i<2; i++){
-                        if(interval[i] < earliestMin)
-                            interval[i] += 24*60;
-                    }
-
                     let [start, end] = interval;
+                    /*if(start < earliestMinUTC && end < earliestMinUTC){
+                        start += 24*60;
+                        end += 24*60;
+                    }else if(start > earliestMinUTC && end < earliestMinUTC){
+                        end += 24*60;
+                    }else{
+                        start = Math.max(start, earliestMinUTC);
+                        end = Math.min(end, latestMinUTC);
+                    }*/
+                    start = Math.max(start, earliestMinUTC);
+                    end = Math.min(end, latestMinUTC);
+
+                
                     intervals.push(start);
                     intervals.push(end);
                 }
             }
-            if(date === '2024-07-26')
-                console.log('intervals', intervals);
             intervals.sort((a, b) => a - b);
-            intervals.push(latestMin);
+            intervals.push(latestMinUTC);
 
             const intervalAvail = [];
             for (let i = 0; i < intervals.length - 1; i++) {
@@ -146,9 +154,10 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
             }
             map.set(date, intervalAvail);
         }
-        return map;
+        const res = DateUtil.convertIntervalMapFromUTC(map, timezone, earliestMinUTC);
+        return res;
     }, [calendars, timezone]);
-    console.log('intervalMap', intervalMap);
+    //console.log('intervalMap', intervalMap);
     
     const hourlyLabels = useMemo(() => {
         const intervals = [];
@@ -205,8 +214,8 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                             }
                         }
 
-                        let startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : earliestTimeUTC;
-                        let endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : latestTimeUTC;
+                        let startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : '00:00';
+                        let endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : '24:00';
         
 
                         console.log(timezone, dates, startTime, endTime);
@@ -218,7 +227,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                         }
                     }
                 });
-
+                //console.log('formattedEvents', formattedEvents);
                 return formattedEvents;
             });
             formattedCalendars.set(calendar.personName, userCalendars);
@@ -226,52 +235,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
         //console.log(calendars, formattedCalendars);
         setCalendars(formattedCalendars);
     }
-    const populateCalendars = () => {
-        const formattedCalendars = new Map();
-                
-        calendarData.calendars.forEach(calendar => {
-            const userCalendars = calendar.personCalendar.map(cal => {
-                const formattedEvents = new Map();
-                cal.events.forEach(event => {
-                    if(event.start){
-                        let dates = [];
-                        if(event.start.dateTime){
-                            dates.push(event.start.dateTime.split('T')[0]);
-                        }else{
-                            const curDate = moment(event.start.date), endDate = moment(event.end.date);
-                            while(curDate.isSameOrBefore(endDate)){
-                                dates.push(curDate.format('YYYY-MM-DD'))
-                                curDate.add(1, 'days');
-                            }
-                        }
-
-                        let startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : earliestTimeUTC;
-                        let endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : latestTimeUTC;
-        
-
-                        //convert to timezone
-                        for(let i=0; i<dates.length; i++)
-                            dates[i] = DateUtil.convertFromUTC(`${dates[i]}-${startTime}`, timezone);
-                        //console.log('dates', dates);
-                        startTime = TimeUtil.convertFromUTC(startTime, timezone);
-                        endTime = TimeUtil.convertFromUTC(endTime, timezone);
-                        console.log(timezone, dates, startTime, endTime);
-                        for(let date of dates){
-                            if (!formattedEvents.has(date)) {
-                                formattedEvents.set(date, []);
-                            }
-                            formattedEvents.get(date).push(`${startTime}-${endTime}`);
-                        }
-                    }
-                });
-
-                return formattedEvents;
-            });
-            formattedCalendars.set(calendar.personName, userCalendars);
-        });
-        //console.log(calendars, formattedCalendars);
-        setCalendars(formattedCalendars);
-    }
+  
     return (
         <div className="component-container">
             <div className="all-users-wrapper users-wrapper">
@@ -307,6 +271,8 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                                 {intervalMap.get(date).map(([startMin, endMin, availUsers], intervalIdx) => {
                                     const availCnt = availUsers.length;
                                     const opacity = availCnt / calendars.size;
+                                    if(endMin < startMin)
+                                        endMin += 24*60;
                                     const intervalHeight = endMin - startMin;
                                     const dateRealIdx = dateStartIdx+dateIdx;
                                     const isSelected = dateRealIdx==selectedDateIdx && intervalIdx==selectedIntervalIdx;
