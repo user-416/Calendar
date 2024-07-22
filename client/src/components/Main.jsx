@@ -30,8 +30,7 @@ const Main = () => {
         const datesUTC = Array.from(selectedDates)
                         .sort((a,b) => new Date(a)-new Date(b))
                         .map(date => DateUtil.convertToUTC(`${date}T${startHHMM}`, timezone));
-        console.log(startUTC, endUTC);
-        console.log(datesUTC);
+
         try {
             const eventDetails = {
                 name: eventName,

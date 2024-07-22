@@ -49,6 +49,16 @@ class TimeUtil{
         return this.toAMPM(this.minutesToHHMM(minutes));
     }
 
+    static roundNearestHour(time, direction){
+        let [hours, minutes] = time.split(':').map(s => Number(s));
+        if(minutes === 0)
+            return time;
+        if(direction == 'down')
+            hours++;
+        
+        return `${hours.toString().padStart(2,'0')}:00`;
+    }
+
     static convertToUTC(time, timezone){
         return moment.tz(time, "HH:mm", timezone).utc().format("HH:mm");
     }

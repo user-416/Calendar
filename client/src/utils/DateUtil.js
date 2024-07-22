@@ -95,6 +95,11 @@ class DateUtil {
         }
     }
 
+    static hoursApart(dateTime1, dateTime2){  //format: 'YYYY:MM:DDTHH:MMZ'
+        const milisecDiff = new Date(dateTime2) - new Date(dateTime1);
+        return milisecDiff/(1000 * 60 * 60);
+    }
+
     static convertIntervalMapFromUTC(intervalMap, timezone, earliestMin){
         console.log('before', intervalMap);
         const res = new Map();
@@ -109,7 +114,7 @@ class DateUtil {
                 res.get(newDate).push([start, end, user]);
             }
         }
-        console.log('timezone', timezone);
+        //console.log('timezone', timezone);
         console.log('after', res);
         return res;
     }
