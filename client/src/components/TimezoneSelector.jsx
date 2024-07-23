@@ -1,6 +1,4 @@
 
-import moment from 'moment-timezone';
-
 const TimezoneSelector = ({timezone, setTimezone}) => {
 
     const timezoneMap = {
@@ -22,8 +20,8 @@ const TimezoneSelector = ({timezone, setTimezone}) => {
     }));
 
     return ( 
-        <div className='timezone-selector'>
-            <select className="timezone-dropdown" value={timezone} onChange={e => setTimezone(e.target.value)}>
+        <div className={CSS.timezoneSelectorContainer}>
+            <select className={CSS.timezoneDropdown} value={timezone} onChange={e => setTimezone(e.target.value)}>
                 {timezones.map(({timezoneAbbr, timezone}) => (
                     <option key={timezone} value={timezone}>{timezoneAbbr}</option>
                 ))}

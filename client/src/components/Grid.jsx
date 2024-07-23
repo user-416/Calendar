@@ -2,7 +2,7 @@ import React, {useEffect, useState, useMemo} from "react";
 import calendarService from '../services/calendar';
 import TimeUtil from "../utils/TimeUtil";
 import DateUtil from "../utils/DateUtil";
-import "./Grid.css";
+import CSS from "./Grid.module.css";
 import TimezoneSelector from "./TimezoneSelector";
 import moment from "moment-timezone";
 
@@ -246,37 +246,37 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
     }
   
     return (
-        <div className="component-container">
-            <div className="all-users-wrapper users-wrapper">
-                <div className="users-heading">People</div> 
+        <div className={CSS.componentContainer}>
+            <div className={`${CSS.allUsersWrapper} ${CSS.usersWrapper}`}>
+                <div className={CSS.usersHeading}>People</div> 
                 {Array.from(calendars.keys()).map(user => (
-                    <p key={user} className='user-name'>{user}</p>
+                    <p key={user} className={CSS.userName}>{user}</p>
                 ))}
             </div>
-            <div className="grid-wrapper">
-                <div className="hourly-labels" style={{marginTop: ((60 - parseInt(earliestTime.substring(3)))%60)*1.405}}>
+            <div className={CSS.gridWrapper}>
+                <div className={CSS.hourlyLabels} style={{marginTop: ((60 - parseInt(earliestTime.substring(3)))%60)*1.405}}>
                     {hourlyLabels.map((time) => (
-                        <div key={time} className="hourly-label">{time}</div>
+                        <div key={time} className={CSS.hourlyLabel}>{time}</div>
                     ))}
                 </div>
-                <div className="grid-vertical">
+                <div className={CSS.gridVertical}>
                     <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
-                    <div className="navigation-arrows">
+                    <div className={CSS.navigationArrows}>
                         <button onClick={back7Days} disabled={dateStartIdx === 0}>&lt;</button>
-                        <div className="event-name">{name}</div>
+                        <div className={CSS.eventName}>{name}</div>
                         <button onClick={forward7Days} disabled={dateEndIdx == meeting.dates.length - 1}>&gt;</button>
                     </div>
-                    <div className="date-labels" style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)`}}>
+                    <div className={CSS.dateLabels} style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)`}}>
                             {formattedDates.slice(dateStartIdx, dateEndIdx+1).map((date, dateIdx) => (
-                                <div key={date} className="date-label">
+                                <div key={date} className={CSS.dateLabel}>
                                     <div>{DateUtil.toMD(date)}</div>
                                     <div>{DateUtil.getDayOfWeek(date)}</div>
                                 </div>
                             ))}
                     </div>
-                    <div className="grid" style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)`}}>
+                    <div className={CSS.grid} style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)`}}>
                         {formattedDates.slice(dateStartIdx, dateEndIdx + 1).map((date, dateIdx) => (
-                            <div key={date} className="grid-col">
+                            <div key={date} className={CSS.gridCol}>
                                 {intervalMap.get(date).map(([startMin, endMin, availUsers], intervalIdx) => {
                                     const availCnt = availUsers.length;
                                     const opacity = availCnt / calendars.size;
@@ -288,7 +288,7 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                                     return (
                                         <div
                                             key={`${date}-${startMin}-${endMin}`}
-                                            className="grid-cell"
+                                            className={CSS.gridCell}
                                             onClick={() => handleIntervalClick(dateRealIdx, intervalIdx)}
                                             style={{
                                                 height: `${intervalHeight*1.405}px`,  
@@ -305,13 +305,13 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
                 </div>
             </div>
             {selectedDateIdx!==-1 && (
-            <div className="availability-wrapper users-wrapper">
-                <div className="users-heading">Available</div> 
-                <div className="time-interval">
+            <div className= {`${CSS.availabilityWrapper} ${CSS.usersWrapper}`}>
+                <div className={CSS.usersHeading}>Available</div> 
+                <div className={CSS.timeInterval}>
                     {TimeUtil.minutesToAMPM(intervalMap.get(formattedDates[selectedDateIdx])[selectedIntervalIdx][0])} - {TimeUtil.minutesToAMPM(intervalMap.get(formattedDates[selectedDateIdx])[selectedIntervalIdx][1])}, {DateUtil.toMonthNameD(formattedDates[selectedDateIdx])}:
                 </div>
                 {intervalMap.get(formattedDates[selectedDateIdx])[selectedIntervalIdx][2].map(user => (
-                    <p key={user} className='user-name'>{user}</p>
+                    <p key={user} className={CSS.userName}>{user}</p>
                 ))}
             </div>
             )}

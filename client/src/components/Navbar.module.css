@@ -1,0 +1,13 @@
+.navbarTitle {
+    font-family: 'Glacial Indifference', sans-serif;
+    font-size: 70px;
+    font-weight: bold;
+    color: #173386;
+}
+
+
+@media only screen and (max-width: 500px) {
+    .navbarTitle{
+        font-size: 15vw;
+    }
+}

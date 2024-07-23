@@ -1,14 +1,14 @@
 /* Wrapper for the hourly labels, date labels, and the main grid (not named container bc already used in Meet.css) */
 
-.component-container{
+.componentContainer{
     font-family: 'Glacial Indifference', sans-serif;
 }
 
-.grid-wrapper{
+.gridWrapper{
     display: flex;
     flex-direction: column;
 }
-.grid-vertical{
+.gridVertical{
     position: absolute;
     top: 330px;
     left: 50%; 
@@ -21,30 +21,30 @@
 
 
 /*arrow buttons*/
-.navigation-arrows {
+.navigationArrows {
     display: flex;
     align-items: center;
     justify-content: space-around;
     height: 80px;
 }
 
-.navigation-arrows button {
+.navigationArrows button {
     user-select: none;
     font-family: 'Roboto Mono', monospace;
     font-size: 50px; 
     background: none;
     border: none;
 }
-.navigation-arrows .event-name{
-    font: 40px;
+.navigationArrows .eventName{
+    font-size: 40px;
     padding-bottom: 25px;
 }
-.navigation-arrows button:not(:disabled):hover{
+.navigationArrows button:not(:disabled):hover{
     cursor: pointer;
     transform: scale(1.1);
 }
 
-.hourly-labels {
+.hourlyLabels {
     display: flex;
     flex-direction: column;
     padding-right: 10px;  
@@ -53,7 +53,7 @@
     right: 69.6vw;
 }
 
-.hourly-label {
+.hourlyLabel {
     height: 84px;  /*row height * 60*/
     text-align: right;
 }
@@ -65,25 +65,25 @@
     cursor: pointer;
 }
 
-.grid-col{
+.gridCol{
     display: flex;
     flex-direction: column;
 }
 
-.date-labels {
+.dateLabels {
     display: flex;
     cursor: default;
     border-bottom: 2px solid black;
 }
 
-.date-label {
+.dateLabel {
     flex: 0 0 auto;
     width: 5.5vw;
     text-align: center;
 }
 
 
-.grid-cell {
+.gridCell {
     flex: 0 0 auto;
     width: 5.5vw;
     border-right: 2px solid black;  /* Vertical lines between cells */
@@ -96,30 +96,30 @@
 
 
 /*users*/
-.availability-wrapper, .all-users-wrapper{
+.availabilityWrapper, .allUsersWrapper{
     top: 450px;
     position: absolute; /*relative to viewport*/
 }
-.users-heading{
+.usersHeading{
     font-size: 30px;
 }
 
 /*all users*/
-.all-users-wrapper{
+.allUsersWrapper{
     left: 13%;
     transform: translateX(-50%);
 }
 
 /*availibility info*/
-.availability-wrapper{
+.availabilityWrapper{
     width: 275px;
     left: 85%;
     transform: translateX(-50%);
 }
 
-.time-interval{
+.timeInterval{
     font-size: 20px;
 }
-.user-name{
+.userName{
     font-size: 20px;
 }

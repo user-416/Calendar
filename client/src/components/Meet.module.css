@@ -4,7 +4,7 @@ body{
     font-family: 'Glacial Indifference', sans-serif;
 }
 /*link and add calender button*/
-.top-container {
+.topContainer {
     display: flex;
     flex-direction: column;
     align-items: center; 
@@ -13,7 +13,7 @@ body{
     position: relative; /*for link message child*/
 }
 
-.link-box{
+.linkBox{
     position: relative; /*for copy button child*/
     width: 450px;
     margin-top: 30px;
@@ -23,13 +23,13 @@ body{
 }
 
 /*link input box*/
-.link-box .link-text{
+.linkBox .linkText{
     padding: 8px 40px 8px 30px; 
     font-size: 16px; 
 }
 
 /*copy icon*/
-.copy-button {
+.copyButton {
     position: absolute;
     right: 8px; 
     top: 4px; 
@@ -40,12 +40,12 @@ body{
     cursor: pointer; 
 }
 
-.copy-button:hover {
+.copyButton:hover {
     transform: scale(1.04); 
     transition: background-color 0.3s, transform 0.3s; 
 }
 
-#copy-message {
+.copyMessage {
     display: none; /* Hidden by default */
     color: black;
     margin-top: 10px;
@@ -55,7 +55,7 @@ body{
 }
 
 /*login button*/
-.login-button{
+.loginButton{
     margin-top: 40px;
     padding: 8px 60px; 
     border: 1.5px solid #173386; 
@@ -68,13 +68,13 @@ body{
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.login-button:hover {
+.loginButton:hover {
     transform: scale(1.03);
     background-color: #006edc;
 }
 
 /*Loading message & Error message*/
-#loading-message, #error-message{
+.loadingMessage, .errorMessage{
     position: absolute;
     top: 180px; 
     left: 50%;
@@ -84,7 +84,7 @@ body{
 
 
 /*event name*/
-.event-name{
+.eventName{
     font-size: 40px;
     margin-top: 30px;
 }

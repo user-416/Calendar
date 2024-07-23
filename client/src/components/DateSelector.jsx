@@ -2,6 +2,8 @@
 import React, { useState, useEffect} from 'react';
 import Calendar from 'react-calendar';
 import DateUtil from '../utils/DateUtil';
+import 'react-calendar/dist/Calendar.css';
+import './DateSelector.css';
 
 const DateSelector = ({selectedDates, setSelectedDates}) => {
     
@@ -115,19 +117,22 @@ const DateSelector = ({selectedDates, setSelectedDates}) => {
     };
 
     return ( 
-        <Calendar 
-            onActiveStartDateChange={handleActiveStartDateChange}
-            tileClassName={tileClassName} 
-            tileContent={({ date, view }) => (
-                <div
-                    onMouseDown={(e) => {
-                        handleMouseDown(e, date);
-                    }}
-                    onMouseEnter={(e) => handleMouseEnter(date)}
-                    onMouseUp={(e) => handleMouseUp(date)}
-                />
-            )}
-        />
+        <div className='calendarContainer'>
+            <Calendar 
+                onActiveStartDateChange={handleActiveStartDateChange}
+                tileClassName={tileClassName} 
+                className={'react-calendar'}
+                tileContent={({ date, view }) => (
+                    <div
+                        onMouseDown={(e) => {
+                            handleMouseDown(e, date);
+                        }}
+                        onMouseEnter={(e) => handleMouseEnter(date)}
+                        onMouseUp={(e) => handleMouseUp(date)}
+                    />
+                )}
+            />
+        </div>
      );
 }
  

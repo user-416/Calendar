@@ -1,12 +1,11 @@
 import React, { useState, useEffect} from 'react';
 import calendarService from '../services/calendar';
 import { useNavigate } from 'react-router-dom';
-import 'react-calendar/dist/Calendar.css';
-import './Main.css';
+import CSS from './Main.module.css';
 import TimeUtil from '../utils/TimeUtil';
 import DateSelector from './DateSelector';
-import TimezoneSelector from './TimezoneSelector';
 import DateUtil from '../utils/DateUtil';
+import TimezoneSelector from './TimezoneSelector';
 const Main = () => {
     const [eventName, setEventName] = useState('');
     const [startTime, setStartTime] = useState('9:00');
@@ -49,17 +48,15 @@ const Main = () => {
 
 
     return (
-        <div className="container">
-            <div className="calendar-container">
-                <DateSelector 
-                    selectedDates={selectedDates} 
-                    setSelectedDates={setSelectedDates}
-                />
-            </div>
-            <div className="form-container">
+        <div className={CSS.mainContainer}>
+            <DateSelector 
+                selectedDates={selectedDates} 
+                setSelectedDates={setSelectedDates}
+            />
+            <div className={CSS.formContainer}>
                 <form onSubmit={handleSubmit}>
                     <input
-                        className="event-input"
+                        className={CSS.eventInput}
                         type="text"
                         placeholder="Enter Event Name: "
                         value={eventName}
@@ -69,29 +66,29 @@ const Main = () => {
                         required
                     />
 
-                    <div className="time-inputs">
+                    <div className={CSS.timeInputs}>
                         <input
                             type="text"
                             value={startTime}
-                            className="time-field"
+                            className={CSS.timeField}
                             onChange={(e) => setStartTime(e.target.value)}
                         />
-                        <button type="button" onClick={() => setIsAMStart(true)} className={`toggle-button ${isAMStart ? 'active' : ''}`}>AM</button>
-                        <button type="button" onClick={() => setIsAMStart(false)} className={`toggle-button ${!isAMStart ? 'active' : ''}`}>PM</button>
+                        <button type="button" onClick={() => setIsAMStart(true)} className={`${CSS.toggleButton} ${isAMStart ? CSS.active : ''}`}>AM</button>
+                        <button type="button" onClick={() => setIsAMStart(false)} className={`${CSS.toggleButton} ${!isAMStart ? CSS.active : ''}`}>PM</button>
 
-                        <div id="dash"></div>
+                        <div className={CSS.dash}></div>
 
                         <input
                             type="text"
                             value={endTime}
-                            className="time-field"
+                            className={CSS.timeField}
                             onChange={(e) => setEndTime(e.target.value)}
                         />
-                        <button type="button" onClick={() => setIsAMEnd(true)} className={`toggle-button ${isAMEnd ? 'active' : ''}`}>AM</button>
-                        <button type="button" onClick={() => setIsAMEnd(false)} className={`toggle-button ${!isAMEnd ? 'active' : ''}`}>PM</button>
-                        <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
+                        <button type="button" onClick={() => setIsAMEnd(true)} className={`${CSS.toggleButton} ${isAMEnd ? CSS.active : ''}`}>AM</button>
+                        <button type="button" onClick={() => setIsAMEnd(false)} className={`${CSS.toggleButton} ${!isAMEnd ? CSS.active : ''}`}>PM</button>
                     </div>
-                    <button id="connect-button" type="submit">Connect</button>
+                    <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
+                    <button className={CSS.connectButton} type="submit">Connect</button>
                 </form>
             </div>
         </div>
