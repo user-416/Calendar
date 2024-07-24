@@ -1,16 +1,17 @@
 body{
     height: 100vh;
     overflow-y: auto;
-    font-family: 'Glacial Indifference', sans-serif;
 }
+
 /*link and add calender button*/
 .topContainer {
+    position: relative;
+    top: 160px;
     display: flex;
     flex-direction: column;
     align-items: center; 
     justify-content: space-between; 
     padding: 8px;
-    position: relative; /*for link message child*/
 }
 
 .linkBox{
@@ -25,7 +26,7 @@ body{
 /*link input box*/
 .linkBox .linkText{
     padding: 8px 40px 8px 30px; 
-    font-size: 16px; 
+    font-size: 18px; 
 }
 
 /*copy icon*/
@@ -49,7 +50,7 @@ body{
     display: none; /* Hidden by default */
     color: black;
     margin-top: 10px;
-    font-size: 15px;
+    font-size: 17px;
     position: absolute;
     top: 70px;
 }
@@ -71,6 +72,11 @@ body{
 .loginButton:hover {
     transform: scale(1.03);
     background-color: #006edc;
+}
+
+
+.timezoneWrapper{
+    margin-top: 40px;
 }
 
 /*Loading message & Error message*/

@@ -1,16 +1,19 @@
-import React, {useEffect, useState, useMemo} from "react";
+import React, {useEffect, useState, useMemo, useRef} from "react";
 import calendarService from '../services/calendar';
 import TimeUtil from "../utils/TimeUtil";
 import DateUtil from "../utils/DateUtil";
 import CSS from "./Grid.module.css";
 import TimezoneSelector from "./TimezoneSelector";
 import moment from "moment-timezone";
+import useCenterWithOffset from "../hooks/useCenterWithOffset";
 
-const Grid = ({ id, meeting, selectedCalendars }) => {
-    const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const [timezone, setTimezone] = useState(defaultTimezone);
+const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
     const [calendars, setCalendars] = useState(new Map());
     let calendarData;
+
+    const hourlyLabelsRef = useRef();
+    const mainWrapperRef = useRef();
+    useCenterWithOffset(hourlyLabelsRef, mainWrapperRef, 'left');
     useEffect(() => {
         const getCalendars = async () => {
             try {
@@ -244,63 +247,65 @@ const Grid = ({ id, meeting, selectedCalendars }) => {
         //console.log(calendars, formattedCalendars);
         setCalendars(formattedCalendars);
     }
-  
+   
     return (
-        <div className={CSS.componentContainer}>
+        <div className={CSS.gridContainer}>
             <div className={`${CSS.allUsersWrapper} ${CSS.usersWrapper}`}>
                 <div className={CSS.usersHeading}>People</div> 
                 {Array.from(calendars.keys()).map(user => (
                     <p key={user} className={CSS.userName}>{user}</p>
                 ))}
             </div>
-            <div className={CSS.gridWrapper}>
-                <div className={CSS.hourlyLabels} style={{marginTop: ((60 - parseInt(earliestTime.substring(3)))%60)*1.405}}>
-                    {hourlyLabels.map((time) => (
-                        <div key={time} className={CSS.hourlyLabel}>{time}</div>
-                    ))}
+            <div className={CSS.gridVertical}>
+                <div className={CSS.navigationArrows}>
+                    <button onClick={back7Days} disabled={dateStartIdx === 0}>&lt;</button>
+                    <div className={CSS.eventName}>{name}</div>
+                    <button onClick={forward7Days} disabled={dateEndIdx == meeting.dates.length - 1}>&gt;</button>
                 </div>
-                <div className={CSS.gridVertical}>
-                    <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
-                    <div className={CSS.navigationArrows}>
-                        <button onClick={back7Days} disabled={dateStartIdx === 0}>&lt;</button>
-                        <div className={CSS.eventName}>{name}</div>
-                        <button onClick={forward7Days} disabled={dateEndIdx == meeting.dates.length - 1}>&gt;</button>
-                    </div>
-                    <div className={CSS.dateLabels} style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)`}}>
-                            {formattedDates.slice(dateStartIdx, dateEndIdx+1).map((date, dateIdx) => (
-                                <div key={date} className={CSS.dateLabel}>
-                                    <div>{DateUtil.toMD(date)}</div>
-                                    <div>{DateUtil.getDayOfWeek(date)}</div>
-                                </div>
+                <div ref={mainWrapperRef} className={CSS.mainWrapper}>
+                    <div ref={hourlyLabelsRef} className={CSS.hourlyLabels} style={{marginTop: ((60 - parseInt(earliestTime.substring(3)))%60)*1.405}}>
+                            {hourlyLabels.map((time) => (
+                                <div key={time} className={CSS.hourlyLabel}>{time}</div>
                             ))}
                     </div>
-                    <div className={CSS.grid} style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)`}}>
-                        {formattedDates.slice(dateStartIdx, dateEndIdx + 1).map((date, dateIdx) => (
-                            <div key={date} className={CSS.gridCol}>
-                                {intervalMap.get(date).map(([startMin, endMin, availUsers], intervalIdx) => {
-                                    const availCnt = availUsers.length;
-                                    const opacity = availCnt / calendars.size;
-                                    if(endMin < startMin)
-                                        endMin += 24*60;
-                                    const intervalHeight = endMin - startMin;
-                                    const dateRealIdx = dateStartIdx+dateIdx;
-                                    const isSelected = dateRealIdx==selectedDateIdx && intervalIdx==selectedIntervalIdx;
-                                    return (
-                                        <div
-                                            key={`${date}-${startMin}-${endMin}`}
-                                            className={CSS.gridCell}
-                                            onClick={() => handleIntervalClick(dateRealIdx, intervalIdx)}
-                                            style={{
-                                                height: `${intervalHeight*1.405}px`,  
-                                                backgroundColor: isSelected ? `rgba(0, 100, 255, ${opacity+1/(2*calendars.size)})` : `rgba(0, 128, 0, ${opacity})`,
-                                                borderBottom: `${intervalIdx === intervalMap.get(date).length - 1 ? '2px' : '1.2px'} solid black`
-                                            }}
-                                        >
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ))}
+                    <div className={CSS.gridAndDatesWrapper}>
+                        <div className={CSS.dateLabels} style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)`}}>
+                                {formattedDates.slice(dateStartIdx, dateEndIdx+1).map((date, dateIdx) => (
+                                    <div key={date} className={CSS.dateLabel}>
+                                        <div>{DateUtil.toMD(date)}</div>
+                                        <div>{DateUtil.getDayOfWeek(date)}</div>
+                                    </div>
+                                ))}
+                        </div>
+                        <div className={CSS.grid} style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)`}}>
+                            {formattedDates.slice(dateStartIdx, dateEndIdx + 1).map((date, dateIdx) => (
+                                <div key={date} className={CSS.gridCol}>
+                                    {intervalMap.get(date).map(([startMin, endMin, availUsers], intervalIdx) => {
+                                        const availCnt = availUsers.length;
+                                        const opacity = availCnt / calendars.size;
+                                        if(endMin < startMin)
+                                            endMin += 24*60;
+                                        const intervalHeight = endMin - startMin;
+                                        const dateRealIdx = dateStartIdx+dateIdx;
+                                        const isSelected = dateRealIdx==selectedDateIdx && intervalIdx==selectedIntervalIdx;
+                                        return (
+                                            <div
+                                                key={`${date}-${startMin}-${endMin}`}
+                                                className={CSS.gridCell}
+                                                onClick={() => handleIntervalClick(dateRealIdx, intervalIdx)}
+                                                style={{
+                                                    height: `${intervalHeight*1.405}px`,  
+                                                    backgroundColor: isSelected ? `rgba(0, 100, 255, ${opacity+1/(2*calendars.size)})` : `rgba(0, 128, 0, ${opacity})`,
+                                                    borderTop: `${intervalIdx === 0 ? '2px' : '0'} solid black`,
+                                                    borderBottom: `${intervalIdx === intervalMap.get(date).length-1 ? '2px' : '1.2px'} solid black`,
+                                                }}
+                                            >
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Grid from './Grid';
 import Dropdown from './Dropdown';
 import CSS from './Meet.module.css';
+import TimezoneSelector from './TimezoneSelector';
 
 const Meet = () => {
     const {id} = useParams();
@@ -18,6 +19,8 @@ const Meet = () => {
     });
     const [calendars, setCalendars] = useState([]);
     const [selectedCalendars, setSelectedCalendars] = useState(new Set());
+    const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const [timezone, setTimezone] = useState(defaultTimezone);
 
     const getAuthUrl = async () => {
         try {
@@ -28,18 +31,16 @@ const Meet = () => {
         }
     };
 
-    const copyLink = () => { // copy link + display message for 3 secs
-        var copyText = document.querySelector('.link-text');
-
-        navigator.clipboard.writeText(copyText.innerText).then(function() {
-            var message = document.getElementById("copy-message");
+    const copyLink = () => {
+        const text = document.querySelector(`.${CSS.linkText}`).innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            const message = document.querySelector(`.${CSS.copyMessage}`);
             message.style.display = "block";
-
-            setTimeout(function() {
+            setTimeout(() => {
                 message.style.display = "none";
             }, 3000);
-        }).catch(function(error) {
-            console.error('Error copying text: ', error);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
         });
     };
 
@@ -149,8 +150,11 @@ const Meet = () => {
                     </button>
                 )}
             </div>
+            <div className={CSS.timezoneWrapper}>
+                <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
+            </div>
         </div>
-        <Grid meeting={meeting} id={id} selectedCalendars={selectedCalendars} />
+        <Grid meeting={meeting} id={id} selectedCalendars={selectedCalendars} timezone={timezone} />
     </div>
     );
 };

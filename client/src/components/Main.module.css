@@ -1,19 +1,16 @@
-body {
-    text-align: center;
-    margin-top: 50px;
-    overflow: hidden;
+:root{
+    --main-box-shadow: 2px 2px 3px rgba(0,0,0,0.25);
+    --dark-blue: #173386;
+    --button-gray: #f4f4f4;
 }
-
-
 .mainContainer {
     display: flex;
     justify-content: space-evenly;
     align-items: flex-start; 
-    height: 80vh;
-    padding-top: 15vh;
+    width: 100%;
     text-align: center;
-    margin-left: 8vw;
-    margin-right: 8vw;
+    margin: auto;
+    margin-top: 240px;
 }
 
 
@@ -22,26 +19,28 @@ body {
 .formContainer {
     margin-top: 50px;
     display: flex;
-    flex: 1;
-    text-align: left; 
     flex-direction: column;
     align-items: center; 
     justify-content: flex-start;
     height: 300px; 
-    text-align: center;    
+    text-align: center; 
+    width: 40%;
 
 }
 .formContainer input{
-    background-color: #f4f4f4;
+    background-color: var(--button-gray);
     border: none;
 }
 .eventInput {
     width: 50%; 
-    font-size: 18px;
+    max-width: 360px;
+    font-size: 23px;
     margin-bottom: 55px; 
     padding: 12px 20px;
     border-radius: 30px;
     text-align: center;
+    font-family: inherit;
+    box-shadow: var(--main-box-shadow);
 }
 
 
@@ -49,19 +48,23 @@ body {
     display: flex;
     align-items: center;
     justify-content: center; 
-    width: 80%; 
+    width: 100%; 
     border: none;
-    margin: auto;
+    margin: auto; /*center horizantally*/
 }
 
 .timeField {
-    padding: 8px 10px;
-    border: 1px solid #ccc;
-    width: 20%; 
+    width: 45%;
+    max-width: 100px;
+    height: 40px;
     border: none;
-    font-size: 17px;
-    margin-right: 1%;
+    font-size: 22px;
+    margin-right: 2%;
     min-width: 45px;
+    text-align: center;
+    font-family: inherit;
+    padding: 0;
+    box-shadow: var(--main-box-shadow);
 }
 
 .timeField:hover{
@@ -70,30 +73,33 @@ body {
 
 .dash{
     margin: 0 4%;
-    width: 15px; 
+    width: 15px;
+    min-width: 12px;
     height: 2px; 
     background-color: black; 
     align-self: center; 
 }
+
+
 .toggleButton {
-    padding: 8px 10px;
-    font-size: 16px;
-    margin: 0 2px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    color: #333;
+    height: 40px;
+    max-width: 70px;
+    font-size: 22px;
+    font-family: inherit;
+    margin: 0;
+    padding: 0;
     cursor: pointer;
-    outline: none;
-    width: 20%; 
+    width: 30%; 
     border: none;
+    box-shadow: var(--main-box-shadow);
+    background-color: var(--button-gray);
+    color: #333;
 }
 
 .toggleButton.active {
-    padding: 8px 10px;
-    font-size: 16px;
-    background-color: #173386;
+    box-shadow: 2px 2.5px 3px rgba(0,0,0,0.3);
+    background-color: var(--dark-blue);
     color: white;
-    border-color: #173386;
 }
 
 .toggleButton:focus {
@@ -103,9 +109,14 @@ body {
     transform: scale(1.05);
 }
 
+.timezoneWrapper{
+    margin-left: 20px;
+    width: 100px;
+}
+
 
 .connectButton {
-    background-color: #173386; 
+    background-color: var(--dark-blue) ; 
     color: white;
     border: none;
     padding: 15px 30px; 
@@ -120,7 +131,7 @@ body {
 }
 
 .connectButton:hover {
-    background-color: #0a5498; 
+    background-color: #0c5daa; 
 }
 
 @media only screen and (max-width: 1100px) {

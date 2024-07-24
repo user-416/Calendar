@@ -1,23 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import CSS from './Dropdown.module.css'
-
+import useOutsideClick from '../hooks/useOutsideClick';
 const Dropdown = ({ calendars, selectedCalendars, toggleCalendar }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   // Close out dropdown if user clicks outside it
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  useOutsideClick(dropdownRef, setIsDropdownOpen);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);

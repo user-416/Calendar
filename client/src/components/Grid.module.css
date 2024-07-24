@@ -1,20 +1,10 @@
 /* Wrapper for the hourly labels, date labels, and the main grid (not named container bc already used in Meet.css) */
 
-.componentContainer{
-    font-family: 'Glacial Indifference', sans-serif;
-}
-
-.gridWrapper{
-    display: flex;
-    flex-direction: column;
-}
 .gridVertical{
     position: absolute;
-    top: 330px;
+    top: 480px;
     left: 50%; 
     transform: translateX(-50%); 
-    display: flex;
-    flex-direction: column;
     margin-bottom: 100px;
     min-width: calc(5.5vw*7) !important; /*each cell is 5.5vw with 2px border on left/right*/
 }
@@ -37,25 +27,33 @@
 }
 .navigationArrows .eventName{
     font-size: 40px;
-    padding-bottom: 25px;
+    padding-bottom: 2px;
 }
 .navigationArrows button:not(:disabled):hover{
     cursor: pointer;
     transform: scale(1.1);
 }
 
+.mainWrapper{
+    display: flex;
+}
+.gridAndDatesWrapper{
+    display: flex;
+    flex-direction: column;
+}
+
 .hourlyLabels {
     display: flex;
     flex-direction: column;
-    padding-right: 10px;  
-    position: absolute;
-    top: 472px;
-    right: 69.6vw;
+    position: relative;
+    top: 42px;
+    right: 20px;
 }
 
 .hourlyLabel {
     height: 84px;  /*row height * 60*/
     text-align: right;
+    font-size: 20px;
 }
 
 .grid {
@@ -73,13 +71,15 @@
 .dateLabels {
     display: flex;
     cursor: default;
-    border-bottom: 2px solid black;
+    padding-bottom: 2px;
 }
 
 .dateLabel {
     flex: 0 0 auto;
     width: 5.5vw;
     text-align: center;
+    font-size: 20px;
+    
 }
 
 
@@ -89,19 +89,22 @@
     border-right: 2px solid black;  /* Vertical lines between cells */
     background-color: gray;
     box-sizing: border-box;
-    z-index: 1000;
     cursor: pointer;
+}
+
+.gridCell:hover{
+    transform: scale(1.005);
 }
 
 
 
 /*users*/
 .availabilityWrapper, .allUsersWrapper{
-    top: 450px;
+    top: 600px;
     position: absolute; /*relative to viewport*/
 }
 .usersHeading{
-    font-size: 30px;
+    font-size: 32px;
 }
 
 /*all users*/
@@ -112,14 +115,14 @@
 
 /*availibility info*/
 .availabilityWrapper{
-    width: 275px;
+    width: 300px;
     left: 85%;
     transform: translateX(-50%);
 }
 
 .timeInterval{
-    font-size: 20px;
+    font-size: 23px;
 }
 .userName{
-    font-size: 20px;
+    font-size: 23px;
 }

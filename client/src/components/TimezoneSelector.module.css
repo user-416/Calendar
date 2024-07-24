@@ -1,4 +1,80 @@
 .timezoneSelectorContainer{
-    color: blue;
-    border: none;
+    position: relative;
+    width: 100px;
+    height: 40px;
 }
+
+.dropdown{
+    position: absolute;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 99;
+    user-select: none;
+}
+
+.dropdownToggle{
+    position: relative;
+    background-color: #F0F0F0;
+    width: 100px;
+    height: 40px;
+    text-align: center;
+    box-shadow: 2px 2px 3px rgba(0,0,0,0.25);
+}
+
+.dropdownToggle.open{
+    background-color: #e8e4e4;
+}
+
+.dropdownToggle:hover{
+    background-color: #cfcdcd;
+}
+
+
+.toggleText, .dropdownItemText{
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 20px;
+}
+
+.dropdownArrow{
+    display: inline-block;
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    transform: rotate(-90deg);
+    font-family: 'Roboto Mono', monospace;
+}
+.dropdownArrow.open{
+    transform: rotate(90deg);
+}
+
+.dropdownContent{
+    width: 100px;
+    max-height: 220px;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    box-shadow: 2px 2px 3px rgba(0,0,0,0.25);
+}
+.dropdownContent::-webkit-scrollbar{
+    width: 0;
+    height: 0;
+}
+
+.dropdownItem{
+    position: relative;
+    background-color: #F0F0F0;
+    height: 40px;
+}
+
+.dropdownItem.highlighted{
+    background-color: #173386;
+    color: white;
+}
+
+
+
+
+

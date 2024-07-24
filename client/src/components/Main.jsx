@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import calendarService from '../services/calendar';
 import { useNavigate } from 'react-router-dom';
 import CSS from './Main.module.css';
@@ -6,6 +6,7 @@ import TimeUtil from '../utils/TimeUtil';
 import DateSelector from './DateSelector';
 import DateUtil from '../utils/DateUtil';
 import TimezoneSelector from './TimezoneSelector';
+import useCenterWithOffset from '../hooks/useCenterWithOffset';
 const Main = () => {
     const [eventName, setEventName] = useState('');
     const [startTime, setStartTime] = useState('9:00');
@@ -18,6 +19,10 @@ const Main = () => {
     const [selectedDates, setSelectedDates] = useState(new Set());
 
     const navigate = useNavigate(); 
+
+    const timezoneWrapperRef = useRef(null);
+    const timeInputsRef = useRef(null);
+    useCenterWithOffset(timezoneWrapperRef, timeInputsRef, 'right');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -53,44 +58,44 @@ const Main = () => {
                 selectedDates={selectedDates} 
                 setSelectedDates={setSelectedDates}
             />
-            <div className={CSS.formContainer}>
-                <form onSubmit={handleSubmit}>
+            <form className={CSS.formContainer} onSubmit={handleSubmit}>
+                <input
+                    className={CSS.eventInput}
+                    type="text"
+                    placeholder="Enter Event Name: "
+                    value={eventName}
+                    onFocus={(e) => e.target.placeholder = ''}
+                    onBlur={(e) => e.target.placeholder = "Enter Event Name: "}
+                    onChange={(e) => setEventName(e.target.value)}
+                    required
+                />
+
+                <div className={CSS.timeInputs} ref={timeInputsRef}>
                     <input
-                        className={CSS.eventInput}
                         type="text"
-                        placeholder="Enter Event Name: "
-                        value={eventName}
-                        onFocus={(e) => e.target.placeholder = ''}
-                        onBlur={(e) => e.target.placeholder = "Enter Event Name: "}
-                        onChange={(e) => setEventName(e.target.value)}
-                        required
+                        value={startTime}
+                        className={CSS.timeField}
+                        onChange={(e) => setStartTime(e.target.value)}
                     />
+                    <button type="button" onClick={() => setIsAMStart(true)} className={`${CSS.toggleButton} ${isAMStart ? CSS.active : ''}`}>AM</button>
+                    <button type="button" onClick={() => setIsAMStart(false)} className={`${CSS.toggleButton} ${!isAMStart ? CSS.active : ''}`}>PM</button>
 
-                    <div className={CSS.timeInputs}>
-                        <input
-                            type="text"
-                            value={startTime}
-                            className={CSS.timeField}
-                            onChange={(e) => setStartTime(e.target.value)}
-                        />
-                        <button type="button" onClick={() => setIsAMStart(true)} className={`${CSS.toggleButton} ${isAMStart ? CSS.active : ''}`}>AM</button>
-                        <button type="button" onClick={() => setIsAMStart(false)} className={`${CSS.toggleButton} ${!isAMStart ? CSS.active : ''}`}>PM</button>
+                    <div className={CSS.dash}></div>
 
-                        <div className={CSS.dash}></div>
-
-                        <input
-                            type="text"
-                            value={endTime}
-                            className={CSS.timeField}
-                            onChange={(e) => setEndTime(e.target.value)}
-                        />
-                        <button type="button" onClick={() => setIsAMEnd(true)} className={`${CSS.toggleButton} ${isAMEnd ? CSS.active : ''}`}>AM</button>
-                        <button type="button" onClick={() => setIsAMEnd(false)} className={`${CSS.toggleButton} ${!isAMEnd ? CSS.active : ''}`}>PM</button>
+                    <input
+                        type="text"
+                        value={endTime}
+                        className={CSS.timeField}
+                        onChange={(e) => setEndTime(e.target.value)}
+                    />
+                    <button type="button" onClick={() => setIsAMEnd(true)} className={`${CSS.toggleButton} ${isAMEnd ? CSS.active : ''}`}>AM</button>
+                    <button type="button" onClick={() => setIsAMEnd(false)} className={`${CSS.toggleButton} ${!isAMEnd ? CSS.active : ''}`}>PM</button>
+                    <div className={CSS.timezoneWrapper} ref={timezoneWrapperRef}> 
+                        <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
                     </div>
-                    <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
-                    <button className={CSS.connectButton} type="submit">Connect</button>
-                </form>
-            </div>
+                </div>
+                <button className={CSS.connectButton} type="submit">Connect</button>
+            </form>
         </div>
     );
 };
