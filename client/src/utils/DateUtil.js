@@ -1,6 +1,6 @@
 import moment from 'moment-timezone';
 import TimeUtil from './TimeUtil';
-import { endOfHour } from 'date-fns/fp';
+// import { endOfHour } from 'date-fns/fp';
 class DateUtil {
 
     //these functions accept strings in the format YYYY-MM-DD
