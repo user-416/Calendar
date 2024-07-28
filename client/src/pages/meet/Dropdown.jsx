@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import CSS from './Dropdown.module.css'
-import useOutsideClick from '../hooks/useOutsideClick';
+import useOutsideClick from '../../hooks/useOutsideClick';
 const Dropdown = ({ calendars, selectedCalendars, toggleCalendar }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);

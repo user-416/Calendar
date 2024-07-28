@@ -1,11 +1,10 @@
 import React, {useEffect, useState, useMemo, useRef} from "react";
-import calendarService from '../services/calendar';
-import TimeUtil from "../utils/TimeUtil";
-import DateUtil from "../utils/DateUtil";
+import calendarService from '../../services/calendar';
+import TimeUtil from "../../utils/TimeUtil";
+import DateUtil from "../../utils/DateUtil";
 import CSS from "./Grid.module.css";
-import TimezoneSelector from "./TimezoneSelector";
 import moment from "moment-timezone";
-import useCenterWithOffset from "../hooks/useCenterWithOffset";
+import useCenterWithOffset from "../../hooks/useCenterWithOffset";
 
 const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
     const [calendars, setCalendars] = useState(new Map());
@@ -295,7 +294,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
                                                 onClick={() => handleIntervalClick(dateRealIdx, intervalIdx)}
                                                 style={{
                                                     height: `${intervalHeight*1.405}px`,  
-                                                    backgroundColor: isSelected ? `rgba(0, 100, 255, ${opacity+1/(2*calendars.size)})` : `rgba(0, 128, 0, ${opacity})`,
+                                                    backgroundColor: isSelected ? `rgba(23, 51, 255, 1.0)` : `rgba(0, 128, 0, ${opacity})`,
                                                     borderTop: `${intervalIdx === 0 ? '2px' : '0'} solid black`,
                                                     borderBottom: `${intervalIdx === intervalMap.get(date).length-1 ? '2px' : '1.2px'} solid black`,
                                                 }}

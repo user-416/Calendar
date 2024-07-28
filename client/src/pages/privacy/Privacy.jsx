@@ -75,7 +75,7 @@ const Privacy = () => {
             <p>If you have any questions about this Privacy Policy, please contact us at:
                 <br/>
                 <br/>
-                <u>tgao124@gmail.com</u>
+                <u>calconnect@gmail.com</u>
             </p>
         </section>
     </div>

@@ -2,7 +2,7 @@ import CSS from './Navbar.module.css';
 const Navbar = () => {
     return (
         <div className={CSS.navbarContainer}>
-            <div className={CSS.navbarTitle}>CalConnect</div>
+            <a href="/" className={CSS.navbarTitle}>CalConnect</a>
         </div>
     );
 }

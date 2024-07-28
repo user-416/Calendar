@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect} from 'react';
 import Calendar from 'react-calendar';
-import DateUtil from '../utils/DateUtil';
+import DateUtil from '../../utils/DateUtil';
 import 'react-calendar/dist/Calendar.css';
 import './DateSelector.css';
 

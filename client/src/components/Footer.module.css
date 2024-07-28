@@ -1,0 +1,61 @@
+
+.footerContainer{
+    background-color: var(--dark-blue);
+    height: 210px;
+    width: 100%;
+    color: white;
+    font-weight: bolder;
+    font-family: 'sans-serif';
+    opacity: .95;
+    --content-width: 75%;
+}
+
+.content{
+    height: 100px;
+    width: var(--content-width);
+    padding-top: 40px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+
+.name{
+    font-size: 35px;
+    font-family: 'Glacial Indifference';
+}
+.linksContainer, .contactContainer{
+    padding-top: 7px;
+}
+
+.privacy{
+    color: white;
+}
+
+.contactHeader{
+    font-size: 22px;
+}
+
+.email{
+    margin-top: 10px;
+}
+
+.copyrightContainer{
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: var(--content-width);
+    margin: auto;
+}
+.copyrightLine{
+    height: 1px;
+    width: 100%;
+    background-color: white;
+    opacity: .4;
+}
+
+.copyright{
+    margin-top: 13px;
+}
+

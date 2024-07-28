@@ -1,12 +1,9 @@
-body{
-    height: 100vh;
-    overflow-y: auto;
-}
 
 /*link and add calender button*/
+.meetContainer{
+    margin-top: 40px;
+}
 .topContainer {
-    position: relative;
-    top: 160px;
     display: flex;
     flex-direction: column;
     align-items: center; 
@@ -14,13 +11,13 @@ body{
     padding: 8px;
 }
 
-.linkBox{
-    position: relative; /*for copy button child*/
+.linkBox{    
+    position: relative;
     width: 450px;
-    margin-top: 30px;
-    border: 1px solid #173386;
+    border: 1px solid  var(--dark-blue);
     border-radius: 20px;
     overflow: hidden; 
+    box-shadow: 1.5px 1.5px 1px rgba(0,0,0,0.25);
 }
 
 /*link input box*/
@@ -80,12 +77,13 @@ body{
 }
 
 /*Loading message & Error message*/
+.loadingMessageContainer, .errorMessageContainer{
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+}
 .loadingMessage, .errorMessage{
-    position: absolute;
-    top: 180px; 
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 25px;
+    font-size: 30px;
 }
 
 

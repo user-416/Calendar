@@ -1,20 +1,18 @@
-/* Wrapper for the hourly labels, date labels, and the main grid (not named container bc already used in Meet.css) */
 
-.gridVertical{
-    position: absolute;
-    top: 480px;
-    left: 50%; 
-    transform: translateX(-50%); 
-    margin-bottom: 100px;
-    min-width: calc(5.5vw*7) !important; /*each cell is 5.5vw with 2px border on left/right*/
+.gridContainer{
+    margin-top: 50px;
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+    --cell-width: 5.5vw;
+    margin-bottom: 120px;
 }
-
 
 /*arrow buttons*/
 .navigationArrows {
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: space-evenly;
     height: 80px;
 }
 
@@ -61,6 +59,7 @@
     flex-direction: row;
     border-left: 2px solid black;
     cursor: pointer;
+    /*width: calc(var(--cell-width)*7) !important; */
 }
 
 .gridCol{
@@ -70,22 +69,18 @@
 
 .dateLabels {
     display: flex;
-    cursor: default;
     padding-bottom: 2px;
 }
 
 .dateLabel {
-    flex: 0 0 auto;
-    width: 5.5vw;
+    width: var(--cell-width);
     text-align: center;
     font-size: 20px;
-    
 }
 
 
 .gridCell {
-    flex: 0 0 auto;
-    width: 5.5vw;
+    width: var(--cell-width);
     border-right: 2px solid black;  /* Vertical lines between cells */
     background-color: gray;
     box-sizing: border-box;
@@ -100,26 +95,17 @@
 
 /*users*/
 .availabilityWrapper, .allUsersWrapper{
-    top: 600px;
-    position: absolute; /*relative to viewport*/
+    width: 300px;
+    height: fit-content;
+    margin-top: 110px;
+    /*figure out what to do about overflow*/
 }
 .usersHeading{
     font-size: 32px;
 }
 
-/*all users*/
-.allUsersWrapper{
-    left: 13%;
-    transform: translateX(-50%);
-}
 
 /*availibility info*/
-.availabilityWrapper{
-    width: 300px;
-    left: 85%;
-    transform: translateX(-50%);
-}
-
 .timeInterval{
     font-size: 23px;
 }

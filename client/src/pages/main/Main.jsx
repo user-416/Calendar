@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef} from 'react';
-import calendarService from '../services/calendar';
+import calendarService from '../../services/calendar';
 import { useNavigate } from 'react-router-dom';
 import CSS from './Main.module.css';
-import TimeUtil from '../utils/TimeUtil';
+import TimeUtil from '../../utils/TimeUtil';
 import DateSelector from './DateSelector';
-import DateUtil from '../utils/DateUtil';
-import TimezoneSelector from './TimezoneSelector';
-import useCenterWithOffset from '../hooks/useCenterWithOffset';
+import DateUtil from '../../utils/DateUtil';
+import TimezoneSelector from '../../components/TimezoneSelector';
+import useCenterWithOffset from '../../hooks/useCenterWithOffset';
 const Main = () => {
     const [eventName, setEventName] = useState('');
     const [startTime, setStartTime] = useState('9:00');

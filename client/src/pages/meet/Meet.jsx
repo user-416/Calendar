@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import calendarService from '../services/calendar';
-import authService from '../services/auth';
+import calendarService from '../../services/calendar';
+import authService from '../../services/auth';
 import { useParams, useNavigate } from 'react-router-dom';
 import Grid from './Grid';
 import Dropdown from './Dropdown';
 import CSS from './Meet.module.css';
-import TimezoneSelector from './TimezoneSelector';
+import TimezoneSelector from '../../components/TimezoneSelector';
 
 const Meet = () => {
     const {id} = useParams();
@@ -104,7 +104,7 @@ const Meet = () => {
     
         fetchSelected();
     }, [id]);
-
+    
     useEffect(() => {
         const fetchMeeting = async () => {
             try {
@@ -122,40 +122,49 @@ const Meet = () => {
     }, [id, navigate]);
 
     if (loading) {
-        return <div className={CSS.loadingMessage}>Loading...</div>;
+        return (
+            <div className={CSS.loadingMessageContainer}>
+                <div className={CSS.loadingMessage}>Loading...</div>
+            </div>
+        )
     }
 
     if (error) {
-        return <div className={CSS.errorMessage}>{error}</div>;
-    }
+        return (
+            <div className={CSS.errorMessageContainer}>{error}
+                <div className={CSS.errorMessage}>{error}</div>
+            </div>
+        );
 
+    }
+    
     return (
-    <div className={CSS.meetContainer}>
-        <div className={CSS.topContainer}>
-            <div className={CSS.linkBox}>
-                <div className={CSS.linkText}>{window.location.href}</div> 
-                <button className={CSS.copyButton} onClick={copyLink}>
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8c-1.1 0-1.99.9-1.99 2L6 21c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                        </svg>
-                </button>
-            </div>
-            <div className={CSS.copyMessage}>Link copied!</div>
-            <div>
-                {authStatus.authenticated ? (
-                    <Dropdown calendars={calendars} selectedCalendars={selectedCalendars} toggleCalendar={toggleCalendar}/>
-                ) : (
-                    <button className={CSS.loginButton} type="button" onClick={getAuthUrl}>
-                        Login
+        <div className={CSS.meetContainer}>
+            <div className={CSS.topContainer}>
+                <div className={CSS.linkBox}>
+                    <div className={CSS.linkText}>{window.location.href}</div> 
+                    <button className={CSS.copyButton} onClick={copyLink}>
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8c-1.1 0-1.99.9-1.99 2L6 21c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                            </svg>
                     </button>
-                )}
+                </div>
+                <div className={CSS.copyMessage}>Link copied!</div>
+                <div>
+                    {authStatus.authenticated ? (
+                        <Dropdown calendars={calendars} selectedCalendars={selectedCalendars} toggleCalendar={toggleCalendar}/>
+                    ) : (
+                        <button className={CSS.loginButton} type="button" onClick={getAuthUrl}>
+                            Login
+                        </button>
+                    )}
+                </div>
+                <div className={CSS.timezoneWrapper}>
+                    <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
+                </div>
             </div>
-            <div className={CSS.timezoneWrapper}>
-                <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
-            </div>
+            <Grid meeting={meeting} id={id} selectedCalendars={selectedCalendars} timezone={timezone} />
         </div>
-        <Grid meeting={meeting} id={id} selectedCalendars={selectedCalendars} timezone={timezone} />
-    </div>
     );
 };
 
