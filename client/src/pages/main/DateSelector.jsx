@@ -54,7 +54,7 @@ const DateSelector = ({selectedDates, setSelectedDates}) => {
         return [-1, -1];
     }
     
-    const handleMouseEnter = (date) => {
+    const handleDragEnter = (date) => {
         if (isDragging) {
             if (startRow === null || startCol === null) {
                 return;
@@ -86,7 +86,7 @@ const DateSelector = ({selectedDates, setSelectedDates}) => {
         }
     }
 
-    const handleMouseDown = (event, date) => {
+    const handleDragStart = (date) => {
         //console.log("mouse down",date);
         const dateString = date.toISOString().split('T')[0];
         setIsDragging(true);
@@ -106,7 +106,7 @@ const DateSelector = ({selectedDates, setSelectedDates}) => {
         setCurCol(sc);
     };
 
-    const handleMouseUp = (date) => {
+    const handleDragEnd = (date) => {
         setIsSelecting(null);
         setIsDragging(false);
     };
@@ -124,11 +124,12 @@ const DateSelector = ({selectedDates, setSelectedDates}) => {
                 className={'react-calendar'}
                 tileContent={({ date, view }) => (
                     <div
-                        onMouseDown={(e) => {
-                            handleMouseDown(e, date);
-                        }}
-                        onMouseEnter={(e) => handleMouseEnter(date)}
-                        onMouseUp={(e) => handleMouseUp(date)}
+                        onMouseDown={(e) => handleDragStart(date)}
+                        onTouchStart={(e) => handleDragStart(date)}
+                        onTouchMove={(e) => handleDragEnter(date)}
+                        onMouseEnter={(e) => handleDragEnter(date)}
+                        onMouseUp={(e) => handleDragEnd(date)}
+                        onTouchEnd={(e) => handleDragEnd(date)}
                     />
                 )}
             />
