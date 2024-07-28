@@ -1,0 +1,7 @@
+body{
+    font-family: 'Glacial Indifference', sans-serif;
+    height: 100vh;
+}
+.content {
+    flex: 1 0 auto; 
+}

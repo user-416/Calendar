@@ -1,0 +1,30 @@
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    font-size: 1.2rem;
+}
+
+.policyContainer {
+    margin-top: 60px !important;
+    margin-bottom: 100px !important;
+    position: relative;
+    width: 50%;
+    box-sizing: border-box;
+    margin: 0 auto;
+    z-index: 100;
+}
+
+.policyHeader {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.policyHeader h1 {
+    margin-bottom: 0.5rem;
+}
+
+.policyHeader h3 {
+    color: gray;
+}

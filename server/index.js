@@ -223,14 +223,22 @@ app.post('/api/toggleCalendar', isAuthenticated, setupOAuth2Client, async (req, 
 
       return res.json({ message: 'Calendar removed successfully', action: 'removed' });
     } else {
+      // Create start and end bounds for Calendar API request
+      const start = meeting.dates[0];
+      start.setUTCHours(meeting.startTime.substring(0,2));
+      start.setUTCMinutes(meeting.startTime.substring(3));
+      const end = meeting.dates[meeting.dates.length-1];
+      end.setUTCHours(meeting.endTime.substring(0,2));
+      end.setUTCMinutes(meeting.endTime.substring(3));
       // Add calendar + events
       const calendar = google.calendar({ version: 'v3', auth: req.oauth2Client });
-      const calendarResponse = await calendar.events.list({ calendarId: calendarId });
+      const calendarResponse = await calendar.events.list({ calendarId: calendarId, 
+        timeMin: start.toISOString(),
+        timeMax: end.toISOString(),
+        singleEvents: true,
+        timeZone: 'UTC' });
       const calData = calendarResponse.data.items;
-
-      if (calData.length === 0) {
-        return res.status(200).json({ message: 'No events found in this calendar', action: 'no_action' });
-      }
+      console.log('calData', calData);
 
       const allEvents = await Event.insertMany(calData.map(eventData => ({
         eventName: eventData.summary || 'Untitled Event',
@@ -238,6 +246,7 @@ app.post('/api/toggleCalendar', isAuthenticated, setupOAuth2Client, async (req, 
         end: eventData.end || {},
         calendarId: calendarId
       })));
+      console.log(allEvents);
 
       if (personIndex !== -1) {
         await Meeting.updateOne(
@@ -247,7 +256,7 @@ app.post('/api/toggleCalendar', isAuthenticated, setupOAuth2Client, async (req, 
       } else {
         await Meeting.updateOne(
           { _id: meeting._id },
-          { $push: { calendars: { personName: email, personCalendar: [{ calendarId, events: allEvents }] } } }
+          { $push: { calendars: { personName: email, personCalendar: [{ calendarId, events: allEvents || [] }] } } }
         );
       }
 

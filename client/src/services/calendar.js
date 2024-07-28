@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseUrl = "https://calendar-bslk.onrender.com/";
+const baseUrl = "http://localhost:3000/";
 
 
 const getCalendar = async () => {

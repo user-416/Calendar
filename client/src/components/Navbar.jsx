@@ -1,9 +1,9 @@
-import './Main.css';
+import CSS from './Navbar.module.css';
 const Navbar = () => {
     return (
-        <nav className="navbar">
-            <div className="navbar-title">CalConnect</div>
-        </nav>
+        <div className={CSS.navbarContainer}>
+            <a href="/" className={CSS.navbarTitle}>CalConnect</a>
+        </div>
     );
 }
  
