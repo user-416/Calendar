@@ -8,7 +8,6 @@ import useCenterWithOffset from "../../hooks/useCenterWithOffset";
 
 const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
     const [calendars, setCalendars] = useState(new Map());
-    let calendarData;
 
     const hourlyLabelsRef = useRef();
     const mainWrapperRef = useRef();
@@ -16,8 +15,8 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
     useEffect(() => {
         const getCalendars = async () => {
             try {
-                calendarData = await calendarService.getAvailability(id);
-                populateCalendarsUTC();
+                const calendarData = await calendarService.getAvailability(id);
+                populateCalendarsUTC(calendarData);
             } catch (err) {
                 console.log(err);
             }
@@ -198,7 +197,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
         setDateStartIdx(Math.max(0, dateStartIdx-7));
     }
 
-    const populateCalendarsUTC = () => {
+    const populateCalendarsUTC = (calendarData) => {
         const formattedCalendars = new Map();
                 
         calendarData.calendars.forEach(calendar => {
@@ -216,6 +215,8 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
                             const start = event.start.date || event.start.dateTime.split('T')[0];
                             const end = event.end.date || event.end.dateTime.split('T')[0];
                             const curDate = moment(start), endDate = moment(end);
+                            if(event.start.date)
+                                endDate.add(-1, 'days');
                             while(curDate.isSameOrBefore(endDate)){
                                 dates.push(curDate.format('YYYY-MM-DD'))
                                 curDate.add(1, 'days');
@@ -230,10 +231,15 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
                             if (!formattedEvents.has(dates[i])) {
                                 formattedEvents.set(dates[i], []);
                             }
-
-                            const start = over24HoursApart && i==0 ? startTime : '00:00';
-                            const end = over24HoursApart && i==dates.length-1 ? endTime : '24:00';
-
+                            let start, end;
+                            if(over24HoursApart){
+                                start = over24HoursApart && i==0 ? startTime : '00:00';
+                                end = over24HoursApart && i==dates.length-1 ? endTime : '24:00';
+                            }else{
+                                start = startTime;
+                                end = endTime;
+                            }
+                            console.log(timezone, dates, start, end);
                             formattedEvents.get(dates[i]).push(`${start}-${end}`);
                         }
                     }
