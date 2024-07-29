@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo} from 'react';
 import Calendar from 'react-calendar';
 import DateUtil from '../../utils/DateUtil';
@@ -15,6 +14,8 @@ const DateSelector = ({selectedDates, setSelectedDates}) => {
 
     const isSelecting  = useRef(null);
     const isDragging = useRef(false);
+
+    const isTouch = useRef(null);
 
     const monthMatrix = useMemo(() => DateUtil.getMonthMatrix(activeDate), [activeDate]);
     const firstCoord = useRef(null);
@@ -108,6 +109,12 @@ const DateSelector = ({selectedDates, setSelectedDates}) => {
 
     const handleDragStart = (date, e) => {
         //e.preventDefault();
+        console.log(e.type);
+        if(isTouch.current !== null && isTouch.current !== e.type){
+            isTouch.current = null;
+            return;
+        }
+        isTouch.current = e.type;
         console.log('start', date);
         const dateString = date.toISOString().split('T')[0];
         isDragging.current = true;
