@@ -60,7 +60,7 @@ class DateUtil {
         while (startDate <= endDate) {
             let week = [];
             for (let day = 0; day < 7; day++) {
-                week.push(new Date(startDate));
+                week.push((new Date(startDate)).toISOString().split('T')[0]);
                 startDate.setDate(startDate.getDate() + 1);
             }
             matrix.push(week);
