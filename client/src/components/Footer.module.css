@@ -1,4 +1,3 @@
-
 .footerContainer{
     background-color: var(--dark-blue);
     height: 210px;
@@ -15,17 +14,13 @@
     width: var(--content-width);
     padding-top: 40px;
     margin: auto;
-    display: flex;
-    justify-content: space-between;
+
 }
 
 
 .name{
     font-size: 35px;
     font-family: 'Glacial Indifference';
-}
-.linksContainer, .contactContainer{
-    padding-top: 7px;
 }
 
 .privacy{
@@ -40,7 +35,7 @@
     margin-top: 10px;
 }
 
-.copyrightContainer{
+.bottomContainer{
     margin-top: 5px;
     display: flex;
     flex-direction: column;
@@ -55,7 +50,13 @@
     opacity: .4;
 }
 
-.copyright{
+.legalContainer{
+    width: 100%;
     margin-top: 13px;
+    display: flex;
+    justify-content: space-between;
 }
 
+.privacy{
+    text-decoration: none;
+}
