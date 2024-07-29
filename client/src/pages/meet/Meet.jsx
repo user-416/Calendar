@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import calendarService from '../../services/calendar';
 import authService from '../../services/auth';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -6,6 +6,7 @@ import Grid from './Grid';
 import Dropdown from './Dropdown';
 import CSS from './Meet.module.css';
 import TimezoneSelector from '../../components/TimezoneSelector';
+import useCenterWithOffset from '../../hooks/useCenterWithOffset';
 
 const Meet = () => {
     const {id} = useParams();
@@ -21,6 +22,9 @@ const Meet = () => {
     const [selectedCalendars, setSelectedCalendars] = useState(new Set());
     const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const [timezone, setTimezone] = useState(defaultTimezone);
+
+    const refreshButtonRef = useRef(), authContainerRef = useRef();
+    useCenterWithOffset(refreshButtonRef, authContainerRef, 'right');
 
     const getAuthUrl = async () => {
         try {
@@ -79,6 +83,7 @@ const Meet = () => {
             });
     }, []);
 
+
     useEffect(() => {
         const fetchCalendars = async () => {
             try {
@@ -88,9 +93,9 @@ const Meet = () => {
                 console.log(err);
             }
         };
-    
         fetchCalendars();
     }, []);
+
 
     useEffect(() => {
         const fetchSelected = async () => {
@@ -101,7 +106,6 @@ const Meet = () => {
                 console.log(err);
             }
         };
-    
         fetchSelected();
     }, [id]);
     
@@ -152,7 +156,12 @@ const Meet = () => {
                 <div className={CSS.copyMessage}>Link copied!</div>
                 <div>
                     {authStatus.authenticated ? (
-                        <Dropdown calendars={calendars} selectedCalendars={selectedCalendars} toggleCalendar={toggleCalendar}/>
+                        <div className={CSS.authContainer} ref={authContainerRef}>
+                            <Dropdown calendars={calendars} selectedCalendars={selectedCalendars} toggleCalendar={toggleCalendar}/>
+                            <button className={CSS.refreshButton} ref={refreshButtonRef}>
+                                <img className={CSS.refreshButton} src='/refresh.svg' alt='refresh'></img>
+                            </button>
+                        </div>
                     ) : (
                         <button className={CSS.loginButton} type="button" onClick={getAuthUrl}>
                             Login

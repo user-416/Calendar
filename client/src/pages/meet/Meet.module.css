@@ -86,6 +86,27 @@
     font-size: 30px;
 }
 
+.authContainer{
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.refreshButton{
+    margin-left: 4px;
+    background-color: white;
+    fill: rgb(94, 94, 94);
+    border: none;
+    width: 35px;
+    height: 35px;
+    stroke-width: 10px; 
+    cursor: pointer;
+}
+
+.refreshButton:hover{
+    transform: scale(1.05);
+}
+
 
 /*event name*/
 .eventName{
