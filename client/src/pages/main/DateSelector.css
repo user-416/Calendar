@@ -1,5 +1,6 @@
 
 /* Styling for react-calendar */
+
 .calendarContainer {
     display: flex;
     flex: 1;
@@ -9,6 +10,7 @@
     text-align: center;
     min-width: 380px;
     max-width: 500px;
+    touch-action: none;
   }
 
 .react-calendar {
