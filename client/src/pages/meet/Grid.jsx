@@ -11,7 +11,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
 
     const hourlyLabelsRef = useRef();
     const mainWrapperRef = useRef();
-    useCenterWithOffset(hourlyLabelsRef, mainWrapperRef, 'left');
+    useCenterWithOffset(hourlyLabelsRef, mainWrapperRef, 'left', 'transform');
     useEffect(() => {
         const getCalendars = async () => {
             try {

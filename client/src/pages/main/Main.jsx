@@ -22,7 +22,7 @@ const Main = () => {
 
     const timezoneWrapperRef = useRef(null);
     const timeInputsRef = useRef(null);
-    useCenterWithOffset(timezoneWrapperRef, timeInputsRef, 'right');
+    useCenterWithOffset(timezoneWrapperRef, timeInputsRef, 'right', 'transform');
 
     const handleSubmit = async (e) => {
         e.preventDefault();

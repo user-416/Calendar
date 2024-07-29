@@ -24,7 +24,7 @@ const Meet = () => {
     const [timezone, setTimezone] = useState(defaultTimezone);
 
     const refreshButtonRef = useRef(), authContainerRef = useRef();
-    useCenterWithOffset(refreshButtonRef, authContainerRef, 'right');
+    useCenterWithOffset(refreshButtonRef, authContainerRef, 'right', 'margin');
 
     const getAuthUrl = async () => {
         try {

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const useCenterWithOffset = (offsetRef, containerRef, dir) => {
+const useCenterWithOffset = (offsetRef, containerRef, dir, method) => {
     useEffect(() => {
         if (!offsetRef.current || !containerRef.current) {
             console.log('Error: element refs not defined');
@@ -8,7 +8,10 @@ const useCenterWithOffset = (offsetRef, containerRef, dir) => {
         }
 
         const offsetWidth = offsetRef.current.offsetWidth;
-        containerRef.current.style.transform = `translateX(${dir === 'left' ? -offsetWidth / 2 : offsetWidth / 2}px)`;
+        if(method === 'transform')
+            containerRef.current.style.transform = `translateX(${dir === 'left' ? -offsetWidth / 2 : offsetWidth / 2}px)`;
+        else if(method === 'margin')
+            containerRef.current.style.marginLeft = `${dir === 'left' ? -offsetWidth / 2 : offsetWidth / 2}px`;
     });
 };
 
