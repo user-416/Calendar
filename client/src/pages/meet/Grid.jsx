@@ -6,7 +6,7 @@ import CSS from "./Grid.module.css";
 import moment from "moment-timezone";
 import useCenterWithOffset from "../../hooks/useCenterWithOffset";
 
-const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
+const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
     const [calendars, setCalendars] = useState(new Map());
 
     const hourlyLabelsRef = useRef();
@@ -23,7 +23,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
         };
     
         getCalendars();
-    }, [id, selectedCalendars]);
+    }, [id, selectedCalendars, refreshTrigger]);
 
     console.log('calendars: ', calendars);
     const [selectedIntervalIdx, setSelectedIntervalIdx] = useState(0);
