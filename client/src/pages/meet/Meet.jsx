@@ -22,6 +22,7 @@ const Meet = () => {
     const [selectedCalendars, setSelectedCalendars] = useState(new Set());
     const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const [timezone, setTimezone] = useState(defaultTimezone);
+    const [refreshTrigger, setRefreshTrigger] = useState(false);
 
     const refreshButtonRef = useRef(), authContainerRef = useRef();
     useCenterWithOffset(refreshButtonRef, authContainerRef, 'right', 'margin');
@@ -67,6 +68,26 @@ const Meet = () => {
         } catch (error) {
             console.error('Error toggling calendar:', error);
         }
+    };
+
+    const refreshCalendars = async () => {
+        // Toggle selected calendars twice to refresh events
+        for (const calendarId of selectedCalendars) {
+            await calendarService.toggleCalendar({
+                calendarId: calendarId,
+                meetingId: id
+            });
+            await calendarService.toggleCalendar({
+                calendarId: calendarId,
+                meetingId: id
+            });
+        }
+
+        // Refresh calendar options
+        const allCalendars = await calendarService.getAllCalendars();
+        setCalendars(allCalendars);
+
+        setRefreshTrigger(prev => !prev);
     };
 
     useEffect(() => {
@@ -158,7 +179,7 @@ const Meet = () => {
                     {authStatus.authenticated ? (
                         <div className={CSS.authContainer} ref={authContainerRef}>
                             <Dropdown calendars={calendars} selectedCalendars={selectedCalendars} toggleCalendar={toggleCalendar}/>
-                            <button className={CSS.refreshButton} ref={refreshButtonRef}>
+                            <button className={CSS.refreshButton} ref={refreshButtonRef} onClick={refreshCalendars}>
                                 <img className={CSS.refreshButton} src='/refresh.svg' alt='refresh'></img>
                             </button>
                         </div>
@@ -172,7 +193,7 @@ const Meet = () => {
                     <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
                 </div>
             </div>
-            <Grid meeting={meeting} id={id} selectedCalendars={selectedCalendars} timezone={timezone} />
+            <Grid meeting={meeting} id={id} selectedCalendars={selectedCalendars} timezone={timezone} refreshTrigger={refreshTrigger} />
         </div>
     );
 };
