@@ -19,6 +19,22 @@
     text-decoration: none;
 }
 
+.logoutButton{
+    position: absolute;
+    top: 55px;
+    right: 60px;
+    font-size: 27px;
+    font-family: "Glacial Indifference";
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: rgb(58, 58, 58);
+}
+
+.logoutButton:hover{
+    color: black;
+    text-shadow: .3px .3px black;
+}
+
 
 
 @media only screen and (max-width: 500px) {

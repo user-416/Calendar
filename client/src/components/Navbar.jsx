@@ -3,6 +3,9 @@ const Navbar = () => {
     return (
         <div className={CSS.navbarContainer}>
             <a href="/" className={CSS.navbarTitle}>CalConnect</a>
+            <div className={CSS.logoutButton}>
+                Logout
+            </div>
         </div>
     );
 }
