@@ -1,7 +1,7 @@
 import { useState, useContext } from 'react';
 import CSS from './Navbar.module.css';
 import { AuthContext } from '../contexts/AuthContext';
-import Logout from './Logout';
+import LogButton from './LogButton';
 const Navbar = () => {
     const {authStatus} = useContext(AuthContext);
 
@@ -15,7 +15,6 @@ const Navbar = () => {
     return (
         <div className={CSS.navbarContainer}>
             <a href="/" className={CSS.navbarTitle}>CalConnect</a>
-            {authStatus.authenticated && (
                 <div>
                     <div className={CSS.menuButton} onClick={toggleSideBar}>
                         <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#5f6368">
@@ -24,18 +23,17 @@ const Navbar = () => {
                     </div>
 
                     <div className={CSS.links}>
-                        <Logout />
+                        <LogButton />
                     </div>
 
                     {isSidebarOpen && (
                         <div className={CSS.sidebar}>
                             <div className={CSS.sidebarLinks}>
-                                <Logout />
+                                <LogButton />
                             </div>                    
                         </div>
                     )}
                 </div>
-            )}
         </div>
     );
 }
