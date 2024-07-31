@@ -1,6 +1,9 @@
+:root{
+    --timezone-dropdown-width: 90px;
+}
 .timezoneSelectorContainer{
     position: relative;
-    width: 100px;
+    width: var(--timezone-dropdown-width);
     height: 40px;
 }
 
@@ -15,7 +18,7 @@
 .dropdownToggle{
     position: relative;
     background-color: #F0F0F0;
-    width: 100px;
+    width: var(--timezone-dropdown-width);
     height: 40px;
     text-align: center;
     box-shadow: 2px 2px 3px rgba(0,0,0,0.25);
@@ -51,7 +54,7 @@
 }
 
 .dropdownContent{
-    width: 100px;
+    width: var(--timezone-dropdown-width);
     max-height: 220px;
     overflow-y: scroll;
     scrollbar-width: none;

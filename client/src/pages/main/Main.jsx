@@ -22,7 +22,8 @@ const Main = () => {
 
     const timezoneWrapperRef = useRef(null);
     const timeInputsRef = useRef(null);
-    useCenterWithOffset(timezoneWrapperRef, timeInputsRef, 'right', 'transform');
+    const formContainerRef = useRef(null);
+    //useCenterWithOffset(timezoneWrapperRef,formContainerRef, 'right', 'transform');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -58,11 +59,11 @@ const Main = () => {
                 selectedDates={selectedDates} 
                 setSelectedDates={setSelectedDates}
             />
-            <form className={CSS.formContainer} onSubmit={handleSubmit}>
+            <form className={CSS.formContainer} onSubmit={handleSubmit} ref={formContainerRef}>
                 <input
                     className={CSS.eventInput}
                     type="text"
-                    placeholder="Enter Event Name: "
+                    placeholder="Event Name: "
                     value={eventName}
                     onFocus={(e) => e.target.placeholder = ''}
                     onBlur={(e) => e.target.placeholder = "Enter Event Name: "}
@@ -93,6 +94,7 @@ const Main = () => {
                     <div className={CSS.timezoneWrapper} ref={timezoneWrapperRef}> 
                         <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
                     </div>
+
                 </div>
                 <button className={CSS.connectButton} type="submit">Connect</button>
             </form>

@@ -6,7 +6,6 @@
 .mainContainer {
     display: flex;
     justify-content: space-evenly;
-    align-items: flex-start; 
     width: 100%;
     text-align: center;
     margin: auto;
@@ -25,9 +24,11 @@
     justify-content: flex-start;
     height: 300px; 
     text-align: center; 
-    width: 40%;
-
+    width: 50%;
+    min-width: 550px;
+    max-width: 900px;
 }
+
 .formContainer input{
     background-color: var(--button-gray);
     border: none;
@@ -50,17 +51,17 @@
     align-items: center;
     justify-content: center; 
     width: 100%; 
-    border: none;
-    margin: auto; /*center horizantally*/
+    flex-wrap: wrap;
+    transform: translateX(calc(var(--timezone-dropdown-width)/2));
 }
 
 .timeField {
-    width: 45%;
+    width: max(5vw, 83px);
     max-width: 100px;
     height: 40px;
     border: none;
     font-size: 22px;
-    margin-right: 2%;
+    margin-right: min(.9vw, 20px);
     min-width: 45px;
     text-align: center;
     font-family: inherit;
@@ -73,7 +74,7 @@
 }
 
 .dash{
-    margin: 0 4%;
+    margin: 0 min(1.8vw, 35px);
     width: 15px;
     min-width: 12px;
     height: 2px; 
@@ -84,13 +85,13 @@
 
 .toggleButton {
     height: 40px;
+    width: max(3vw, 45px); 
     max-width: 70px;
     font-size: 22px;
     font-family: inherit;
     margin: 0;
     padding: 0;
     cursor: pointer;
-    width: 30%; 
     border: none;
     box-shadow: var(--main-box-shadow);
     background-color: var(--button-gray);
@@ -113,6 +114,7 @@
 .timezoneWrapper{
     margin-left: 20px;
     width: 100px;
+
 }
 
 
@@ -135,22 +137,36 @@
     background-color: #0c5daa; 
 }
 
-@media only screen and (max-width: 1100px) {
+
+
+@media only screen and (max-width: 1400px) {
+    .formContainer{
+        margin-right: 2.5vw;
+        width: 45%;
+    }
+}
+
+@media only screen and (max-width: 1200px) {
 
     .mainContainer {
+        margin-top: 100px;
         flex-direction: column;
-        justify-content: center;
         align-items: center;
-        padding-top: 7vh;
-        margin-left: 0;
-        margin-right: 0; 
-        height: 770px;
     }
 
-    .eventInput {
-        width: 40%; 
+    .formContainer{
+        margin-top: 80px;
     }
-    
+
+    .timeInputs{
+        width: 90%; 
+        transform: none;
+    }
+
+    .timezoneWrapper{
+        margin-top: 40px;
+    }
+
 }
 
 

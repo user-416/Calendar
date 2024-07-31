@@ -160,23 +160,21 @@ const DateSelector = ({selectedDates, setSelectedDates}) => {
     };
 
     return ( 
-        <div className='calendarContainer'>
-            <Calendar 
-                onActiveStartDateChange={handleActiveStartDateChange}
-                tileClassName={tileClassName} 
-                className={'react-calendar'}
-                tileContent={({ date }) => (
-                    <div
-                        onMouseDown={(e) => handleDragStart(date,e)}
-                        onTouchStart={(e) => handleDragStart(date,e)}
-                        onMouseEnter={(e) => handleDragEnter(date, true, e)}
-                        onTouchMove={(e) => handleDragEnter(date, false, e)}
-                        onMouseUp={(e) => handleDragEnd(date,e)}
-                        onTouchEnd={(e) => handleDragEnd(date,e)}
-                    />
-                )}
-            />
-        </div>
+        <Calendar 
+            onActiveStartDateChange={handleActiveStartDateChange}
+            tileClassName={tileClassName} 
+            className={'react-calendar'}
+            tileContent={({ date }) => (
+                <div
+                    onMouseDown={(e) => handleDragStart(date,e)}
+                    onTouchStart={(e) => handleDragStart(date,e)}
+                    onMouseEnter={(e) => handleDragEnter(date, true, e)}
+                    onTouchMove={(e) => handleDragEnter(date, false, e)}
+                    onMouseUp={(e) => handleDragEnd(date,e)}
+                    onTouchEnd={(e) => handleDragEnd(date,e)}
+                />
+            )}
+        />
      );
 }
  
