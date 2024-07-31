@@ -1,0 +1,94 @@
+
+/* Styling for react-calendar */
+
+
+
+.react-calendar {
+    border: none;
+    flex-grow: 1;
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.125em;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: min(30vw, 550px); /*for some reason width does nothing. In this scenario, max-width means width*/
+    min-width: 400px;
+    padding-bottom: 10px;
+    font-family: "Glacial Indifference";
+    margin-left: 0px;
+}
+
+.react-calendar__month-view__weekdays{
+    font-family: "Glacial Indifference";
+    font-size: 17px;
+}
+
+
+.react-calendar__tile {
+    height: min(4.5vw, 60px);
+    position: relative;
+    font-size: 1.2em;
+}
+.react-calendar__tile > div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+
+.react-calendar__navigation__label, .react-calendar__navigation__arrow {
+    padding: 5px;
+    font-size: 1.2em;
+}
+
+.react-calendar__month-view__days__day--weekend {
+    color: rgb(224, 4, 4) !important;
+}
+
+.react-calendar__tile.selected {
+    background-color: #006edc !important;
+    color: white !important;
+}
+
+.react-calendar__tile.unselected:hover{
+    background-color: rgba(82, 166, 250, 0.4) !important; 
+}
+.react-calendar__tile.unselected{
+    background-color: white !important;  
+    color: black;
+}
+.react-calendar__tile--now.unselected {
+    background: #ffff76 !important;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth{
+   opacity: .5 !important;
+}
+
+
+
+
+
+
+@media only screen and (max-width: 1200px) {
+    .calendarContainer {
+        margin-bottom: 20px;
+        margin-right: 0;
+        justify-content: space-evenly;
+        
+    }
+
+    .react-calendar__tile{
+        width: 60px;
+        height: 50px;
+    }
+}
+
+@media only screen and (max-width: 600px){
+    .react-calendar{
+        max-width: min(30vw, 550px); /*for some reason width does nothing. In this scenario, max-width means width*/
+        min-width: 350px;
+    }
+}

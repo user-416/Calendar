@@ -1,0 +1,7 @@
+.logButton{
+    padding-bottom: 10px;
+}
+.logButton:hover{
+    color: black;
+    text-shadow: .3px .3px black;
+}

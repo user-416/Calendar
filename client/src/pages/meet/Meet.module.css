@@ -1,35 +1,33 @@
-body{
-    height: 100vh;
-    overflow-y: auto;
-    font-family: 'Glacial Indifference', sans-serif;
-}
+
 /*link and add calender button*/
-.top-container {
+.meetContainer{
+    margin-top: 40px;
+}
+.topContainer {
     display: flex;
     flex-direction: column;
     align-items: center; 
     justify-content: space-between; 
     padding: 8px;
-    position: relative; /*for link message child*/
 }
 
-.link-box{
-    position: relative; /*for copy button child*/
+.linkBox{    
+    position: relative;
     width: 450px;
-    margin-top: 30px;
-    border: 1px solid #173386;
+    border: 1px solid  var(--dark-blue);
     border-radius: 20px;
     overflow: hidden; 
+    box-shadow: 1.5px 1.5px 1px rgba(0,0,0,0.25);
 }
 
 /*link input box*/
-.link-box .link-text{
+.linkBox .linkText{
     padding: 8px 40px 8px 30px; 
-    font-size: 16px; 
+    font-size: 18px; 
 }
 
 /*copy icon*/
-.copy-button {
+.copyButton {
     position: absolute;
     right: 8px; 
     top: 4px; 
@@ -40,22 +38,22 @@ body{
     cursor: pointer; 
 }
 
-.copy-button:hover {
+.copyButton:hover {
     transform: scale(1.04); 
     transition: background-color 0.3s, transform 0.3s; 
 }
 
-#copy-message {
+.copyMessage {
     display: none; /* Hidden by default */
     color: black;
     margin-top: 10px;
-    font-size: 15px;
+    font-size: 17px;
     position: absolute;
     top: 70px;
 }
 
 /*login button*/
-.login-button{
+.loginButton{
     margin-top: 40px;
     padding: 8px 60px; 
     border: 1.5px solid #173386; 
@@ -68,23 +66,50 @@ body{
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.login-button:hover {
+.loginButton:hover {
     transform: scale(1.03);
     background-color: #006edc;
 }
 
+
+.timezoneWrapper{
+    margin-top: 40px;
+}
+
 /*Loading message & Error message*/
-#loading-message, #error-message{
-    position: absolute;
-    top: 180px; 
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 25px;
+.loadingMessageContainer, .errorMessageContainer{
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+}
+.loadingMessage, .errorMessage{
+    font-size: 30px;
+}
+
+.authContainer{
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.refreshButton{
+    margin-left: 4px;
+    background-color: white;
+    fill: rgb(94, 94, 94);
+    border: none;
+    width: 35px;
+    height: 35px;
+    stroke-width: 10px; 
+    cursor: pointer;
+}
+
+.refreshButton:hover{
+    transform: scale(1.05);
 }
 
 
 /*event name*/
-.event-name{
+.eventName{
     font-size: 40px;
     margin-top: 30px;
 }

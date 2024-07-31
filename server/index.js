@@ -10,6 +10,8 @@ const Meeting = require('./src/model/meeting.js').Meeting;
 const Event = require('./src/model/event.js').Event
 
 const app = express();
+
+// Middleware setup
 app.use(cors({origin: ['http://localhost:3000', 'http://localhost:3001'], credentials: true}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,36 +26,47 @@ app.use(session({
   }
 }));
 
-// Set up Google OAuth2 client
-const oauth2Client = new google.auth.OAuth2(
-  process.env.CLIENT_ID,
-  process.env.SECRET_ID,
-  process.env.REDIRECT
-);
-
 // Connect to MongoDB
 const dbURI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@calcluster.luczgwc.mongodb.net/?retryWrites=true&w=majority&appName=calCluster`;
 
 mongoose.connect(dbURI).then(() => {
   console.log("Connected to DB");
-
-  // Start the Express server
   app.listen(3000, () => console.log('Server running at 3000'));
 }).catch(() => {
   console.log("Can't connect to DB");
 });
 
+// Middleware to check if user is authenticated
 function isAuthenticated(req, res, next) {
-  if (req.session.user && req.session.user.authenticated) {
+  if (req.session.user) {
     next();
   } else {
     res.status(401).json({ error: 'Not authenticated' });
   }
 }
 
+// Middleware to set up OAuth2 client for authenticated users
+function setupOAuth2Client(req, res, next) {
+  if (req.session.user) {
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.CLIENT_ID,
+      process.env.SECRET_ID,
+      process.env.REDIRECT
+    );
+    oauth2Client.setCredentials(req.session.user.tokens);
+    req.oauth2Client = oauth2Client;
+  }
+  next();
+}
+
 // Route to initiate Google OAuth2 flow
 app.get('/login', (req, res) => {
   const {id} = req.query;
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.CLIENT_ID,
+    process.env.SECRET_ID,
+    process.env.REDIRECT
+  );
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline', 
     scope: ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/userinfo.email'],
@@ -66,6 +79,12 @@ app.get('/login', (req, res) => {
 app.get('/redirect', async (req, res) => {
   const code = req.query.code;
   const id = req.query.state;
+  // Create local client to get tokens
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.CLIENT_ID,
+    process.env.SECRET_ID,
+    process.env.REDIRECT
+  );
   oauth2Client.getToken(code, async (err, tokens) => {
     if (err) {
       console.error('Couldn\'t get token', err);
@@ -106,23 +125,23 @@ app.get('/redirect', async (req, res) => {
 
       req.session.user = {
         email: email,
-        authenticated: true
+        authenticated: true,
+        tokens: tokens
       };
 
       req.session.save((err) => {
         if (err) {
           console.error('Error saving session:', err);
         }
-        // Redirect after successful save
         res.redirect(`http://localhost:3001/${id}`);
       });
     });
   });
 });
 
-// API route to authenticate
+// API route to check authentication status
 app.get('/api/auth-status', (req, res) => {
-  if (req.session.user && req.session.user.email && req.session.user.authenticated) {
+  if (req.session.user) {
     res.json({ 
       authenticated: true, 
       user: { 
@@ -134,16 +153,15 @@ app.get('/api/auth-status', (req, res) => {
   }
 });
 
-// API route for creating an event
+// API route for creating a meeting
 app.post('/api/create', async (req, res) => {
   const {name, dates, startTime, endTime} = req.body;
   if (!name || !dates || !startTime || !endTime) {
     return res.status(400).send('Missing required fields');
   }
   try {
-    // Generate random id
     const uid = Date.now().toString(36) + '-' + Math.random().toString(36).substring(2);
-    const meeting = new Meeting({ id: uid, name: name, dates: dates, startTime: startTime, endTime: endTime, people: [] , events: []});
+    const meeting = new Meeting({ id: uid, name: name, dates: dates, startTime: startTime, endTime: endTime, people: [], events: []});
     await meeting.save();
     res.status(201).send(`/${uid}`);
   } catch (err) {
@@ -151,7 +169,7 @@ app.post('/api/create', async (req, res) => {
   }
 });
 
-// API route for checking if an event exists
+// API route for checking if a meeting exists
 app.get('/api/meeting/:id', async (req, res) => {
   try {
     const meeting = await Meeting.findOne({ id: req.params.id });
@@ -165,8 +183,8 @@ app.get('/api/meeting/:id', async (req, res) => {
   }
 });
 
-// API route for adding user events to the meeting
-app.post('/api/toggleCalendar', isAuthenticated, async (req, res) => {
+// API route for adding/removing user calendars to/from the meeting
+app.post('/api/toggleCalendar', isAuthenticated, setupOAuth2Client, async (req, res) => {
   const { calendarId, meetingId } = req.body;
   const email = req.session.user.email;
 
@@ -177,7 +195,6 @@ app.post('/api/toggleCalendar', isAuthenticated, async (req, res) => {
       return res.status(404).json({ message: 'Meeting not found' });
     }
 
-    // Check if the calendar already exists for this user
     const personIndex = meeting.calendars.findIndex(cal => cal.personName === email);
     const calendarExists = personIndex !== -1 && 
       meeting.calendars[personIndex].personCalendar.some(cal => cal.calendarId === calendarId);
@@ -193,15 +210,22 @@ app.post('/api/toggleCalendar', isAuthenticated, async (req, res) => {
 
       return res.json({ message: 'Calendar removed successfully', action: 'removed' });
     } else {
+      // Create start and end bounds for Calendar API request
+      const start = meeting.dates[0];
+      start.setUTCHours(meeting.startTime.substring(0,2));
+      start.setUTCMinutes(meeting.startTime.substring(3));
+      const end = meeting.dates[meeting.dates.length-1];
+      end.setUTCHours(meeting.endTime.substring(0,2));
+      end.setUTCMinutes(meeting.endTime.substring(3));
       // Add calendar + events
-      const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
-      const calendarResponse = await calendar.events.list({ calendarId: calendarId });
+      const calendar = google.calendar({ version: 'v3', auth: req.oauth2Client });
+      const calendarResponse = await calendar.events.list({ calendarId: calendarId, 
+        timeMin: start.toISOString(),
+        timeMax: end.toISOString(),
+        singleEvents: true,
+        timeZone: 'UTC' });
       const calData = calendarResponse.data.items;
-
-      // Don't add empty calendars
-      if (calData.length === 0) {
-        return res.status(200).json({ message: 'No events found in this calendar', action: 'no_action' });
-      }
+      console.log('calData', calData);
 
       const allEvents = await Event.insertMany(calData.map(eventData => ({
         eventName: eventData.summary || 'Untitled Event',
@@ -209,6 +233,7 @@ app.post('/api/toggleCalendar', isAuthenticated, async (req, res) => {
         end: eventData.end || {},
         calendarId: calendarId
       })));
+      console.log(allEvents);
 
       if (personIndex !== -1) {
         await Meeting.updateOne(
@@ -218,7 +243,7 @@ app.post('/api/toggleCalendar', isAuthenticated, async (req, res) => {
       } else {
         await Meeting.updateOne(
           { _id: meeting._id },
-          { $push: { calendars: { personName: email, personCalendar: [{ calendarId, events: allEvents }] } } }
+          { $push: { calendars: { personName: email, personCalendar: [{ calendarId, events: allEvents || [] }] } } }
         );
       }
 
@@ -231,11 +256,15 @@ app.post('/api/toggleCalendar', isAuthenticated, async (req, res) => {
 });
 
 // API route to list all calendars
-app.get('/api/getAllCalendars', isAuthenticated, (req, res) => {
-  const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+app.get('/api/getAllCalendars', isAuthenticated, setupOAuth2Client, (req, res) => {
+  if (!req.oauth2Client) {
+    return res.status(401).json({ error: 'OAuth2 client not set up' });
+  } 
+  const calendar = google.calendar({ version: 'v3', auth: req.oauth2Client });
   calendar.calendarList.list({}, (err, response) => {
     if (err) {
-      res.status(500).send('Error');
+      console.error('Error fetching calendars:', err);
+      res.status(500).json({ error: 'Error fetching calendars', details: err.message });
       return;
     }
     res.json(response.data.items);
@@ -267,7 +296,7 @@ app.get('/api/getCalendars', isAuthenticated, async (req, res) => {
   }
 });
 
-// API Route to get all calenars + events in DB
+// API Route to get all calendars + events in DB
 app.get('/api/getAvail', isAuthenticated, async (req, res) => {
   const { meetingId } = req.query;
 
@@ -275,7 +304,7 @@ app.get('/api/getAvail', isAuthenticated, async (req, res) => {
     const meeting = await Meeting.findOne({id: meetingId});
 
     if (!meeting) {
-      return res.status(404).json({message: 'Meeting noit found'});
+      return res.status(404).json({message: 'Meeting not found'});
     }
 
     const calendars = meeting.calendars;
@@ -284,4 +313,16 @@ app.get('/api/getAvail', isAuthenticated, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Internal server error', error: error})
   }
+});
+
+// API Route to log out of session
+app.get('/api/logout', isAuthenticated, async (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      res.status(500).json({ message: 'Unable to log out' });
+    } else {
+      res.clearCookie('connect.sid');
+      res.json({ message: 'Logout successful' });
+    }
+  });
 });

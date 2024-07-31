@@ -1,0 +1,91 @@
+.navbarContainer {
+    top: 0; 
+    width: 100%;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    background-color: rgb(250, 250, 250);
+    z-index: 1000;
+    box-shadow: 3px 3px 2px rgb(0,0,0,.05);
+    position: relative;
+    
+}
+.navbarTitle {
+    font-family: 'Glacial Indifference', sans-serif;
+    font-size: 70px;
+    font-weight: bold;
+    color: #173386;
+    text-decoration: none;
+}
+
+.links{
+    position: absolute;
+    top: 55px;
+    right: 50px;
+    font-size: 27px;
+    font-family: "Glacial Indifference";
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: rgb(58, 58, 58);
+}
+
+.menuButton{
+    position: absolute;
+    top: 50px;
+    right: 40px;
+    display: none;
+}
+
+.sidebar{
+    position: absolute;
+    top: 120px;
+    right: 0px;
+    width: 120px;
+    background-color: rgb(250,250,250, 0.4);
+    box-shadow: -6px 6px 10px rgba(0,0,0,.1);
+    backdrop-filter: blur(7px);
+    display: none;
+}
+
+.sidebar button{
+    position: absolute;
+    top: 10px;
+    right: 140px;
+    background-color: transparent;
+    border: none;
+}
+
+.sidebarLinks{
+    font-size: 25px;
+    margin-top: 10px;
+}
+
+
+@media only screen and (max-width: 950px){
+    .navbarTitle{
+        font-size: 60px;
+    }
+    .menuButton{
+        display: block;
+    }
+    .links{
+        display: none;
+    }
+
+    .sidebar{
+        display: block;
+    }
+
+}
+
+@media only screen and (max-width: 600px) {
+    .menuButton{
+        left: 90vw;
+        top: calc(50px - calc((60px - 10.5vw)/4));
+    }
+    .navbarTitle{
+        font-size: 10.5vw;
+    }
+}

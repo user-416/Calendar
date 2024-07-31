@@ -1,0 +1,216 @@
+:root{
+    --main-box-shadow: 2px 2px 3px rgba(0,0,0,0.25);
+    --dark-blue: #173386;
+    --button-gray: #f4f4f4;
+}
+.mainContainer {
+    display: flex;
+    justify-content: space-evenly;
+    width: 100%;
+    text-align: center;
+    margin: auto;
+    margin-top: 140px;
+    margin-bottom: 140px;
+}
+
+
+/*RIGHT SIDE*/
+
+.formContainer {
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: flex-start;
+    height: 300px; 
+    text-align: center; 
+    width: 50%;
+    min-width: 550px;
+    max-width: 900px;
+}
+
+.formContainer input{
+    background-color: var(--button-gray);
+    border: none;
+}
+.eventInput {
+    width: 50%; 
+    max-width: 360px;
+    font-size: 23px;
+    margin-bottom: 55px; 
+    padding: 12px 20px;
+    border-radius: 30px;
+    text-align: center;
+    font-family: inherit;
+    box-shadow: var(--main-box-shadow);
+}
+
+
+.timeInputs {
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    width: 100%; 
+    flex-wrap: wrap;
+    transform: translateX(calc(var(--timezone-dropdown-width)/2));
+}
+
+.timeField {
+    width: max(5vw, 83px);
+    max-width: 100px;
+    height: 40px;
+    border: none;
+    font-size: 22px;
+    margin-right: min(.9vw, 20px);
+    min-width: 45px;
+    text-align: center;
+    font-family: inherit;
+    padding: 0;
+    box-shadow: var(--main-box-shadow);
+}
+
+.timeField:hover{
+    transform: scale(1.05);
+}
+
+.dash{
+    margin: 0 min(1.8vw, 35px);
+    width: 15px;
+    min-width: 12px;
+    height: 2px; 
+    background-color: black; 
+    align-self: center; 
+}
+
+
+.toggleButton {
+    height: 40px;
+    width: max(3vw, 45px); 
+    max-width: 70px;
+    font-size: 22px;
+    font-family: inherit;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+    border: none;
+    box-shadow: var(--main-box-shadow);
+    background-color: var(--button-gray);
+    color: #333;
+}
+
+.toggleButton.active {
+    box-shadow: 2px 2.5px 3px rgba(0,0,0,0.3);
+    background-color: var(--dark-blue);
+    color: white;
+}
+
+.toggleButton:focus {
+    outline: none;
+}
+.toggleButton:hover{
+    transform: scale(1.05);
+}
+
+.timezoneWrapper{
+    margin-left: 20px;
+    width: 100px;
+
+}
+
+
+.connectButton {
+    background-color: var(--dark-blue) ; 
+    color: white;
+    border: none;
+    padding: 15px 30px; 
+    border-radius: 30px; 
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 22px; 
+    margin-top: 70px;
+    width: 300px; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25); 
+    transition: background-color 0.3s;
+}
+
+.connectButton:hover {
+    background-color: #0c5daa; 
+}
+
+
+
+@media only screen and (max-width: 1400px) {
+    .formContainer{
+        margin-right: 2.5vw;
+        width: 45%;
+    }
+}
+
+@media only screen and (max-width: 1200px) {
+
+    .mainContainer {
+        margin-top: 100px;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .formContainer{
+        margin-top: 80px;
+    }
+
+    .timeInputs{
+        width: 90%; 
+        transform: none;
+    }
+
+    .timezoneWrapper{
+        margin-top: 40px;
+    }
+
+}
+
+
+@media only screen and (max-width: 500px) {
+
+    .event-input {
+        width: 50%; 
+        font-size: 16px;
+        margin-bottom: 35px; 
+    }
+    
+    .time-inputs {
+        width: 75%; 
+    }
+    
+    .time-field {
+        padding: 8px 5px;
+        width: 20%; 
+        font-size: 16px;
+        margin-right: 1%;
+        min-width: 30px;
+    }
+    .dash{
+        margin: 0 3%;
+        width: 10px; 
+    }
+    .toggle-button {
+        padding: 8.5px 5px;
+        font-size: 15px;
+        margin: 0 1px;
+        width: 16%; 
+    }
+    
+    .toggle-button.active {
+        padding: 8.5px 5px;
+        font-size: 15px;
+    }
+    
+    .connect-button {
+        padding: 15px 30px; 
+        border-radius: 30px; 
+        font-size: 20px; 
+        margin-top: 40px;
+        width: 250px; 
+    }
+
+}

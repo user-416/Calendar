@@ -3,12 +3,14 @@ const mongoose = require('mongoose');
 const eventSchema = new mongoose.Schema({
     eventName: {type: String},
     start: {
-        dateTime: {type: String},
-        timeZone: {type: String}
+        dateTime: {type: String, required: false},
+        timeZone: {type: String, required: false},
+        date: {type: String, required: false}
     },
     end: {
-        dateTime: {type: String},
-        timeZone: {type: String}
+        dateTime: {type: String, required: false},
+        timeZone: {type: String, required: false},
+        date: {type: String, required: false}
     }
 });
 
