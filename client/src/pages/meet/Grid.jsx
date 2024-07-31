@@ -1,14 +1,14 @@
-import React, {useEffect, useState, useMemo, useRef} from "react";
+import React, {useEffect, useState, useMemo, useRef, useContext} from "react";
 import calendarService from '../../services/calendar';
 import TimeUtil from "../../utils/TimeUtil";
 import DateUtil from "../../utils/DateUtil";
 import CSS from "./Grid.module.css";
 import moment from "moment-timezone";
 import useCenterWithOffset from "../../hooks/useCenterWithOffset";
-
+import { AuthContext } from "../../contexts/AuthContext";
 const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
     const [calendars, setCalendars] = useState(new Map());
-
+    const {authStatus, setAuthStatus} = useContext(AuthContext);
     const hourlyLabelsRef = useRef();
     const mainWrapperRef = useRef();
     useCenterWithOffset(hourlyLabelsRef, mainWrapperRef, 'left', 'transform');

@@ -30,13 +30,6 @@
     cursor: pointer;
     color: rgb(58, 58, 58);
 }
-.logout{
-    padding-bottom: 10px;
-}
-.logout:hover{
-    color: black;
-    text-shadow: .3px .3px black;
-}
 
 .menuButton{
     position: absolute;

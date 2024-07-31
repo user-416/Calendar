@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef, useContext} from 'react';
 import calendarService from '../../services/calendar';
 import { useNavigate } from 'react-router-dom';
 import CSS from './Main.module.css';
@@ -6,7 +6,8 @@ import TimeUtil from '../../utils/TimeUtil';
 import DateSelector from './DateSelector';
 import DateUtil from '../../utils/DateUtil';
 import TimezoneSelector from '../../components/TimezoneSelector';
-import useCenterWithOffset from '../../hooks/useCenterWithOffset';
+import { AuthContext } from '../../contexts/AuthContext';
+import authService from '../../services/auth';
 const Main = () => {
     const [eventName, setEventName] = useState('');
     const [startTime, setStartTime] = useState('9:00');
@@ -23,7 +24,21 @@ const Main = () => {
     const timezoneWrapperRef = useRef(null);
     const timeInputsRef = useRef(null);
     const formContainerRef = useRef(null);
-    //useCenterWithOffset(timezoneWrapperRef,formContainerRef, 'right', 'transform');
+
+    const {authStatus, setAuthStatus} = useContext(AuthContext);
+    useEffect(() => {
+        authService.getAuth()
+            .then(data => {
+                setAuthStatus({ 
+                    authenticated: data.authenticated, 
+                    user: data.user
+                });
+            })
+            .catch(error => {
+                console.error('Error checking auth status:', error);
+                setAuthStatus({authenticated: false, user: null});
+            });
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

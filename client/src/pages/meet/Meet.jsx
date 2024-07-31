@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState, useRef, useContext} from 'react';
 import calendarService from '../../services/calendar';
 import authService from '../../services/auth';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import Dropdown from './Dropdown';
 import CSS from './Meet.module.css';
 import TimezoneSelector from '../../components/TimezoneSelector';
 import useCenterWithOffset from '../../hooks/useCenterWithOffset';
+import { AuthContext } from '../../contexts/AuthContext';
 
 const Meet = () => {
     const {id} = useParams();
@@ -14,10 +15,7 @@ const Meet = () => {
     const [meeting, setMeeting] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [authStatus, setAuthStatus] = useState({
-        authenticated: false,
-        user: null
-    });
+    const {authStatus, setAuthStatus} = useContext(AuthContext);
     const [calendars, setCalendars] = useState([]);
     const [selectedCalendars, setSelectedCalendars] = useState(new Set());
     const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -26,7 +24,6 @@ const Meet = () => {
 
     const refreshButtonRef = useRef(), authContainerRef = useRef();
     useCenterWithOffset(refreshButtonRef, authContainerRef, 'right', 'margin');
-
     const getAuthUrl = async () => {
         try {
           const data = await authService.login(id);
