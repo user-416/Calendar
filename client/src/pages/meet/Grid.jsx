@@ -12,18 +12,6 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
     const hourlyLabelsRef = useRef();
     const mainWrapperRef = useRef();
     useCenterWithOffset(hourlyLabelsRef, mainWrapperRef, 'left', 'transform');
-    useEffect(() => {
-        const getCalendars = async () => {
-            try {
-                const calendarData = await calendarService.getAvailability(id);
-                populateCalendarsUTC(calendarData);
-            } catch (err) {
-                console.log(err);
-            }
-        };
-    
-        getCalendars();
-    }, [id, selectedCalendars, refreshTrigger]);
 
     console.log('calendars: ', calendars);
     const [selectedIntervalIdx, setSelectedIntervalIdx] = useState(0);
@@ -42,7 +30,26 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
     let latestMin = TimeUtil.toMinutes(latestTime);
     let startLaterThanEnd = false;
     
-    const totalMin = TimeUtil.minutesBetween(earliestTime, latestTime);
+
+    const hourlyLabels = useMemo(() => {
+        const intervals = [];
+        let start = parseInt(earliestTime.slice(0, 2));
+        if(parseInt(earliestTime.slice(3, 5)) > 0)
+            start++;
+        let end = parseInt(latestTime.slice(0, 2));
+        if(startLaterThanEnd)
+            end -= 24;
+        let i = 0;
+        for (let hour = start; true ; hour=(hour+1)%24) {
+            intervals.push(TimeUtil.toAMPM(TimeUtil.hoursToHHMM(hour)));
+            if(hour === end || i == 24)
+                break;
+            i++;
+        }
+        return intervals;
+    }, [timezone, earliestTime]);
+
+    
     const getMergedIntervals = (intervals) => {
         intervals.sort((a, b) => a[0] - b[0]);
 
@@ -66,6 +73,8 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
     }
 
     const busyIntervals = useMemo(() => {//Map<user, Map<date, intervals>>
+        if(!authStatus.authenticated)
+            return new Map();
         const map = new Map();
         for(let [user, userIntervalsArr] of calendars.entries()){
             const userMap = new Map();
@@ -119,8 +128,9 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
             }
         }
         return map;
-    }, [calendars]);
+    }, [calendars, authStatus]);
     console.log('busyIntervals', busyIntervals);
+
     const intervalMap = useMemo(() => {
         const map = new Map();
         for (let date of formattedDatesUTC) {
@@ -157,27 +167,9 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
         }
         const res = DateUtil.convertIntervalMapFromUTC(map, timezone, earliestMinUTC);
         return res;
-    }, [calendars, timezone]);
+    }, [calendars, timezone, authStatus]);
     console.log('intervalMap', intervalMap);
-    console.log('formattedDates', formattedDates);
-    
-    const hourlyLabels = useMemo(() => {
-        const intervals = [];
-        let start = parseInt(earliestTime.slice(0, 2));
-        if(parseInt(earliestTime.slice(3, 5)) > 0)
-            start++;
-        let end = parseInt(latestTime.slice(0, 2));
-        if(startLaterThanEnd)
-            end -= 24;
-        let i = 0;
-        for (let hour = start; true ; hour=(hour+1)%24) {
-            intervals.push(TimeUtil.toAMPM(TimeUtil.hoursToHHMM(hour)));
-            if(hour === end || i == 24)
-                break;
-            i++;
-        }
-        return intervals;
-    }, [timezone, earliestTime]);
+
 
     const handleIntervalClick = (dateIdx, idx) => {
         setSelectedDateIdx(dateIdx);
@@ -197,6 +189,19 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
         setDateStartIdx(Math.max(0, dateStartIdx-7));
     }
 
+    useEffect(() => {
+        const getCalendars = async () => {
+            try {
+                const calendarData = await calendarService.getAvailability(id);
+                populateCalendarsUTC(calendarData);
+            } catch (err) {
+                console.log(err);
+            }
+        };
+    
+        getCalendars();
+    }, [id, selectedCalendars, refreshTrigger, authStatus]);
+    
     const populateCalendarsUTC = (calendarData) => {
         const formattedCalendars = new Map();
                 
@@ -226,7 +231,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
                         let startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : '00:00';
                         let endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : '24:00';
 
-                        console.log(timezone, dates, startTime, endTime);
+                        //console.log(timezone, dates, startTime, endTime);
                         for(let i=0; i<dates.length; i++){
                             if (!formattedEvents.has(dates[i])) {
                                 formattedEvents.set(dates[i], []);
@@ -239,7 +244,6 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
                                 start = startTime;
                                 end = endTime;
                             }
-                            console.log(timezone, dates, start, end);
                             formattedEvents.get(dates[i]).push(`${start}-${end}`);
                         }
                     }
@@ -300,7 +304,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
                                                 onClick={() => handleIntervalClick(dateRealIdx, intervalIdx)}
                                                 style={{
                                                     height: `${intervalHeight*1.405}px`,  
-                                                    backgroundColor: isSelected ? `rgba(23, 51, 255, 1.0)` : `rgba(0, 128, 0, ${opacity})`,
+                                                    backgroundColor: !authStatus.authenticated ?  "gray" : (isSelected ? `rgba(23, 51, 255, 1.0)` : `rgba(0, 128, 0, ${opacity})`),
                                                     borderTop: `${intervalIdx === 0 ? '2px' : '0'} solid black`,
                                                     borderBottom: `${intervalIdx === intervalMap.get(date).length-1 ? '2px' : '1.2px'} solid black`,
                                                 }}
