@@ -1,17 +1,7 @@
 
 /* Styling for react-calendar */
 
-.calendarContainer {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    align-items: center; 
-    justify-content: center; 
-    text-align: center;
-    min-width: 380px;
-    max-width: 500px;
-    touch-action: none;
-  }
+
 
 .react-calendar {
     border: none;
@@ -20,20 +10,21 @@
     font-family: Arial, Helvetica, sans-serif;
     line-height: 1.125em;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-height: 700px;
-    max-width: 500px;
+    max-width: min(30vw, 550px); /*for some reason width does nothing. In this scenario, max-width means width*/
+    min-width: 400px;
     padding-bottom: 10px;
+    font-family: "Glacial Indifference";
+    margin-left: 0px;
 }
 
 .react-calendar__month-view__weekdays{
-    
-    max-width: 490px;
+    font-family: "Glacial Indifference";
+    font-size: 17px;
 }
+
+
 .react-calendar__tile {
-    width: 5vw;
-    height: 4vw;
-    max-width: 80px;
-    max-height: 60px;
+    height: min(4.5vw, 60px);
     position: relative;
     font-size: 1.2em;
 }
@@ -45,14 +36,7 @@
     height: 100%;
 }
 
-.react-calendar__tile--active {
-    background-color: #006edc;
-    color: white;
-}
 
-.react-calendar__tile--now {
-    background: #ffff76;
-}
 
 .react-calendar__navigation__label, .react-calendar__navigation__arrow {
     padding: 5px;
@@ -60,25 +44,35 @@
 }
 
 .react-calendar__month-view__days__day--weekend {
-    color: inherit;
+    color: rgb(224, 4, 4) !important;
 }
 
-.selected {
+.react-calendar__tile.selected {
     background-color: #006edc !important;
     color: white !important;
 }
 
-.unselected:hover{
+.react-calendar__tile.unselected:hover{
     background-color: rgba(82, 166, 250, 0.4) !important; 
 }
-.unselected{
+.react-calendar__tile.unselected{
     background-color: white !important;  
-    color: black !important;
+    color: black;
+}
+.react-calendar__tile--now.unselected {
+    background: #ffff76 !important;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth{
+   opacity: .5 !important;
 }
 
 
 
-@media only screen and (max-width: 1100px) {
+
+
+
+@media only screen and (max-width: 1200px) {
     .calendarContainer {
         margin-bottom: 20px;
         margin-right: 0;
@@ -92,19 +86,9 @@
     }
 }
 
-@media only screen and (max-width: 500px){
-    .calendar-container{
-        display: auto;
-    }
+@media only screen and (max-width: 600px){
     .react-calendar{
-        width: 70%;
-        height: 30vw;
-        min-width: 0;
-    }
-
-
-    .react-calendar__navigation__label, .react-calendar__navigation__arrow {
-        padding: 2px;
-        font-size: 0.9em;
+        max-width: min(30vw, 550px); /*for some reason width does nothing. In this scenario, max-width means width*/
+        min-width: 350px;
     }
 }

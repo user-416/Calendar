@@ -1,6 +1,7 @@
+
 .footerContainer{
     background-color: var(--dark-blue);
-    height: 210px;
+    height: 220px;
     width: 100%;
     color: white;
     font-weight: bolder;
@@ -10,33 +11,28 @@
 }
 
 .content{
-    height: 100px;
+    height: max(10vw, 70px);
+    max-height: 100px;
     width: var(--content-width);
     padding-top: 40px;
     margin: auto;
-
+    padding-bottom: 10px;
 }
 
 
 .name{
-    font-size: 35px;
+    font-size: max(min(50px, 5vw), 35px);
     font-family: 'Glacial Indifference';
 }
 
-.privacy{
-    color: white;
-}
-
-.contactHeader{
-    font-size: 22px;
-}
 
 .email{
     margin-top: 10px;
+    font-size: max(min(22px, 2.5vw), 18px);
 }
 
 .bottomContainer{
-    margin-top: 5px;
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -44,6 +40,7 @@
     margin: auto;
 }
 .copyrightLine{
+    margin-top: 20px;
     height: 1px;
     width: 100%;
     background-color: white;
@@ -52,11 +49,28 @@
 
 .legalContainer{
     width: 100%;
-    margin-top: 13px;
+    margin-top: 15px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+}
+
+.privacy, .copyright{
+    font-size: max(min(18px, 2.5vw), 15px);
+    text-decoration: none;
 }
 
 .privacy{
-    text-decoration: none;
+    color: white;
 }
+
+@media only screen and (max-width: 600px) {
+    .footerContainer {
+        --content-width: 80%; 
+    }
+}
+
+
+
+
+

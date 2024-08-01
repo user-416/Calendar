@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef, useContext} from 'react';
 import calendarService from '../../services/calendar';
 import authService from '../../services/auth';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -6,6 +6,8 @@ import Grid from './Grid';
 import Dropdown from './Dropdown';
 import CSS from './Meet.module.css';
 import TimezoneSelector from '../../components/TimezoneSelector';
+import useCenterWithOffset from '../../hooks/useCenterWithOffset';
+import { AuthContext } from '../../contexts/AuthContext';
 
 const Meet = () => {
     const {id} = useParams();
@@ -13,15 +15,15 @@ const Meet = () => {
     const [meeting, setMeeting] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [authStatus, setAuthStatus] = useState({
-        authenticated: false,
-        user: null
-    });
+    const {authStatus, setAuthStatus} = useContext(AuthContext);
     const [calendars, setCalendars] = useState([]);
     const [selectedCalendars, setSelectedCalendars] = useState(new Set());
     const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const [timezone, setTimezone] = useState(defaultTimezone);
+    const [refreshTrigger, setRefreshTrigger] = useState(false);
 
+    const refreshButtonRef = useRef(), authContainerRef = useRef();
+    useCenterWithOffset(refreshButtonRef, authContainerRef, 'right', 'margin');
     const getAuthUrl = async () => {
         try {
           const data = await authService.login(id);
@@ -65,6 +67,26 @@ const Meet = () => {
         }
     };
 
+    const refreshCalendars = async () => {
+        // Toggle selected calendars twice to refresh events
+        for (const calendarId of selectedCalendars) {
+            await calendarService.toggleCalendar({
+                calendarId: calendarId,
+                meetingId: id
+            });
+            await calendarService.toggleCalendar({
+                calendarId: calendarId,
+                meetingId: id
+            });
+        }
+
+        // Refresh calendar options
+        const allCalendars = await calendarService.getAllCalendars();
+        setCalendars(allCalendars);
+
+        setRefreshTrigger(prev => !prev);
+    };
+
     useEffect(() => {
         authService.getAuth()
             .then(data => {
@@ -79,6 +101,7 @@ const Meet = () => {
             });
     }, []);
 
+
     useEffect(() => {
         const fetchCalendars = async () => {
             try {
@@ -88,9 +111,9 @@ const Meet = () => {
                 console.log(err);
             }
         };
-    
         fetchCalendars();
     }, []);
+
 
     useEffect(() => {
         const fetchSelected = async () => {
@@ -101,7 +124,6 @@ const Meet = () => {
                 console.log(err);
             }
         };
-    
         fetchSelected();
     }, [id]);
     
@@ -152,7 +174,12 @@ const Meet = () => {
                 <div className={CSS.copyMessage}>Link copied!</div>
                 <div>
                     {authStatus.authenticated ? (
-                        <Dropdown calendars={calendars} selectedCalendars={selectedCalendars} toggleCalendar={toggleCalendar}/>
+                        <div className={CSS.authContainer} ref={authContainerRef}>
+                            <Dropdown calendars={calendars} selectedCalendars={selectedCalendars} toggleCalendar={toggleCalendar}/>
+                            <button className={CSS.refreshButton} ref={refreshButtonRef} onClick={refreshCalendars}>
+                                <img className={CSS.refreshButton} src='/refresh.svg' alt='refresh'></img>
+                            </button>
+                        </div>
                     ) : (
                         <button className={CSS.loginButton} type="button" onClick={getAuthUrl}>
                             Login
@@ -163,7 +190,7 @@ const Meet = () => {
                     <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
                 </div>
             </div>
-            <Grid meeting={meeting} id={id} selectedCalendars={selectedCalendars} timezone={timezone} />
+            <Grid meeting={meeting} id={id} selectedCalendars={selectedCalendars} timezone={timezone} refreshTrigger={refreshTrigger} />
         </div>
     );
 };

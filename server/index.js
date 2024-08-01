@@ -328,6 +328,18 @@ app.get('/api/getAvail', isAuthenticated, async (req, res) => {
   }
 });
 
+// API Route to log out of session
+app.get('/api/logout', isAuthenticated, async (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      res.status(500).json({ message: 'Unable to log out' });
+    } else {
+      res.clearCookie('connect.sid');
+      res.json({ message: 'Logout successful' });
+    }
+  });
+});
+
 // Handle all other routes by serving the index.html file
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));

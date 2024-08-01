@@ -1,30 +1,17 @@
-import React, {useEffect, useState, useMemo, useRef} from "react";
+import React, {useEffect, useState, useMemo, useRef, useContext} from "react";
 import calendarService from '../../services/calendar';
 import TimeUtil from "../../utils/TimeUtil";
 import DateUtil from "../../utils/DateUtil";
 import CSS from "./Grid.module.css";
 import moment from "moment-timezone";
 import useCenterWithOffset from "../../hooks/useCenterWithOffset";
-
-const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
+import { AuthContext } from "../../contexts/AuthContext";
+const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
     const [calendars, setCalendars] = useState(new Map());
-    let calendarData;
-
+    const {authStatus, setAuthStatus} = useContext(AuthContext);
     const hourlyLabelsRef = useRef();
     const mainWrapperRef = useRef();
-    useCenterWithOffset(hourlyLabelsRef, mainWrapperRef, 'left');
-    useEffect(() => {
-        const getCalendars = async () => {
-            try {
-                calendarData = await calendarService.getAvailability(id);
-                populateCalendarsUTC();
-            } catch (err) {
-                console.log(err);
-            }
-        };
-    
-        getCalendars();
-    }, [id, selectedCalendars]);
+    useCenterWithOffset(hourlyLabelsRef, mainWrapperRef, 'left', 'transform');
 
     console.log('calendars: ', calendars);
     const [selectedIntervalIdx, setSelectedIntervalIdx] = useState(0);
@@ -43,7 +30,26 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
     let latestMin = TimeUtil.toMinutes(latestTime);
     let startLaterThanEnd = false;
     
-    const totalMin = TimeUtil.minutesBetween(earliestTime, latestTime);
+
+    const hourlyLabels = useMemo(() => {
+        const intervals = [];
+        let start = parseInt(earliestTime.slice(0, 2));
+        if(parseInt(earliestTime.slice(3, 5)) > 0)
+            start++;
+        let end = parseInt(latestTime.slice(0, 2));
+        if(startLaterThanEnd)
+            end -= 24;
+        let i = 0;
+        for (let hour = start; true ; hour=(hour+1)%24) {
+            intervals.push(TimeUtil.toAMPM(TimeUtil.hoursToHHMM(hour)));
+            if(hour === end || i == 24)
+                break;
+            i++;
+        }
+        return intervals;
+    }, [timezone, earliestTime]);
+
+    
     const getMergedIntervals = (intervals) => {
         intervals.sort((a, b) => a[0] - b[0]);
 
@@ -67,6 +73,8 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
     }
 
     const busyIntervals = useMemo(() => {//Map<user, Map<date, intervals>>
+        if(!authStatus.authenticated)
+            return new Map();
         const map = new Map();
         for(let [user, userIntervalsArr] of calendars.entries()){
             const userMap = new Map();
@@ -120,8 +128,9 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
             }
         }
         return map;
-    }, [calendars]);
+    }, [calendars, authStatus]);
     console.log('busyIntervals', busyIntervals);
+
     const intervalMap = useMemo(() => {
         const map = new Map();
         for (let date of formattedDatesUTC) {
@@ -158,27 +167,9 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
         }
         const res = DateUtil.convertIntervalMapFromUTC(map, timezone, earliestMinUTC);
         return res;
-    }, [calendars, timezone]);
+    }, [calendars, timezone, authStatus]);
     console.log('intervalMap', intervalMap);
-    console.log('formattedDates', formattedDates);
-    
-    const hourlyLabels = useMemo(() => {
-        const intervals = [];
-        let start = parseInt(earliestTime.slice(0, 2));
-        if(parseInt(earliestTime.slice(3, 5)) > 0)
-            start++;
-        let end = parseInt(latestTime.slice(0, 2));
-        if(startLaterThanEnd)
-            end -= 24;
-        let i = 0;
-        for (let hour = start; true ; hour=(hour+1)%24) {
-            intervals.push(TimeUtil.toAMPM(TimeUtil.hoursToHHMM(hour)));
-            if(hour === end || i == 24)
-                break;
-            i++;
-        }
-        return intervals;
-    }, [timezone, earliestTime]);
+
 
     const handleIntervalClick = (dateIdx, idx) => {
         setSelectedDateIdx(dateIdx);
@@ -198,7 +189,20 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
         setDateStartIdx(Math.max(0, dateStartIdx-7));
     }
 
-    const populateCalendarsUTC = () => {
+    useEffect(() => {
+        const getCalendars = async () => {
+            try {
+                const calendarData = await calendarService.getAvailability(id);
+                populateCalendarsUTC(calendarData);
+            } catch (err) {
+                console.log(err);
+            }
+        };
+    
+        getCalendars();
+    }, [id, selectedCalendars, refreshTrigger, authStatus]);
+    
+    const populateCalendarsUTC = (calendarData) => {
         const formattedCalendars = new Map();
                 
         calendarData.calendars.forEach(calendar => {
@@ -216,6 +220,8 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
                             const start = event.start.date || event.start.dateTime.split('T')[0];
                             const end = event.end.date || event.end.dateTime.split('T')[0];
                             const curDate = moment(start), endDate = moment(end);
+                            if(event.start.date)
+                                endDate.add(-1, 'days');
                             while(curDate.isSameOrBefore(endDate)){
                                 dates.push(curDate.format('YYYY-MM-DD'))
                                 curDate.add(1, 'days');
@@ -225,15 +231,19 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
                         let startTime = event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : '00:00';
                         let endTime = event.end.dateTime ? event.end.dateTime.split('T')[1].substring(0, 5) : '24:00';
 
-                        console.log(timezone, dates, startTime, endTime);
+                        //console.log(timezone, dates, startTime, endTime);
                         for(let i=0; i<dates.length; i++){
                             if (!formattedEvents.has(dates[i])) {
                                 formattedEvents.set(dates[i], []);
                             }
-
-                            const start = over24HoursApart && i==0 ? startTime : '00:00';
-                            const end = over24HoursApart && i==dates.length-1 ? endTime : '24:00';
-
+                            let start, end;
+                            if(over24HoursApart){
+                                start = over24HoursApart && i==0 ? startTime : '00:00';
+                                end = over24HoursApart && i==dates.length-1 ? endTime : '24:00';
+                            }else{
+                                start = startTime;
+                                end = endTime;
+                            }
                             formattedEvents.get(dates[i]).push(`${start}-${end}`);
                         }
                     }
@@ -294,7 +304,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone}) => {
                                                 onClick={() => handleIntervalClick(dateRealIdx, intervalIdx)}
                                                 style={{
                                                     height: `${intervalHeight*1.405}px`,  
-                                                    backgroundColor: isSelected ? `rgba(23, 51, 255, 1.0)` : `rgba(0, 128, 0, ${opacity})`,
+                                                    backgroundColor: !authStatus.authenticated ?  "gray" : (isSelected ? `rgba(23, 51, 255, 1.0)` : `rgba(0, 128, 0, ${opacity})`),
                                                     borderTop: `${intervalIdx === 0 ? '2px' : '0'} solid black`,
                                                     borderBottom: `${intervalIdx === intervalMap.get(date).length-1 ? '2px' : '1.2px'} solid black`,
                                                 }}

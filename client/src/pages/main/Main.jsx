@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef, useContext} from 'react';
 import calendarService from '../../services/calendar';
 import { useNavigate } from 'react-router-dom';
 import CSS from './Main.module.css';
@@ -6,7 +6,8 @@ import TimeUtil from '../../utils/TimeUtil';
 import DateSelector from './DateSelector';
 import DateUtil from '../../utils/DateUtil';
 import TimezoneSelector from '../../components/TimezoneSelector';
-import useCenterWithOffset from '../../hooks/useCenterWithOffset';
+import { AuthContext } from '../../contexts/AuthContext';
+import authService from '../../services/auth';
 const Main = () => {
     const [eventName, setEventName] = useState('');
     const [startTime, setStartTime] = useState('9:00');
@@ -22,7 +23,22 @@ const Main = () => {
 
     const timezoneWrapperRef = useRef(null);
     const timeInputsRef = useRef(null);
-    useCenterWithOffset(timezoneWrapperRef, timeInputsRef, 'right');
+    const formContainerRef = useRef(null);
+
+    const {authStatus, setAuthStatus} = useContext(AuthContext);
+    useEffect(() => {
+        authService.getAuth()
+            .then(data => {
+                setAuthStatus({ 
+                    authenticated: data.authenticated, 
+                    user: data.user
+                });
+            })
+            .catch(error => {
+                console.error('Error checking auth status:', error);
+                setAuthStatus({authenticated: false, user: null});
+            });
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -58,11 +74,11 @@ const Main = () => {
                 selectedDates={selectedDates} 
                 setSelectedDates={setSelectedDates}
             />
-            <form className={CSS.formContainer} onSubmit={handleSubmit}>
+            <form className={CSS.formContainer} onSubmit={handleSubmit} ref={formContainerRef}>
                 <input
                     className={CSS.eventInput}
                     type="text"
-                    placeholder="Enter Event Name: "
+                    placeholder="Event Name: "
                     value={eventName}
                     onFocus={(e) => e.target.placeholder = ''}
                     onBlur={(e) => e.target.placeholder = "Enter Event Name: "}
@@ -93,6 +109,7 @@ const Main = () => {
                     <div className={CSS.timezoneWrapper} ref={timezoneWrapperRef}> 
                         <TimezoneSelector timezone={timezone} setTimezone={setTimezone}/>
                     </div>
+
                 </div>
                 <button className={CSS.connectButton} type="submit">Connect</button>
             </form>

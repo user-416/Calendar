@@ -8,6 +8,11 @@ const login = async (meetingId) => {
     return response.data;
 }
 
+const logout = async () => {
+    const response = await axios.get(baseUrl + 'api/logout', {withCredentials: true});
+    return response.data;
+}
+
 const getMeeting = async (meetingId) => {
     const response = await axios.get(baseUrl + `api/meeting/${meetingId}`);
     return response.data;
@@ -19,4 +24,4 @@ const getAuth = async () => {
 }
 
 
-export default {login, getMeeting, getAuth}
+export default {login, logout, getMeeting, getAuth}

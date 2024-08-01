@@ -5,17 +5,20 @@ import Meet from './pages/meet/Meet';
 import Navbar from './components/Navbar';
 import Privacy from './pages/privacy/Privacy';
 import Footer from './components/Footer';
+import AuthContextProvider from './contexts/AuthContext';
 const App = () => {
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Main />} />
-        <Route path="/:id" element={<Meet />} />
-        <Route path="/privacy" element={<Privacy />} />
-      </Routes>
-      <Footer/>
-    </Router>
+    <AuthContextProvider>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Main />} />
+          <Route path="/:id" element={<Meet />} />
+          <Route path="/privacy" element={<Privacy />} />
+        </Routes>
+        <Footer/>
+      </Router>
+    </AuthContextProvider>
   );
 };
 
