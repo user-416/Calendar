@@ -159,11 +159,12 @@ const DateSelector = ({selectedDates, setSelectedDates}) => {
         return selectedDates.has(date.toISOString().split('T')[0]) ? 'selected' : 'unselected';
     };
 
+    
     return ( 
         <Calendar 
             onActiveStartDateChange={handleActiveStartDateChange}
             tileClassName={tileClassName} 
-            className={'react-calendar'}
+            className={`react-calendar ${'rows-' + monthMatrix.length}`}
             tileContent={({ date }) => (
                 <div
                     onMouseDown={(e) => handleDragStart(date,e)}

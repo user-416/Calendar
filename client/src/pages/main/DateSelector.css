@@ -1,7 +1,9 @@
 
 /* Styling for react-calendar */
-
-
+:root{
+    --tile-height:  min(4.7vw, 60px);
+    --calendar-base-height: 345px;
+}
 
 .react-calendar {
     border: none;
@@ -18,14 +20,28 @@
     touch-action: none;
 }
 
+.react-calendar.rows-4{
+    max-height: var(--calendar-base-height);
+}
+.react-calendar.rows-5{
+    max-height: calc(var(--calendar-base-height) + var(--tile-height));
+}
+.react-calendar.rows-6{
+    max-height: calc(var(--calendar-base-height) + 2*var(--tile-height));
+}
+
 .react-calendar__month-view__weekdays{
     font-family: "Glacial Indifference";
-    font-size: 17px;
+    font-size: 17.5px;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+    text-decoration: none;
 }
 
 
 .react-calendar__tile {
-    height: min(4.5vw, 60px);
+    height: var(--tile-height);
     position: relative;
     font-size: 1.2em;
 }
@@ -38,12 +54,20 @@
 }
 
 
+.react-calendar__navigation__label {
+    pointer-events: none;
+}
+.react-calendar__navigation__arrow{
+    background-color: white !important;
+}
+.react-calendar__navigation__arrow:hover{
+    background-color: rgb(214, 214, 214) !important;
+}
 
 .react-calendar__navigation__label, .react-calendar__navigation__arrow {
     padding: 5px;
     font-size: 1.2em;
 }
-
 .react-calendar__month-view__days__day--weekend {
     color: rgb(224, 4, 4) !important;
 }
@@ -64,8 +88,13 @@
     background: #ffff76 !important;
 }
 
-.react-calendar__month-view__days__day--neighboringMonth{
-   opacity: .5 !important;
+
+.react-calendar__month-view__days__day--neighboringMonth.react-calendar__month-view__days__day.unselected{
+    color: rgba(0, 0, 0, 0.4) !important;
+ }
+
+.react-calendar__month-view__days__day--neighboringMonth.react-calendar__month-view__days__day--weekend.unselected{
+   color: rgba(224, 4, 4, 0.4) !important;
 }
 
 
@@ -74,22 +103,35 @@
 
 
 @media only screen and (max-width: 1200px) {
-    .calendarContainer {
-        margin-bottom: 20px;
-        margin-right: 0;
-        justify-content: space-evenly;
-        
+    :root{
+        --calendar-base-height: 310px;
+        --tile-height: 50px;
     }
-
     .react-calendar__tile{
         width: 60px;
-        height: 50px;
     }
 }
 
 @media only screen and (max-width: 600px){
-    .react-calendar{
-        max-width: min(30vw, 550px); /*for some reason width does nothing. In this scenario, max-width means width*/
-        min-width: 350px;
+    :root{
+        --calendar-base-height: min(75vw, 310px);
+        --tile-height: min(11vw, 50px);
     }
+
+    .react-calendar{
+        min-width: 70vw; /*for some reason width does nothing. In this scenario, min-width means width*/
+    }
+
+    .react-calendar__month-view__weekdays{
+        font-size: min(3.7vw, 17px);
+    }
+
+    .react-calendar__tile{
+        font-size: min(1.2em, 5vw);
+    }
+
+    .react-calendar__navigation__label, .react-calendar__navigation__arrow{
+        font-size: min(1.2em, 5.4vw);
+    }
+
 }

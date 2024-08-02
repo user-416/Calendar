@@ -4,12 +4,12 @@
 .timezoneSelectorContainer{
     position: relative;
     width: var(--timezone-dropdown-width);
-    height: 40px;
+    height: var(--time-input-height);
 }
 
 .dropdown{
     position: absolute;
-    font-size: 24px;
+    font-size: var(--time-input-font-size);
     cursor: pointer;
     z-index: 99;
     user-select: none;
@@ -19,7 +19,7 @@
     position: relative;
     background-color: #F0F0F0;
     width: var(--timezone-dropdown-width);
-    height: 40px;
+    height: var(--time-input-height);
     text-align: center;
     box-shadow: 2px 2px 3px rgba(0,0,0,0.25);
 }
@@ -42,15 +42,13 @@
 }
 
 .dropdownArrow{
-    display: inline-block;
     position: absolute;
-    top: 5px;
-    right: 10px;
-    transform: rotate(-90deg);
-    font-family: 'Roboto Mono', monospace;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 4px;
 }
 .dropdownArrow.open{
-    transform: rotate(90deg);
+    transform: rotate(180deg) translateY(50%);
 }
 
 .dropdownContent{
@@ -69,12 +67,28 @@
 .dropdownItem{
     position: relative;
     background-color: #F0F0F0;
-    height: 40px;
+    height: var(--time-input-height);
 }
 
 .dropdownItem.highlighted{
     background-color: #173386;
     color: white;
+}
+
+@media only screen and (max-width: 550px) {
+    :root{
+        --timezone-dropdown-width: min(90px, 18vw);
+    }
+
+    .dropdownArrow{
+        width: max(17px, min(5vw, 24px));
+        height: max(17px, min(5vw, 24px));
+        right: .6vw;
+    }
+
+    .toggleText, .dropdownItemText{
+        left: 4vw;
+    }
 }
 
 
