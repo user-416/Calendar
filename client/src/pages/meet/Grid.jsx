@@ -2,6 +2,7 @@ import React, {useEffect, useState, useMemo, useRef, useContext} from "react";
 import calendarService from '../../services/calendar';
 import TimeUtil from "../../utils/TimeUtil";
 import DateUtil from "../../utils/DateUtil";
+import GridTooltip from "./GridTooltip";
 import CSS from "./Grid.module.css";
 import moment from "moment-timezone";
 import useCenterWithOffset from "../../hooks/useCenterWithOffset";
@@ -11,6 +12,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
     const {authStatus, setAuthStatus} = useContext(AuthContext);
     const hourlyLabelsRef = useRef();
     const mainWrapperRef = useRef();
+    const selectedCellRef = useRef();
     useCenterWithOffset(hourlyLabelsRef, mainWrapperRef, 'left', 'transform');
 
     console.log('calendars: ', calendars);
@@ -30,6 +32,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
     let latestMin = TimeUtil.toMinutes(latestTime);
     let startLaterThanEnd = false;
     
+    const [tooltipInfo, setTooltipInfo] = useState(null);
 
     const hourlyLabels = useMemo(() => {
         const intervals = [];
@@ -170,10 +173,53 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
     }, [calendars, timezone, authStatus]);
     console.log('intervalMap', intervalMap);
 
+    //console.log('selected', selectedIntervalIdx, selectedDateIdx);
 
-    const handleIntervalClick = (dateIdx, idx) => {
+    const fillTooltipInfo = (dateIdx, intervalIdx, event) => {
+        const rect = event.target.getBoundingClientRect();
+        const date = formattedDates[dateIdx];
+        const [timeStart, timeEnd, availUsers] = intervalMap.get(date)[intervalIdx];
+        const timeInterval = [timeStart, timeEnd].map(time => TimeUtil.minutesToAMPM(time));
+        setTooltipInfo({
+            pos: { 
+                x: (rect.x + rect.width/2),
+                y: event.clientY + window.scrollY,   
+            },
+            content: {
+                timeInterval: timeInterval,
+                date: DateUtil.toMonthNameD(date),
+                availUsers:availUsers,
+                allUsers: Array.from(calendars.keys()),
+            }
+        });
+    }
+
+    const updateTooltipPosition = () => {
+        console.log(selectedCellRef);
+        if (selectedCellRef.current) {
+            const rect = selectedCellRef.current.getBoundingClientRect();
+            setTooltipInfo({
+                ...tooltipInfo,
+                pos: {
+                    ...tooltipInfo.pos,
+                    x: (rect.x + rect.width/2),
+                }
+            });
+        }
+    }
+
+    useEffect(() => {
+        window.addEventListener('resize', updateTooltipPosition);
+        return () => {
+            window.removeEventListener('resize', updateTooltipPosition);
+        };
+    }, [tooltipInfo]);
+
+    const handleIntervalClick = (dateIdx, intervalIdx, event) => {
         setSelectedDateIdx(dateIdx);
-        setSelectedIntervalIdx(idx);
+        setSelectedIntervalIdx(intervalIdx);
+
+        fillTooltipInfo(dateIdx, intervalIdx, event);
     }
 
     const [dateStartIdx, setDateStartIdx] = useState(0);
@@ -256,7 +302,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
         //console.log(calendars, formattedCalendars);
         setCalendars(formattedCalendars);
     }
-   
+    
     return (
         <div className={CSS.gridContainer}>
             <div className={`${CSS.allUsersWrapper} ${CSS.usersWrapper}`}>
@@ -278,7 +324,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
                             ))}
                     </div>
                     <div className={CSS.gridAndDatesWrapper}>
-                        <div className={CSS.dateLabels} style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)`}}>
+                        <div className={CSS.dateLabels}>
                                 {formattedDates.slice(dateStartIdx, dateEndIdx+1).map((date, dateIdx) => (
                                     <div key={date} className={CSS.dateLabel}>
                                         <div>{DateUtil.toMD(date)}</div>
@@ -286,7 +332,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
                                     </div>
                                 ))}
                         </div>
-                        <div className={CSS.grid} style={{ width: `calc((${dateEndIdx} - ${dateStartIdx} + 1) * 5.5vw + 2px)`}}>
+                        <div className={CSS.grid}>
                             {formattedDates.slice(dateStartIdx, dateEndIdx + 1).map((date, dateIdx) => (
                                 <div key={date} className={CSS.gridCol}>
                                     {intervalMap.get(date).map(([startMin, endMin, availUsers], intervalIdx) => {
@@ -300,11 +346,12 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
                                         return (
                                             <div
                                                 key={`${date}-${startMin}-${endMin}`}
-                                                className={CSS.gridCell}
-                                                onClick={() => handleIntervalClick(dateRealIdx, intervalIdx)}
+                                                className={`${CSS.gridCell} ${isSelected ? CSS.selected : ''}`}
+                                                ref={isSelected ? selectedCellRef : null}
+                                                onClick={(e) => handleIntervalClick(dateRealIdx, intervalIdx,e)}
                                                 style={{
-                                                    height: `${intervalHeight*1.405}px`,  
-                                                    backgroundColor: !authStatus.authenticated ?  "gray" : (isSelected ? `rgba(23, 51, 255, 1.0)` : `rgba(0, 128, 0, ${opacity})`),
+                                                    flexGrow: intervalHeight,
+                                                    backgroundColor: !authStatus.authenticated ?  'gray' : (isSelected ? `rgba(23, 51, 255, 1.0)` : `rgba(0, 128, 0, ${opacity})`),
                                                     borderTop: `${intervalIdx === 0 ? '2px' : '0'} solid black`,
                                                     borderBottom: `${intervalIdx === intervalMap.get(date).length-1 ? '2px' : '1.2px'} solid black`,
                                                 }}
@@ -319,16 +366,22 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
                 </div>
             </div>
             {selectedDateIdx!==-1 && (
-            <div className= {`${CSS.availabilityWrapper} ${CSS.usersWrapper}`}>
-                <div className={CSS.usersHeading}>Available</div> 
-                <div className={CSS.timeInterval}>
-                    {TimeUtil.minutesToAMPM(intervalMap.get(formattedDates[selectedDateIdx])[selectedIntervalIdx][0])} - {TimeUtil.minutesToAMPM(intervalMap.get(formattedDates[selectedDateIdx])[selectedIntervalIdx][1])}, {DateUtil.toMonthNameD(formattedDates[selectedDateIdx])}:
+                <div className= {`${CSS.availabilityWrapper} ${CSS.usersWrapper}`}>
+                    <div className={CSS.usersHeading}>Available</div> 
+                    <div className={CSS.timeInterval}>
+                        {TimeUtil.minutesToAMPM(intervalMap.get(formattedDates[selectedDateIdx])[selectedIntervalIdx][0])} - {TimeUtil.minutesToAMPM(intervalMap.get(formattedDates[selectedDateIdx])[selectedIntervalIdx][1])}, {DateUtil.toMonthNameD(formattedDates[selectedDateIdx])}:
+                    </div>
+                    {intervalMap.get(formattedDates[selectedDateIdx])[selectedIntervalIdx][2].map(user => (
+                        <p key={user} className={CSS.userName}>{user}</p>
+                    ))}
                 </div>
-                {intervalMap.get(formattedDates[selectedDateIdx])[selectedIntervalIdx][2].map(user => (
-                    <p key={user} className={CSS.userName}>{user}</p>
-                ))}
-            </div>
+
             )}
+
+            {tooltipInfo && (
+                <GridTooltip pos={tooltipInfo.pos} content={tooltipInfo.content} closeTooltip={()=>setTooltipInfo(null)}/>
+            )}
+
         </div>
     );
 };
