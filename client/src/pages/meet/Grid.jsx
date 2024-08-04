@@ -9,6 +9,7 @@ import useCenterWithOffset from "../../hooks/useCenterWithOffset";
 import { AuthContext } from "../../contexts/AuthContext";
 const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
     const [calendars, setCalendars] = useState(new Map());
+    const [users, setUsers] = useState([]);
     const {authStatus, setAuthStatus} = useContext(AuthContext);
     const hourlyLabelsRef = useRef();
     const mainWrapperRef = useRef();
@@ -52,7 +53,9 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
     console.log(maxViewDays);
+
     const hourlyLabels = useMemo(() => {
         const intervals = [];
         let start = parseInt(earliestTime.slice(0, 2));
@@ -208,7 +211,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
                 timeInterval: timeInterval,
                 date: DateUtil.toMonthNameD(date),
                 availUsers:availUsers,
-                allUsers: Array.from(calendars.keys()),
+                allUsers: users,
             }
         });
     }
@@ -255,6 +258,21 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
 
         setTooltipInfo(null);
     }
+
+    useEffect(() => {
+        const getUsers = async () => {
+            if(!authStatus)
+                setUsers([]);
+            try {
+                const people = await calendarService.getPeople(id);
+                setUsers(people);
+            } catch (err){
+                console.log(err);
+            }
+        }
+        getUsers();
+    }, [id, authStatus])
+    console.log('users', users);
 
     useEffect(() => {
         const getCalendars = async () => {
@@ -329,7 +347,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
         <div className={CSS.gridContainer}>
             <div className={`${CSS.allUsersWrapper} ${CSS.usersWrapper}`}>
                 <div className={CSS.usersHeading}>People</div> 
-                {Array.from(calendars.keys()).map(user => (
+                {users.map(user => (
                     <p key={user} className={CSS.userName}>{user}</p>
                 ))}
             </div>

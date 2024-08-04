@@ -315,6 +315,23 @@ app.get('/api/getAvail', isAuthenticated, async (req, res) => {
   }
 });
 
+//API route to get people in meeting
+app.get('/api/people', isAuthenticated, async (req, res) => {
+  const {meetingId} = req.query;
+  
+  try {
+    const meeting = await Meeting.findOne({id: meetingId});
+
+    if(!meeting){
+      return res.status(404).json({message: 'Meeting not found'});
+    }
+    const people = meeting.people;
+    res.json({people});
+  } catch (error) {
+    res.status(500).json({message: 'Interval server error', error: error});
+  }
+});
+
 // API Route to log out of session
 app.get('/api/logout', isAuthenticated, async (req, res) => {
   req.session.destroy(err => {
