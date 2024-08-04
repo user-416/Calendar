@@ -41,7 +41,10 @@ const TimezoneSelector = ({timezone:selectedTimezone, setTimezone:setSelectedTim
             <div className={CSS.dropdown} ref={dropdownRef}>
                 <div className={`${CSS.dropdownToggle} ${isOpen ? CSS.open : ''}`} onClick={toggleDropdown}>
                     <span className={CSS.toggleText}>{Object.keys(timezoneMap).find(tz => timezoneMap[tz] === selectedTimezone)}</span>
-                    <span className={` ${CSS.dropdownArrow} ${isOpen ? CSS.open : ''}`}>{'<'}</span>
+                    <svg className={` ${CSS.dropdownArrow} ${isOpen ? CSS.open : ''}`} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+
                 </div>
                 {isOpen && (
                     <div className={CSS.dropdownContent}>

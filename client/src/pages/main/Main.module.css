@@ -2,8 +2,17 @@
     --main-box-shadow: 2px 2px 3px rgba(0,0,0,0.25);
     --dark-blue: #173386;
     --button-gray: #f4f4f4;
+    --time-input-height: 40px;
+    --time-input-font-size: 22px;
 }
-.mainContainer {
+
+.mainContainer{
+    height: max(80vh, 600px);
+    display: flex;
+    align-items: center;
+}
+
+.contentContainer {
     display: flex;
     justify-content: space-evenly;
     width: 100%;
@@ -11,6 +20,7 @@
     margin: auto;
     margin-top: 140px;
     margin-bottom: 140px;
+    height: 465px;
 }
 
 
@@ -24,8 +34,8 @@
     justify-content: flex-start;
     height: 300px; 
     text-align: center; 
-    width: 50%;
-    min-width: 550px;
+    width: auto;
+    min-width: 500px;
     max-width: 900px;
 }
 
@@ -51,18 +61,17 @@
     align-items: center;
     justify-content: center; 
     width: 100%; 
-    flex-wrap: wrap;
+    flex-wrap: none;
     transform: translateX(calc(var(--timezone-dropdown-width)/2));
 }
 
 .timeField {
     width: max(5vw, 83px);
     max-width: 100px;
-    height: 40px;
+    height: var(--time-input-height);
     border: none;
-    font-size: 22px;
-    margin-right: min(.9vw, 20px);
-    min-width: 45px;
+    font-size: var(--time-input-font-size);
+    margin-right: max(9px, min(.9vw, 20px));
     text-align: center;
     font-family: inherit;
     padding: 0;
@@ -84,10 +93,10 @@
 
 
 .toggleButton {
-    height: 40px;
+    height: var(--time-input-height);
     width: max(3vw, 45px); 
     max-width: 70px;
-    font-size: 22px;
+    font-size: var(--time-input-font-size);
     font-family: inherit;
     margin: 0;
     padding: 0;
@@ -111,12 +120,9 @@
     transform: scale(1.05);
 }
 
-.timezoneWrapper{
+.timezoneContainer{
     margin-left: 20px;
-    width: 100px;
-
 }
-
 
 .connectButton {
     background-color: var(--dark-blue) ; 
@@ -142,75 +148,75 @@
 @media only screen and (max-width: 1400px) {
     .formContainer{
         margin-right: 2.5vw;
-        width: 45%;
     }
 }
 
 @media only screen and (max-width: 1200px) {
+    .mainContainer{
+        height: auto;
+    }
 
-    .mainContainer {
+    .contentContainer {
         margin-top: 100px;
         flex-direction: column;
         align-items: center;
+        height: 800px;
     }
 
     .formContainer{
         margin-top: 80px;
+        margin-right: 2.5vw;
+        width: 400px;
     }
 
     .timeInputs{
         width: 90%; 
         transform: none;
+        flex-wrap: wrap;
     }
 
-    .timezoneWrapper{
-        margin-top: 40px;
+    .timezoneContainer{
+        margin-left: 0;
+        margin-top: 30px;
     }
 
 }
 
 
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 550px) {
+    :root{
+        --time-input-height: max(30px, min(7vw, 40px));
+        --time-input-font-size: max(17px, min(5vw, 22px));
+    }
+    .formContainer, .inputs{
+        width: 88vw;
+        min-width: 70vw;
+    }
+    .eventInput {
+        font-size: 16px;
+    }
+    
+    .timeField {
+        width: 15vw;
+    }
+    .toggleButton{
+        width: 8vw;
+    }
+    .timeField, .toggleButton{
+        font-size: min(5vw, 22px);
+    }
 
-    .event-input {
-        width: 50%; 
-        font-size: 16px;
-        margin-bottom: 35px; 
-    }
-    
-    .time-inputs {
-        width: 75%; 
-    }
-    
-    .time-field {
-        padding: 8px 5px;
-        width: 20%; 
-        font-size: 16px;
-        margin-right: 1%;
-        min-width: 30px;
-    }
     .dash{
         margin: 0 3%;
         width: 10px; 
     }
-    .toggle-button {
-        padding: 8.5px 5px;
-        font-size: 15px;
-        margin: 0 1px;
-        width: 16%; 
-    }
     
-    .toggle-button.active {
-        padding: 8.5px 5px;
-        font-size: 15px;
-    }
-    
-    .connect-button {
-        padding: 15px 30px; 
-        border-radius: 30px; 
+    .connectButton {
+        padding: 10px 20px; 
+        border-radius: 25px; 
         font-size: 20px; 
         margin-top: 40px;
-        width: 250px; 
+        width: 50vw; 
     }
 
 }

@@ -23,6 +23,11 @@ const getAvailability = async (meetingId) => {
     return response.data;
 }
 
+const getPeople = async (meetingId) => {
+    const response = await axios.get(baseUrl + `api/people?meetingId=${meetingId}`, {withCredentials: true});
+    return response.data;
+}
+
 const createEvent = async (eventDetails) => {
     const response = await axios.post(baseUrl + 'api/create', eventDetails);
     return response.data;
@@ -34,4 +39,4 @@ const toggleCalendar = async (calendarDetails) => {
 }
 
 
-export default {getCalendar, getAllCalendars, getSelectedCalendars, getAvailability, createEvent, toggleCalendar}
+export default {getCalendar, getAllCalendars, getSelectedCalendars, getAvailability, getPeople, createEvent, toggleCalendar}

@@ -340,6 +340,22 @@ app.get('/api/logout', isAuthenticated, async (req, res) => {
   });
 });
 
+app.get('/api/people', isAuthenticated, async (req, res) => {
+  const {meetingId} = req.query;
+
+  try {
+    const meeting = await Meeting.findOne({id: meetingId});
+
+    if(!meeting){
+      return res.status(404).json({message: 'Meeting not found'});
+    }
+    const people = meeting.people;
+    res.json({people});
+  } catch (error) {
+    res.status(500).json({message: 'Interval server error', error: error});
+  }
+});
+
 // Handle all other routes by serving the index.html file
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
