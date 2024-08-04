@@ -264,8 +264,8 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
             if(!authStatus)
                 setUsers([]);
             try {
-                const people = await calendarService.getPeople(id);
-                setUsers(people);
+                const data = await calendarService.getPeople(id);
+                setUsers(data.people);
             } catch (err){
                 console.log(err);
             }

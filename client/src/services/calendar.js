@@ -25,7 +25,7 @@ const getAvailability = async (meetingId) => {
 
 const getPeople = async (meetingId) => {
     const response = await axios.get(baseUrl + `api/people?meetingId=${meetingId}`, {withCredentials: true});
-    return response.data.people;
+    return response.data;
 }
 
 const createEvent = async (eventDetails) => {
