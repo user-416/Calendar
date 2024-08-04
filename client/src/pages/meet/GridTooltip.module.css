@@ -49,14 +49,13 @@
     padding-left: 5px;
 }
 
-.available{
-
+span{
+    font-size: calc(var(--text-size) + 2px);
 }
 
 
 ul{
     margin-top: 3px;
-    
     list-style-type: none;
     padding: 0;
 }

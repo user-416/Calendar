@@ -1,5 +1,5 @@
 :root{
-    --grid-width: 40vw;
+    --cell-width: 5.7vw;
 }
 
 .gridContainer{
@@ -12,10 +12,12 @@
 
 /*arrow buttons*/
 .navigationArrows {
+    margin: auto;
     display: flex;
     align-items: center;
     justify-content: space-evenly;
     height: 80px;
+    background-color: red;
 }
 
 .navigationArrows button {
@@ -38,7 +40,6 @@
     display: flex;
 }
 .gridAndDatesWrapper{
-    width: var(--grid-width);
     display: flex;
     flex-direction: column;
 }
@@ -50,7 +51,6 @@
     top: 42px;
     right: 20px;
     overflow-x: visible;
-    background-color: red;
     white-space: nowrap;
 }
 
@@ -66,14 +66,14 @@
     flex-direction: row;
     border-left: 2px solid black;
     cursor: pointer;
-    width: var(--grid-width);
     /*width: calc(var(--cell-width)*7) !important; */
 }
 
 .gridCol{
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
+    width: var(--cell-width);
+    
 }
 
 .dateLabels {
@@ -128,7 +128,7 @@
 
 @media only screen and (max-width: 1400px){
     :root{
-        --grid-width: 800px;
+        --grid-cell-width: 50px;
     }
     .availabilityWrapper, .allUsersWrapper{
         display: none;
@@ -137,7 +137,7 @@
 
 @media only screen and (max-width: 1200px){
     :root{
-        --grid-width: 60vw;
+        --cell-width: 10vw
     }
 
 }
@@ -145,6 +145,10 @@
 @media only screen and (max-width: 800px){
     .dateLabel{
         font-size: 2vw;
+    }
+
+    .hourlyLabel{
+        font-size: 2.5vw;
     }
 
 }

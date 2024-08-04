@@ -33,7 +33,26 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
     let startLaterThanEnd = false;
     
     const [tooltipInfo, setTooltipInfo] = useState(null);
+    const [maxViewDays, setMaxViewDays] = useState(window.innerWidth>1200 ? 7 : 5);
+    const [dateStartIdx, setDateStartIdx] = useState(0);
+    const [dateEndIdx, setDateEndIdx] = useState(Math.min(maxViewDays-1, formattedDates.length-1));
+    useEffect(() => {
+        const handleResize = () => {
+            if(window.innerWidth>1200){
+                setMaxViewDays(7);
+                setDateStartIdx(0);
+                setDateEndIdx(6);
+            }else{
+                setMaxViewDays(5);
+                setDateStartIdx(0);
+                setDateEndIdx(4);
+            }
+        }
 
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    console.log(maxViewDays);
     const hourlyLabels = useMemo(() => {
         const intervals = [];
         let start = parseInt(earliestTime.slice(0, 2));
@@ -175,7 +194,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
 
     //console.log('selected', selectedIntervalIdx, selectedDateIdx);
 
-    const fillTooltipInfo = (dateIdx, intervalIdx, event) => {
+    const fillTooltipInfo = (dateIdx, intervalIdx, event=null) => {
         const rect = event.target.getBoundingClientRect();
         const date = formattedDates[dateIdx];
         const [timeStart, timeEnd, availUsers] = intervalMap.get(date)[intervalIdx];
@@ -195,7 +214,8 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
     }
 
     const updateTooltipPosition = () => {
-        console.log(selectedCellRef);
+        if(!tooltipInfo)
+            return;
         if (selectedCellRef.current) {
             const rect = selectedCellRef.current.getBoundingClientRect();
             setTooltipInfo({
@@ -222,17 +242,18 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
         fillTooltipInfo(dateIdx, intervalIdx, event);
     }
 
-    const [dateStartIdx, setDateStartIdx] = useState(0);
-    const [dateEndIdx, setDateEndIdx] = useState(Math.min(6, formattedDates.length-1));
+    const forwardDays = () => {
+        setDateStartIdx(dateStartIdx + maxViewDays);
+        setDateEndIdx(Math.min(formattedDates.length - 1, dateEndIdx + maxViewDays));
 
-    const forward7Days = () => {
-        setDateStartIdx(dateStartIdx+7);
-        setDateEndIdx(Math.min(formattedDates.length-1, dateEndIdx+7))
+        setTooltipInfo(null);
     }
 
-    const back7Days = () => {
+    const backDays = () => {
         setDateEndIdx(dateStartIdx-1);
-        setDateStartIdx(Math.max(0, dateStartIdx-7));
+        setDateStartIdx(Math.max(0, dateStartIdx - maxViewDays));
+
+        setTooltipInfo(null);
     }
 
     useEffect(() => {
@@ -302,7 +323,8 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
         //console.log(calendars, formattedCalendars);
         setCalendars(formattedCalendars);
     }
-    
+    //console.log(authStatus);
+    //console.log(selectedDateIdx, selectedIntervalIdx);
     return (
         <div className={CSS.gridContainer}>
             <div className={`${CSS.allUsersWrapper} ${CSS.usersWrapper}`}>
@@ -312,10 +334,10 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
                 ))}
             </div>
             <div className={CSS.gridVertical}>
-                <div className={CSS.navigationArrows}>
-                    <button onClick={back7Days} disabled={dateStartIdx === 0}>&lt;</button>
+                <div className={CSS.navigationArrows} style={{width: `calc(var(--cell-width) * ${maxViewDays})`}}>
+                    <button onClick={backDays} disabled={dateStartIdx === 0}>&lt;</button>
                     <div className={CSS.eventName}>{name}</div>
-                    <button onClick={forward7Days} disabled={dateEndIdx == meeting.dates.length - 1}>&gt;</button>
+                    <button onClick={forwardDays} disabled={dateEndIdx === meeting.dates.length - 1}>&gt;</button>
                 </div>
                 <div ref={mainWrapperRef} className={CSS.mainWrapper}>
                     <div ref={hourlyLabelsRef} className={CSS.hourlyLabels} style={{marginTop: ((60 - parseInt(earliestTime.substring(3)))%60)*1.405}}>
@@ -342,7 +364,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
                                             endMin += 24*60;
                                         const intervalHeight = endMin - startMin;
                                         const dateRealIdx = dateStartIdx+dateIdx;
-                                        const isSelected = dateRealIdx==selectedDateIdx && intervalIdx==selectedIntervalIdx;
+                                        const isSelected = dateRealIdx===selectedDateIdx && intervalIdx===selectedIntervalIdx;
                                         return (
                                             <div
                                                 key={`${date}-${startMin}-${endMin}`}
@@ -379,7 +401,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
             )}
 
             {tooltipInfo && (
-                <GridTooltip pos={tooltipInfo.pos} content={tooltipInfo.content} closeTooltip={()=>setTooltipInfo(null)}/>
+                <GridTooltip tooltipInfo={tooltipInfo} setTooltipInfo={setTooltipInfo}/>
             )}
 
         </div>
