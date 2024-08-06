@@ -53,6 +53,9 @@
     height: 100%;
 }
 
+.react-calendar__navigation__label, .react-calendar__navigation__arrow{
+    color: black; /*fix iOS blue font?*/
+}
 
 .react-calendar__navigation__label {
     pointer-events: none;
