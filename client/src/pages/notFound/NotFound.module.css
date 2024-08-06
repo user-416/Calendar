@@ -1,0 +1,105 @@
+.notFoundContainer{
+    height: 75vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.statusCode{
+    margin-top: 40px;
+    font-size: 100px;
+}
+svg{
+    margin: 0 1px 0 4px;
+    width: 75px;
+    height: 75px;
+    font-weight: bold;
+}
+
+.pageNotFound{
+    margin-top: 10px;
+    font-size: 30px;
+}
+
+.line{
+    margin-top: 40px;
+    width: 400px;
+    height: 1.7px;
+    background-color: rgb(30, 30, 30);
+    opacity: .5;
+}
+
+.message{
+    margin-top: 25px;
+    font-size: 20px;
+}
+
+.homeLink{
+    margin-top: 30px;
+    font-size: 23px;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    background-color: var(--dark-blue);
+    box-shadow: 2px 2px 1px rgba(0,0,0,.1);
+}
+
+.homeLink:hover{
+    transform: scale(1.05);
+}
+
+@media only screen and (max-width: 600px){
+    .statusCode{
+        font-size: 80px;
+    }
+
+    svg{
+        width: 60px;
+        height: 60px;
+    }
+
+    .pageNotFound{
+        font-size: 23px;
+    }
+
+    .line{
+        width: 70vw;
+    }
+
+    .message{
+        font-size: 3.5vw;
+    }
+
+    .homeLink{
+        font-size: 18px;
+    }
+}
+
+@media only screen and (max-width: 400px){
+    .statusCode{
+        margin-top: 70px;
+        font-size: 60px;
+    }
+
+    svg{
+        width: 45px;
+        height: 45px;
+    }
+
+    .pageNotFound{
+        font-size: 19px;
+    }
+
+    .line{
+        width: 75vw;
+        margin-top: 25px;
+    }
+
+    .message{
+        font-size: 3.8vw;
+    }
+
+    .homeLink{
+        font-size: 15px;
+    }
+}
