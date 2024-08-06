@@ -8,6 +8,7 @@ import CSS from './Meet.module.css';
 import TimezoneSelector from '../../components/TimezoneSelector';
 import useCenterWithOffset from '../../hooks/useCenterWithOffset';
 import { AuthContext } from '../../contexts/AuthContext';
+import NotFound from '../notFound/NotFound';
 
 const Meet = () => {
     const {id} = useParams();
@@ -148,7 +149,7 @@ const Meet = () => {
             } catch (err) {
                 setLoading(false);
                 setError('Meeting not found');
-                navigate('/404'); // Replace with 404
+                //navigate('/404'); // Replace with 404
             }
         };
 
@@ -165,9 +166,7 @@ const Meet = () => {
 
     if (error) {
         return (
-            <div className={CSS.errorMessageContainer}>
-                <div className={CSS.errorMessage}>{error}</div>
-            </div>
+            <NotFound />
         );
 
     }
