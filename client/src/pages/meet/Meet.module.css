@@ -11,6 +11,12 @@
     padding: 8px;
 }
 
+.linkContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    height: 70px;
+}
 .linkBox{    
     position: relative;
     width: 450px;
@@ -44,15 +50,20 @@
 }
 
 .copyMessage {
-    display: none; /* Hidden by default */
+    display: none;
+    position: relative;
+    left: 20px;
     color: black;
     margin-top: 10px;
     font-size: 17px;
-    position: absolute;
-    top: 70px;
+    white-space: nowrap;
+    width: auto;
 }
 
 /*login button*/
+.loginButton, .authContainer{
+    margin-top: 20px;
+}
 .loginButton{
     margin-top: 40px;
     padding: 8px 60px; 
@@ -87,13 +98,18 @@
 }
 
 .authContainer{
-    margin-top: 40px;
     display: flex;
     align-items: center;
+    position: relative;
 }
 
-.refreshButton{
+.refreshContainer{
     margin-left: 4px;
+    background-color: red;
+    display: flex;
+    flex-direction: column;
+}
+.refreshButton{
     background-color: white;
     fill: rgb(94, 94, 94);
     border: none;
@@ -105,6 +121,15 @@
 
 .refreshButton:hover{
     transform: scale(1.05);
+}
+
+.refreshMessage{
+    display: none;
+    white-space: nowrap;
+    width: auto;
+    position: absolute;
+    top: 63px;
+    right: -75px;
 }
 
 

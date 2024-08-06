@@ -46,6 +46,7 @@ const Meet = () => {
         });
     };
 
+
     const toggleCalendar = async (calendar) => {
         try {
             const calendarDetails = {
@@ -68,6 +69,8 @@ const Meet = () => {
     };
 
     const refreshCalendars = async () => {
+        displayRefreshMessage();
+
         // Toggle selected calendars twice to refresh events
         for (const calendarId of selectedCalendars) {
             await calendarService.toggleCalendar({
@@ -86,6 +89,15 @@ const Meet = () => {
 
         setRefreshTrigger(prev => !prev);
     };
+
+    const displayRefreshMessage = () => {
+        const refreshMessage = document.querySelector(`.${CSS.refreshMessage}`);
+        console.log('re',refreshMessage);
+        refreshMessage.style.display = 'block';
+        setTimeout(() => {
+            refreshMessage.style.display = "none";
+        }, 3000);
+    }
 
     useEffect(() => {
         authService.getAuth()
@@ -153,7 +165,7 @@ const Meet = () => {
 
     if (error) {
         return (
-            <div className={CSS.errorMessageContainer}>{error}
+            <div className={CSS.errorMessageContainer}>
                 <div className={CSS.errorMessage}>{error}</div>
             </div>
         );
@@ -163,22 +175,27 @@ const Meet = () => {
     return (
         <div className={CSS.meetContainer}>
             <div className={CSS.topContainer}>
-                <div className={CSS.linkBox}>
-                    <div className={CSS.linkText}>{window.location.href}</div> 
-                    <button className={CSS.copyButton} onClick={copyLink}>
-                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8c-1.1 0-1.99.9-1.99 2L6 21c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                            </svg>
-                    </button>
+                <div className={CSS.linkContainer}>
+                    <div className={CSS.linkBox}>
+                        <div className={CSS.linkText}>{window.location.href}</div> 
+                        <button className={CSS.copyButton} onClick={copyLink}>
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8c-1.1 0-1.99.9-1.99 2L6 21c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                </svg>
+                        </button>
+                    </div>
+                    <div className={CSS.copyMessage}>Link copied!</div>
                 </div>
-                <div className={CSS.copyMessage}>Link copied!</div>
                 <div>
                     {authStatus.authenticated ? (
                         <div className={CSS.authContainer} ref={authContainerRef}>
                             <Dropdown calendars={calendars} selectedCalendars={selectedCalendars} toggleCalendar={toggleCalendar}/>
-                            <button className={CSS.refreshButton} ref={refreshButtonRef} onClick={refreshCalendars}>
-                                <img className={CSS.refreshButton} src='/refresh.svg' alt='refresh'></img>
-                            </button>
+                            <div className={CSS.refreshContainer}>
+                                <button className={CSS.refreshButton} ref={refreshButtonRef} onClick={refreshCalendars}>
+                                    <img className={CSS.refreshButton} src='/refresh.svg' alt='refresh'></img>
+                                </button>
+                                <div className={CSS.refreshMessage}>Calendars refreshed!</div>
+                            </div>
                         </div>
                     ) : (
                         <button className={CSS.loginButton} type="button" onClick={getAuthUrl}>

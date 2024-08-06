@@ -56,7 +56,7 @@
 }
 
 .privacy, .copyright{
-    font-size: max(min(18px, 2.5vw), 15px);
+    font-size: max(min(18px, 2.3vw), 15px);
     text-decoration: none;
 }
 
@@ -68,6 +68,8 @@
     .footerContainer {
         --content-width: 80%; 
     }
+
+
 }
 
 

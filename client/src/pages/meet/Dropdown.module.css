@@ -68,13 +68,19 @@
     transform: translateY(0);
 }
 
+.dropdownItem span{
+    font-size: 22px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 .dropdownItem{
     display: flex;
     align-items: center;
     background-color: white;
     cursor: pointer;
     text-align: left;
-    font-size: 23px;
     padding: 10px 0 10px 17px;
     color: black;
     user-select: none;
