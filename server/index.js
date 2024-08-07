@@ -214,9 +214,22 @@ app.post('/api/toggleCalendar', isAuthenticated, setupOAuth2Client, async (req, 
       const start = meeting.dates[0];
       start.setUTCHours(meeting.startTime.substring(0,2));
       start.setUTCMinutes(meeting.startTime.substring(3));
-      const end = meeting.dates[meeting.dates.length-1];
+      const end = new Date(meeting.dates[meeting.dates.length-1]);
       end.setUTCHours(meeting.endTime.substring(0,2));
       end.setUTCMinutes(meeting.endTime.substring(3));
+
+      //check if start and end span two days
+      const endComparison = new Date(start);
+      endComparison.setUTCHours(meeting.endTime.substring(0,2));
+      endComparison.setUTCMinutes(meeting.endTime.substring(3));
+      console.log(endComparison);
+      if(start > endComparison){
+        console.log('end on next day');
+        end.setDate(end.getDate()+1);
+      }
+      console.log(start);
+      console.log(end);
+
       // Add calendar + events
       const calendar = google.calendar({ version: 'v3', auth: req.oauth2Client });
       const calendarResponse = await calendar.events.list({ calendarId: calendarId, 

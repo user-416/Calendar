@@ -10,6 +10,7 @@
     z-index: 1000;
     box-shadow: 3px 3px 2px rgb(0,0,0,.05);
     position: relative;
+    cursor: auto;
     
 }
 .navbarTitle {
@@ -18,6 +19,7 @@
     font-weight: bold;
     color: #173386;
     text-decoration: none;
+
 }
 
 .links{
@@ -27,8 +29,8 @@
     font-size: 27px;
     font-family: "Glacial Indifference";
     letter-spacing: 1px;
+    color: rgb(89, 89, 89);
     cursor: pointer;
-    color: rgb(58, 58, 58);
 }
 
 .menuButton{

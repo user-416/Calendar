@@ -390,7 +390,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
                                                 ref={isSelected ? selectedCellRef : null}
                                                 onClick={(e) => handleIntervalClick(dateRealIdx, intervalIdx,e)}
                                                 style={{
-                                                    flexGrow: intervalHeight,
+                                                    height: intervalHeight*1.405,
                                                     backgroundColor: !authStatus.authenticated ?  'gray' : (isSelected ? `rgba(23, 51, 255, 1.0)` : `rgba(0, 128, 0, ${opacity})`),
                                                     borderTop: `${intervalIdx === 0 ? '2px' : '0'} solid black`,
                                                     borderBottom: `${intervalIdx === intervalMap.get(date).length-1 ? '2px' : '1.2px'} solid black`,
