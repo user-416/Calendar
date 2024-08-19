@@ -261,7 +261,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
 
     useEffect(() => {
         const getUsers = async () => {
-            if(!authStatus)
+            if(!authStatus.authenticated)
                 setUsers([]);
             try {
                 const data = await calendarService.getPeople(id);
@@ -372,7 +372,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
                                     </div>
                                 ))}
                         </div>
-                        <div className={CSS.grid}>
+                        <div className={CSS.grid} style={{width: `calc(var(--cell-width)*${maxViewDays})`}}>
                             {formattedDates.slice(dateStartIdx, dateEndIdx + 1).map((date, dateIdx) => (
                                 <div key={date} className={CSS.gridCol}>
                                     {intervalMap.get(date).map(([startMin, endMin, availUsers], intervalIdx) => {
@@ -390,7 +390,7 @@ const Grid = ({ id, meeting, selectedCalendars, timezone, refreshTrigger}) => {
                                                 ref={isSelected ? selectedCellRef : null}
                                                 onClick={(e) => handleIntervalClick(dateRealIdx, intervalIdx,e)}
                                                 style={{
-                                                    flexGrow: intervalHeight,
+                                                    height: intervalHeight*1.405,
                                                     backgroundColor: !authStatus.authenticated ?  'gray' : (isSelected ? `rgba(23, 51, 255, 1.0)` : `rgba(0, 128, 0, ${opacity})`),
                                                     borderTop: `${intervalIdx === 0 ? '2px' : '0'} solid black`,
                                                     borderBottom: `${intervalIdx === intervalMap.get(date).length-1 ? '2px' : '1.2px'} solid black`,

@@ -17,7 +17,6 @@
     align-items: center;
     justify-content: space-evenly;
     height: 80px;
-    background-color: red;
 }
 
 .navigationArrows button {
@@ -26,6 +25,10 @@
     font-size: 50px; 
     background: none;
     border: none;
+    color: black; /*fix iOS blue font?*/
+}
+.navigationArrows button:disabled{
+    opacity: .3;
 }
 .navigationArrows .eventName{
     font-size: 40px;
@@ -61,12 +64,10 @@
 }
 
 .grid {
-    height: 680px;
     display: flex;
     flex-direction: row;
     border-left: 2px solid black;
     cursor: pointer;
-    /*width: calc(var(--cell-width)*7) !important; */
 }
 
 .gridCol{
@@ -87,7 +88,7 @@
 .dateLabel {
     text-align: center;
     font-size: 20px;
-    flex-grow: 1;
+    width: var(--cell-width);
 }
 
 
