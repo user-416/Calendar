@@ -42,6 +42,8 @@ const Main = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        
         if(!validateTimeInput(startTime, startFieldRef.current)){
             startFieldRef.current.reportValidity();
             return;
@@ -49,6 +51,13 @@ const Main = () => {
         if(!validateTimeInput(endTime, endFieldRef.current)){
             endFieldRef.current.reportValidity();
             return;
+        }
+
+        if(selectedDates.size === 0){
+            const dateSelector = document.querySelector('#dummy-input');
+            dateSelector.setCustomValidity('Please select at least one date.');
+            dateSelector.reportValidity();
+            return; 
         }
         const startHHMM = TimeUtil.toMilitaryTime(startTime, isAMStart)
         const endHHMM = TimeUtil.toMilitaryTime(endTime, isAMEnd);
@@ -102,7 +111,7 @@ const Main = () => {
     return (
         <div className={CSS.mainContainer}>
             <div className={CSS.contentContainer}>
-                <DateSelector 
+                <DateSelector
                     selectedDates={selectedDates} 
                     setSelectedDates={setSelectedDates}
                 />

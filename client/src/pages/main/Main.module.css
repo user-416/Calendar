@@ -145,6 +145,11 @@
 
 
 
+.hiddenInput:invalid{
+    box-shadow: none;
+}
+
+
 @media only screen and (max-width: 1400px) {
     .formContainer{
         margin-right: 2.5vw;
