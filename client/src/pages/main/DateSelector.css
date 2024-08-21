@@ -5,6 +5,10 @@
     --calendar-base-height: 345px;
 }
 
+.dateSelector-container{
+    position: relative;
+}
+
 .react-calendar {
     border: none;
     flex-grow: 1;
@@ -100,8 +104,12 @@
    color: rgba(224, 4, 4, 0.4) !important;
 }
 
-
-
+#dummy-input{
+    position: absolute;
+    top: 0px;
+    left: 45%;
+    visibility: hidden;
+}
 
 
 

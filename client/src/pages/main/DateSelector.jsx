@@ -19,6 +19,9 @@ const DateSelector = ({selectedDates, setSelectedDates}) => {
 
     const monthMatrix = useMemo(() => DateUtil.getMonthMatrix(activeDate), [activeDate]);
     const firstCoord = useRef(null);
+
+    const calendarRef = useRef(null); 
+    const inputRef = useRef(null);
     useEffect(() => {
         // Stop dragging when mouse is clicked outside calendar
         const stopDragging = () => {
@@ -33,6 +36,14 @@ const DateSelector = ({selectedDates, setSelectedDates}) => {
         };
     }, [isDragging.current]);
 
+    useEffect(() => {
+        if (calendarRef.current && inputRef.current) {
+            const {height} = calendarRef.current.getBoundingClientRect();
+            console.log('height', height);
+            inputRef.current.style.height = `${height}px`;
+        }
+    }, [activeDate]);
+    
     useEffect(() => {
         const firstCell = document.querySelector('.react-calendar__tile');
         const rect = firstCell.getBoundingClientRect();
@@ -161,21 +172,31 @@ const DateSelector = ({selectedDates, setSelectedDates}) => {
 
     
     return ( 
-        <Calendar 
-            onActiveStartDateChange={handleActiveStartDateChange}
-            tileClassName={tileClassName} 
-            className={`react-calendar ${'rows-' + monthMatrix.length}`}
-            tileContent={({ date }) => (
-                <div
-                    onMouseDown={(e) => handleDragStart(date,e)}
-                    onTouchStart={(e) => handleDragStart(date,e)}
-                    onMouseEnter={(e) => handleDragEnter(date, true, e)}
-                    onTouchMove={(e) => handleDragEnter(date, false, e)}
-                    onMouseUp={(e) => handleDragEnd(date,e)}
-                    onTouchEnd={(e) => handleDragEnd(date,e)}
+        <div className="dateSelector-container">
+            <div className='calendar-container' ref={calendarRef}>
+                <Calendar
+                    onActiveStartDateChange={handleActiveStartDateChange}
+                    tileClassName={tileClassName} 
+                    className={`react-calendar ${'rows-' + monthMatrix.length}`}
+                    tileContent={({ date }) => (
+                        <div
+                            onMouseDown={(e) => handleDragStart(date,e)}
+                            onTouchStart={(e) => handleDragStart(date,e)}
+                            onMouseEnter={(e) => handleDragEnter(date, true, e)}
+                            onTouchMove={(e) => handleDragEnter(date, false, e)}
+                            onMouseUp={(e) => handleDragEnd(date,e)}
+                            onTouchEnd={(e) => handleDragEnd(date,e)}
+                        />
+                    )}
                 />
-            )}
-        />
+            </div>
+            <input
+                ref={inputRef}
+                id='dummy-input'
+                type="text"
+                required // Make it required so custom validity can work
+            />
+        </div>
      );
 }
  
