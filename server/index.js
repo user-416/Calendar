@@ -30,7 +30,7 @@ app.use(session({
 
 const cors = require('cors');
 app.use(cors({
-  origin: "https://calendar-bslk.onrender.com",
+  origin: ["https://calendar-bslk.onrender.com","https://www.schedit.us/"],
   credentials: true
 }));
 
