@@ -176,7 +176,7 @@ const Meet = () => {
             <div className={CSS.topContainer}>
                 <div className={CSS.linkContainer}>
                     <div className={CSS.linkBox}>
-                        <div className={CSS.linkText}>{window.location.href}</div> 
+                        <div className={CSS.linkText}>{window.location.href.slice(12)}</div> 
                         <button className={CSS.copyButton} onClick={copyLink}>
                                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8c-1.1 0-1.99.9-1.99 2L6 21c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
