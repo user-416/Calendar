@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseUrl = "https://calendar-bslk.onrender.com/";
+const baseUrl = "https://www.schedit.us/";
 
 
 const login = async (meetingId) => {

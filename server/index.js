@@ -30,7 +30,7 @@ app.use(session({
 
 const cors = require('cors');
 app.use(cors({
-  origin: ["https://calendar-bslk.onrender.com","https://www.schedit.us/"],
+  origin: "https://www.schedit.us/",
   credentials: true
 }));
 
@@ -144,7 +144,7 @@ app.get('/redirect', async (req, res) => {
         if (err) {
           console.error('Error saving session:', err);
         }
-        res.redirect(`https://calendar-bslk.onrender.com/${id}`);
+        res.redirect(`https://www.schedit.us/${id}`);
       });
     });
   });
