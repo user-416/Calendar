@@ -14,7 +14,7 @@ const Navbar = () => {
 
     return (
         <div className={CSS.navbarContainer}>
-            <a href="/" className={CSS.navbarTitle}>CalConnect</a>
+            <a href="/" className={CSS.navbarTitle}>SchedIt</a>
             {authStatus.authenticated && (
                 <div>
                     <div className={CSS.menuButton} onClick={toggleSideBar}>

@@ -4,12 +4,12 @@ const Footer = () => {
         <div className={CSS.footerContainer}>
             <div className={CSS.content}>
                 <div className={CSS.nameContainer}>
-                    <div className={CSS.name}>CalConnect</div>
+                    <div className={CSS.name}>SchedIt</div>
                     
                 </div>
                 <div className={CSS.contactContainer}>
                     <div className={CSS.email}>
-                        calconnect@gmail.com
+                        info@schedit.us
                     </div>
                 </div>
             </div>

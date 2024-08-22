@@ -12,7 +12,7 @@ const Privacy = () => {
         <section>
             <h2>Introduction</h2>
             <p>
-                We are committed to protecting the privacy of CalConnect users. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application.
+                We are committed to protecting the privacy of SchedIt users. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application.
             </p>
         </section>
       
@@ -31,7 +31,7 @@ const Privacy = () => {
             </ul>
             </li>
             </ul>
-            <p>This information is only collected for events within the date range of the CalConnect meeting you've logged in to.</p>
+            <p>This information is only collected for events within the date range of the SchedIt meeting you've logged in to.</p>
         </section>
       
         <section>
@@ -75,7 +75,7 @@ const Privacy = () => {
             <p>If you have any questions about this Privacy Policy, please contact us at:
                 <br/>
                 <br/>
-                <u>calconnect@gmail.com</u>
+                <u>info@schedit.us</u>
             </p>
         </section>
     </div>
