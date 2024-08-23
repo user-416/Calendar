@@ -254,7 +254,6 @@ app.post('/api/toggleCalendar', isAuthenticated, setupOAuth2Client, async (req, 
       console.log('calData', calData);
 
       const allEvents = await Event.insertMany(calData.map(eventData => ({
-        eventName: eventData.summary || 'Untitled Event',
         start: eventData.start || {},
         end: eventData.end || {},
         calendarId: calendarId
